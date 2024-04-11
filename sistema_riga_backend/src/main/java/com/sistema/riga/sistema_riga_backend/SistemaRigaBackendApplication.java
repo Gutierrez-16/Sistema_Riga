@@ -11,6 +11,5 @@ public class SistemaRigaBackendApplication {
 		SpringApplication.run(SistemaRigaBackendApplication.class, args);
 
 		DistritoModel distritoModel = new DistritoModel();
-
 	}
 }
