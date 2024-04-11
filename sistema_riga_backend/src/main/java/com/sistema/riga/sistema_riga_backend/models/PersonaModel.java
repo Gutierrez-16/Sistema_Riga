@@ -6,16 +6,16 @@ import java.util.Date;
 
 @Data
 public class PersonaModel {
-    long idPersona;
-    String dni;
-    String nombrePersona;
-    String ApePaterno;
-    String ApeMaterno;
-    char genero;
-    Date fechaNac;
-    String correo;
-    String celular;
-    String direccion;
-    String estadoCivil;
-    long idDistrito;
+    private long idPersona;
+    private String dni;
+    private String nombrePersona;
+    private String ApePaterno;
+    private String ApeMaterno;
+    private char genero;
+    private Date fechaNac;
+    private String correo;
+    private String celular;
+    private String direccion;
+    private boolean estadoPersona;
+    private long idDistrito;
 }

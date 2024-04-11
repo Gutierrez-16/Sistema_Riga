@@ -9,7 +9,5 @@ public class SistemaRigaBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SistemaRigaBackendApplication.class, args);
-
-		DistritoModel distritoModel = new DistritoModel();
 	}
 }
