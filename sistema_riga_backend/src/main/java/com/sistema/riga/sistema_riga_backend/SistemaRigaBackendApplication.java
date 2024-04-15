@@ -1,7 +1,4 @@
 package com.sistema.riga.sistema_riga_backend;
-
-import com.sistema.riga.sistema_riga_backend.models.DistritoModel;
-import com.sistema.riga.sistema_riga_backend.models.UsuarioModel;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -10,9 +7,5 @@ public class SistemaRigaBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SistemaRigaBackendApplication.class, args);
-		UsuarioModel loginRequest = new UsuarioModel();
-		loginRequest.setUsername("ale");
-		loginRequest.setPassword("ale");
-
 	}
 }
