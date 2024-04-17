@@ -2,7 +2,6 @@ package com.sistema.riga.sistema_riga_backend.controllers;
 
 import com.sistema.riga.sistema_riga_backend.models.UsuarioModel;
 import com.sistema.riga.sistema_riga_backend.services.IUsuarioService;
-import com.sistema.riga.sistema_riga_backend.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,7 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody UsuarioModel usuarioModel) {
-        boolean isValidUser = iUsuarioService.isValidUser(usuarioModel.getUsername(), usuarioModel.getPassword());
+        boolean isValidUser = iUsuarioService.isValidUser(usuarioModel.getLogeo(), usuarioModel.getClave());
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 

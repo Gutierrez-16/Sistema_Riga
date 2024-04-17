@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class UsuarioModel {
-    private long idUsuario;
-    private String username;
-    private String password;
+    private long iDUsuario;
+    private String logeo;
+    private String clave;
+    private String estadoUsuario;
 }

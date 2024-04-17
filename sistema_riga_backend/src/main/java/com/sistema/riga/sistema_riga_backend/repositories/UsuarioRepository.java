@@ -10,9 +10,9 @@ public class UsuarioRepository implements IUsuarioRepository{
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public int validateUser(String username, String password) {
-        String sql = "EXEC SP_Login ?, ?";
-        int count = jdbcTemplate.queryForObject(sql, Integer.class, username, password);
+    public int validateUser(String logeo, String clave) {
+        String sql = "EXEC SP_LoginUsuario ?, ?";
+        int count = jdbcTemplate.queryForObject(sql, Integer.class, logeo, clave);
         return count;
     }
 }
