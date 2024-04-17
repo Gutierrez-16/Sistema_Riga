@@ -19,7 +19,7 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody UsuarioModel usuarioModel) {
-        boolean isValidUser = iUsuarioService.isValidUser(usuarioModel.getLogeo(), usuarioModel.getClave());
+        boolean isValidUser = iUsuarioService.isValidUser(usuarioModel.getUsername(), usuarioModel.getPassword());
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 
