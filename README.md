@@ -14,7 +14,7 @@ You can collaborate by making contributions to the project.
 1. clone or fork this repository
 
    ```sh
-   git clone https://github.com/GutierrezCode/Sistema_Riga.git
+   git clone https://github.com/Gutierrez-16/Sistema_Riga.git
    ```
 
 2. install dependencies
@@ -34,13 +34,13 @@ You can collaborate by making contributions to the project.
 
 ## Authors
 
-<a href="https://github.com/GutierrezCode">
+<a href="https://github.com/Gutierrez-16">
    <img width="50px" src="https://avatars.githubusercontent.com/u/153398359?v=4" />
 </a>
 
 **Thanks to all the contributors who have made this project possible!**
 
-[![Contributors](https://contrib.rocks/image?repo=GutierrezCode/Sistema_Riga)](https://github.com/GutierrezCode/Sistema_Riga/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=Gutierrez-16/Sistema_Riga)](https://github.com/Gutierrez-16/Sistema_Riga/graphs/contributors)
 
 ## 🛠️ Stack
 
@@ -56,11 +56,11 @@ You can collaborate by making contributions to the project.
 [react-badge]: https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=333
 [spring-boot-badge]: https://img.shields.io/badge/Spring%20Boot-Spring%20Green?style=for-the-badge&logo=Spring&logoColor=fff
 
-[contributors-shield]: https://img.shields.io/github/contributors/GutierrezCode/Sistema_Riga.svg?style=for-the-badge
-[contributors-url]: https://github.com/GutierrezCode/Sistema_Riga/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/GutierrezCode/Sistema_Riga.svg?style=for-the-badge
-[forks-url]: https://github.com/GutierrezCode/Sistema_Riga/network/members
-[stars-shield]: https://img.shields.io/github/stars/GutierrezCode/Sistema_Riga.svg?style=for-the-badge
-[stars-url]: https://github.com/GutierrezCode/Sistema_Riga/stargazers
-[issues-shield]: https://img.shields.io/github/issues/GutierrezCode/Sistema_Riga.svg?style=for-the-badge
-[issues-url]: https://github.com/GutierrezCode/Sistema_Riga/issues
+[contributors-shield]: https://img.shields.io/github/contributors/Gutierrez-16/Sistema_Riga.svg?style=for-the-badge
+[contributors-url]: https://github.com/Gutierrez-16/Sistema_Riga/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Gutierrez-16/Sistema_Riga.svg?style=for-the-badge
+[forks-url]: https://github.com/Gutierrez-16/Sistema_Riga/network/members
+[stars-shield]: https://img.shields.io/github/stars/Gutierrez-16/Sistema_Riga.svg?style=for-the-badge
+[stars-url]: https://github.com/Gutierrez-16/Sistema_Riga/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Gutierrez-16/Sistema_Riga.svg?style=for-the-badge
+[issues-url]: https://github.com/Gutierrez-16/Sistema_Riga/issues
