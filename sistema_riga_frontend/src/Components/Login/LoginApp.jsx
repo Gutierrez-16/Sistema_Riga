@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import './AppLogin.css';
 import { useNavigate } from 'react-router-dom';
+import { FaCircleUser } from "react-icons/fa6";
+
+
 
 function LoginApp() {
   const [username, setUsername] = useState('');
@@ -34,32 +37,38 @@ function LoginApp() {
   };
 
   return (
+    
     <div className="login-container">
+      <div className='title'>LOGIN</div>
+      <div className='login'>
+      <FaCircleUser size={80} color="black" className="iconimg"/>
       <h2>Iniciar Sesión</h2>
       <form className="login-form" onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Nombre de usuario:</label>
           <input
             type="text"
             id="username"
+            placeholder='Ingrese su usuario'
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
         <div>
-          <label htmlFor="password">Contraseña:</label>
           <input
             type="password"
             id="password"
+            placeholder='Ingrese su contraseña'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
         <button type="submit">Iniciar Sesión</button>
+        
       </form>
       {message && <p>{message}</p>} {/* Mostrar el mensaje del backend */}
+      </div>
     </div>
   );
 }
