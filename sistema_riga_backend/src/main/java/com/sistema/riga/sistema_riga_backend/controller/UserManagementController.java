@@ -1,8 +1,8 @@
-package com.phegondev.usersmanagementsystem.controller;
+package com.sistema.riga.sistema_riga_backend.controller;
 
-import com.phegondev.usersmanagementsystem.dto.ReqRes;
-import com.phegondev.usersmanagementsystem.entity.OurUsers;
-import com.phegondev.usersmanagementsystem.service.UsersManagementService;
+import com.sistema.riga.sistema_riga_backend.dto.ReqRes;
+import com.sistema.riga.sistema_riga_backend.entity.OurUsers;
+import com.sistema.riga.sistema_riga_backend.service.UsersManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

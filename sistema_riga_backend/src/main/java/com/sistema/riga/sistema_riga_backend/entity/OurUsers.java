@@ -1,4 +1,4 @@
-package com.phegondev.usersmanagementsystem.entity;
+package com.sistema.riga.sistema_riga_backend.entity;
 
 
 import jakarta.persistence.*;

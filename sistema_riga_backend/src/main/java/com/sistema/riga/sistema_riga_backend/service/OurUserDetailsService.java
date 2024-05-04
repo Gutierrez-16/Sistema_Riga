@@ -1,7 +1,8 @@
-package com.phegondev.usersmanagementsystem.service;
+package com.sistema.riga.sistema_riga_backend.service;
 
 
-import com.phegondev.usersmanagementsystem.repository.UsersRepo;
+
+import com.sistema.riga.sistema_riga_backend.repository.UsersRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

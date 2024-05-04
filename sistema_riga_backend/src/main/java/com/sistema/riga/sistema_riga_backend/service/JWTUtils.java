@@ -1,4 +1,4 @@
-package com.phegondev.usersmanagementsystem.service;
+package com.sistema.riga.sistema_riga_backend.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

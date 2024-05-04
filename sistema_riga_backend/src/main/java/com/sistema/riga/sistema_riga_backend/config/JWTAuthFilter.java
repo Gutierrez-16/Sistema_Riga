@@ -1,8 +1,8 @@
-package com.phegondev.usersmanagementsystem.config;
+package com.sistema.riga.sistema_riga_backend.config;
 
 
-import com.phegondev.usersmanagementsystem.service.JWTUtils;
-import com.phegondev.usersmanagementsystem.service.OurUserDetailsService;
+import com.sistema.riga.sistema_riga_backend.service.JWTUtils;
+import com.sistema.riga.sistema_riga_backend.service.OurUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

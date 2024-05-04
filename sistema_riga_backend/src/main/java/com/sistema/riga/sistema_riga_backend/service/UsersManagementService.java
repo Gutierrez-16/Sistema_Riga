@@ -1,9 +1,9 @@
-package com.phegondev.usersmanagementsystem.service;
+package com.sistema.riga.sistema_riga_backend.service;
 
-import com.phegondev.usersmanagementsystem.config.JWTAuthFilter;
-import com.phegondev.usersmanagementsystem.dto.ReqRes;
-import com.phegondev.usersmanagementsystem.entity.OurUsers;
-import com.phegondev.usersmanagementsystem.repository.UsersRepo;
+import com.sistema.riga.sistema_riga_backend.config.JWTAuthFilter;
+import com.sistema.riga.sistema_riga_backend.dto.ReqRes;
+import com.sistema.riga.sistema_riga_backend.entity.OurUsers;
+import com.sistema.riga.sistema_riga_backend.repository.UsersRepo;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;

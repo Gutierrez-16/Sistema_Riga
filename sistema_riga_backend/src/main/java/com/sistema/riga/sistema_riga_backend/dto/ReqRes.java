@@ -1,8 +1,8 @@
-package com.phegondev.usersmanagementsystem.dto;
+package com.sistema.riga.sistema_riga_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.phegondev.usersmanagementsystem.entity.OurUsers;
+import com.sistema.riga.sistema_riga_backend.entity.OurUsers;
 import lombok.Data;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.phegondev.usersmanagementsystem.config;
+package com.sistema.riga.sistema_riga_backend.config;
 
 
 import org.springframework.context.annotation.Bean;

@@ -1,7 +1,7 @@
-package com.phegondev.usersmanagementsystem.repository;
+package com.sistema.riga.sistema_riga_backend.repository;
 
 
-import com.phegondev.usersmanagementsystem.entity.OurUsers;
+import com.sistema.riga.sistema_riga_backend.entity.OurUsers;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

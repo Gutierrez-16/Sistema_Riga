@@ -1,7 +1,7 @@
-package com.phegondev.usersmanagementsystem.config;
+package com.sistema.riga.sistema_riga_backend.config;
 
 
-import com.phegondev.usersmanagementsystem.service.OurUserDetailsService;
+import com.sistema.riga.sistema_riga_backend.service.OurUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
