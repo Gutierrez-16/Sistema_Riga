@@ -1,14 +1,14 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client'; // Cambia esta línea
-import { BrowserRouter, Routes, Route } from 'react-router-dom'; // Aquí usamos Routes en lugar de Route
-import LoginApp from './Components/Login/LoginApp';
-import Home from './Components/Usuario/Usuario';
+import ReactDOM from 'react-dom/client'; // Importa createRoot desde react-dom/client
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <Routes> {/* Utilizamos Routes en lugar de Route */}
-      <Route path="/login" element={<LoginApp />} />
-      <Route path="/usuario" element={<Home />} />
-    </Routes>
-  </BrowserRouter>
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );
+
+reportWebVitals();
