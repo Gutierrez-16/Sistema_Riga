@@ -6,5 +6,6 @@ import lombok.Data;
 public class ProvinciaModel {
     private long idProvincia;
     private String nombreProvincia;
+    private boolean estadoProvincia;
     private long idDepartamento;
 }
