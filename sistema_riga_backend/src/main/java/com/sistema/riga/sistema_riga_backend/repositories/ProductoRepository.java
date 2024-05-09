@@ -14,18 +14,19 @@ public class ProductoRepository implements IProductoRepository{
 
     @Override
     public String insertProducto(ProductoModel productoModel) {
-        jdbcTemplate.update("EXEC CRUD_Producto @NombreProd = ?, @PrecioUnit = ?, @Marca = ?, @Imagen = ?, @Descripcion = ?, @EstadoProducto = ?, @IDCategoria = ?, @IDUnidadMedida = ?,@IDLinea = ?, @Operation = 'C';",
+        jdbcTemplate.update("EXEC CRUD_Producto @NombreProducto = ?, @PrecioUnitario = ?, @Imagen = ?, @Descripcion = ?, " +
+                        "@IDCategoria = ?, @IDUnidadMedida = ?, @IDLinea = ?, @IDMarca = ?, @Operation = 'C'",
                             productoModel.getNombreProd(),
                             productoModel.getPrecioUnit(),
                             productoModel.getImagen(),
                             productoModel.getDescripcion(),
-                            productoModel.getEstadoProducto(),
                             productoModel.getIdCategoria(),
                             productoModel.getIdUnidadMedida(),
                             productoModel.getIdLinea(),
                             productoModel.getIdMarca());
         return "productoModel";
     }
+
 
     @Override
     public String updateProducto(ProductoModel productoModel) {
