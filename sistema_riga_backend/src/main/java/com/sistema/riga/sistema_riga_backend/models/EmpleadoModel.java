@@ -6,6 +6,7 @@ import lombok.Data;
 public class EmpleadoModel {
     private long idCliente;
     private double salario;
+    private boolean estadoEmpleado;
     private long iDPersona;
     private long idCargo;
     private long idUsuario;
