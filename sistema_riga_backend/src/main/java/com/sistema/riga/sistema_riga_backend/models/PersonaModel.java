@@ -4,18 +4,20 @@ import lombok.Data;
 
 import java.util.Date;
 
+
 @Data
 public class PersonaModel {
-    private long idPersona;
+    private int idPersona;
     private String dni;
     private String nombrePersona;
     private String ApePaterno;
     private String ApeMaterno;
-    private char genero;
+    private String genero;
     private Date fechaNac;
     private String correo;
     private String celular;
     private String direccion;
-    private boolean estadoPersona;
-    private long idDistrito;
+    private String estadoPersona;
+    private int idDistrito;
+
 }
