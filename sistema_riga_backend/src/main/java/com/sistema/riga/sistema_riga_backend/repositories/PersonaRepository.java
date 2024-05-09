@@ -53,8 +53,7 @@ public class PersonaRepository implements IPersonaRepositry{
 
     @Override
     public String deletePersona(int idPersona) {
-        jdbcTemplate.update("EXEC CRUD_Producto @IDPersona = ?, @Operation = 'D';", idPersona);
-        // No necesitas pasar los otros parámetros si solo estás eliminando el producto
+        jdbcTemplate.update("EXEC SP_CRUD_Persona @IDPersona = ?, @Operation = 'D';", idPersona);
         return "personaModel";
     }
 
