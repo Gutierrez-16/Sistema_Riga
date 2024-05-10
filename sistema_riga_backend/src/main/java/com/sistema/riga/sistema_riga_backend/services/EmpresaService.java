@@ -1,39 +1,39 @@
 package com.sistema.riga.sistema_riga_backend.services;
 
 import com.sistema.riga.sistema_riga_backend.models.EmpresaModel;
-import com.sistema.riga.sistema_riga_backend.repositories.IPersonaRepositry;
+import com.sistema.riga.sistema_riga_backend.repositories.IEmpresaRepositry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class EmpresaService {
+public class EmpresaService  implements IEmpresaService{
     @Autowired
-    private IPersonaRepositry iPersonaRepositry;
+    private IEmpresaRepositry iEmpresaRepositry;
 
     @Override
-    public List<EmpresaModel> getAllPersonas() {
-        return iPersonaRepositry.getAllPersonas();
+    public List<EmpresaModel> getAllEmpresas() {
+        return iEmpresaRepositry.getAllEmpresas();
     }
 
     @Override
-    public EmpresaModel getPersonaById(int id) {
-        return iPersonaRepositry.getPersonaById(id);
+    public EmpresaModel getEmpresaById(int id) {
+        return iEmpresaRepositry.getEmpresaById(id);
     }
 
     @Override
-    public String insertPersona(EmpresaModel empresaModel) {
-        return iPersonaRepositry.insertPersona(empresaModel);
+    public String insertEmpresa(EmpresaModel empresaModel) {
+        return iEmpresaRepositry.insertEmpresa(empresaModel);
     }
 
     @Override
-    public String updatePersona(EmpresaModel empresaModel) {
-        return iPersonaRepositry.updatePersona(empresaModel);
+    public String updateEmpresa(EmpresaModel empresaModel) {
+        return iEmpresaRepositry.updateEmpresa(empresaModel);
     }
 
     @Override
-    public String deletePersona(int id) {
-        return iPersonaRepositry.deletePersona(id);
+    public String deleteEmpresa(int id) {
+        return iEmpresaRepositry.deleteEmpresa(id);
     }
 }
