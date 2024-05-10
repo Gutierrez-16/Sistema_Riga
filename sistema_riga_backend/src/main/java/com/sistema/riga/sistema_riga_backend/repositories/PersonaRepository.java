@@ -59,7 +59,7 @@ public class PersonaRepository implements IPersonaRepositry{
 
     @Override
     public PersonaModel getPersonaById(int id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM Persona WHERE IDPersona = ?",
+        return jdbcTemplate.queryForObject("EXEC SP_CRUD_Persona @IDPersona = ?, @Operation = 'R'",
                 new Object[]{id},
                 (rs, rowNum) -> {
                     PersonaModel personaModel = new PersonaModel();
