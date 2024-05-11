@@ -1,8 +1,10 @@
 .body{
     margin: 0px;
     padding: 0px;
+    width: 100%;
+    height: auto;
 }
-.usuario{
+.venta{
     width: 100%;
     height: 20px;
     text-align: center;
@@ -38,12 +40,12 @@ th {
     padding: 10px;
     width: 100%;
     height: auto;
-    background-color: #4BCE5C;
+    background-color: #43A34F;
 }
 
 .contenedorbot{
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr ;
     padding-left: 10px;
 }
 .boton{
@@ -116,32 +118,25 @@ button{
     background-color: #7c5454;
 }
 
-.global2{
+.globalventa{
     width: 100%;
     height: auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    margin-top: 50px;
     padding: 5px;
+    background-color: #43A34F;
 }
 
-.contenedor{
-    align-items: center;
-    background-color: #43A34D;
-    height: 400px;
+.contenedorventa{
+    height: auto;
     width: 100%;
-    border-top-left-radius: 8%;
-    border-bottom-left-radius: 8%;
+    margin-bottom: 50px;
 }
-.contenedor2{
-
-    background-color: #43A34D;
-    height: 400px;
+.contenedorventa2{
+    height: auto;
     width: 100%;
-    border-top-right-radius: 8%;
-    border-bottom-right-radius: 8%;
 }
-.subcontenedor{
+.subcontenedorventa{
     justify-content: center;
     display: flex;
     margin:25px;
@@ -161,4 +156,5 @@ span {
 
 .input{
     height: 50px;
-}
+    background-color: #ABEAB3;
+}   

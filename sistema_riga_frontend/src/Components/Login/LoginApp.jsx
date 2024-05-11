@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './AppLogin.css';
 import { useNavigate } from 'react-router-dom';
 import { FaCircleUser } from "react-icons/fa6";
+import { Image } from 'primereact/image';
 
 
 
@@ -37,11 +38,13 @@ function LoginApp() {
   };
 
   return (
-    
+    <div className='globallogin'>
+    <div className='contenedorlogin'>
+    <h1>RIGA</h1>
     <div className="login-container">
       <div className='title'>LOGIN</div>
       <div className='login'>
-      <FaCircleUser size={80} color="black" className="iconimg"/>
+      <FaCircleUser size={80} color="#43A34F" className="iconimg"/>
       <h2>Iniciar Sesión</h2>
       <form className="login-form" onSubmit={handleSubmit}>
         <div>
@@ -69,6 +72,10 @@ function LoginApp() {
       </form>
       {message && <p>{message}</p>} {/* Mostrar el mensaje del backend */}
       </div>
+    </div>
+    </div>
+    <div className='imgcontainer'>
+    </div>
     </div>
   );
 }

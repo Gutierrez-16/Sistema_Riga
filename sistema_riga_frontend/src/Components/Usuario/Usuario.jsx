@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import Header from '../Header/Header';
 import './UsuarioStyle.css';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Button } from 'primereact/button';
+import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+import { TbArrowZigZag } from 'react-icons/tb';
 
-class Home extends Component {
+class Usuario extends Component {
   render() {
     return (
       <article>
@@ -15,57 +20,54 @@ class Home extends Component {
             </div>
             <div className='global'>
             <div className='tabla'>
-                <table >
-                <thead>
-                    <tr>
-                        <th>Nombres</th>
-                        <th>Apellido Paterno</th>
-                        <th>Apellido Materno</th>
-                        <th>DNI</th>
-                        <th>Genero</th>
-                        <th>Fecha de Nacimiento</th>
-                        <th>Correo</th>
-                        <th>Celular</th>
-                        <th>Direccion</th>
-                        <th>Correo</th>
-                        <th>Departamento</th>
-                        <th>Provincia</th>
-                        <th>Distrito</th>
-                        <th>Estado</th>
-                    </tr>
-                    <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                </thead>
-                </table>
+            <DataTable  tableStyle={{ minWidth: '50rem' }}>
+                <Column field="usuario" header="USUARIO" align="center"></Column>
+                <Column field="password" header="CONTRASEÑA" align="center"></Column>
+                <Column field="tipousuario" header="TIPO USUARIO" align="center"></Column>
+                <Column field="dni" header="DNI" align="center"></Column>
+                <Column field="nombre" header="NOMBRES" align="center"></Column>
+                <Column field="apepat" header="APELLIDO PATERNO" align="center"></Column>
+                <Column field="apemat" header="APELLIDO MATERNO" align="center"></Column>
+                <Column field="estado" header="ESTADO" align="center"></Column>
+            </DataTable>
+            </div>
+            <div className='contenedorbot'>
+            <div className='buscar'>
+            <Button label="BUSCAR" className='boton'/>
             </div>
             <div className='botones'>
-              <button className='boton1'>Guardar</button>
-              <button className='boton2'>Actualizar</button>
-              <button className='boton3'>Eliminar</button>
-              <button className='boton4'>Nuevo</button>
-              <button className='boton4'>Buscar</button>
+              <Button label="GUARDAR" className='boton1'/>
+              <Button label="ACTUALIZAR" className='boton2'/>
+              <Button label="ELIMINAR" className='boton3'/>
+              <Button label="NUEVO" className='boton4'/>
+            </div>
             </div>
             </div>
             <div className='global2'>
               <div className='contenedor'>
+                <div className='subcontenedor'>
+                <span className="p-inputgroup-addon">USUARIO</span>
+                <InputText className='input' placeholder="" size={45}/>
+                </div>
+                <div className='subcontenedor'>
+                <span className="p-inputgroup-addon">TIPO USUARIO</span>
+                <InputText className='input' placeholder="" size={45}/>
+                </div>
+                <div className='subcontenedor'>
+                <span className="p-inputgroup-addon">ESTADO</span>
+                <InputText className='input' placeholder="" size={45} maxLength={1} onKeyPress={(e) => (e.charCode < 48 || e.charCode > 57) && e.preventDefault()}/>
+                </div>
               </div>
-              <div className='contenedor'>
+              <div className='contenedor2'>
+              <div className='subcontenedor'>
+              <span className="p-inputgroup-addon">CONTRASEÑA</span>
+                <InputText className='input' placeholder="" size={45}/>
               </div>
-              <div className='contenedor'>
+              <div className='subcontenedor'>
+              <span className="p-inputgroup-addon">DNI</span>
+                <InputText className='input' placeholder="" size={45} maxLength={8}  />
+              </div>
+              <div className='subcontenedor'></div>
               </div>
             </div>
           </section>
@@ -75,5 +77,5 @@ class Home extends Component {
   }
 }
 
-export default Home;
+export default Usuario;
 
