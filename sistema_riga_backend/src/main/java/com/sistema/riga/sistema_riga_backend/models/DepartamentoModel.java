@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class DepartamentoModel {
-    private long idDepartamento;
+    private int idDepartamento;
     private String nombreDepartamento;
-    private boolean estadoDepartamento;
+    private String estadoDepartamento;
 }

@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class ProvinciaModel {
-    private long idProvincia;
+    private int idProvincia;
     private String nombreProvincia;
-    private boolean estadoProvincia;
+    private String estadoProvincia;
     private long idDepartamento;
 }

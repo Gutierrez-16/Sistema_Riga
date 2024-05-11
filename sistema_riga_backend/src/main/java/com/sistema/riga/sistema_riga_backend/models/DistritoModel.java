@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class DistritoModel {
-    private long idDistrito;
+    private int idDistrito;
     private String nombreDistrito;
-    private boolean estadoDistrito;
+    private String estadoDistrito;
     private long idProvincia;
 }
