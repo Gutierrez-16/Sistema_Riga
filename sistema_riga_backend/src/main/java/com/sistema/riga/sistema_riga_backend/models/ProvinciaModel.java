@@ -7,5 +7,6 @@ public class ProvinciaModel {
     private int idProvincia;
     private String nombreProvincia;
     private String estadoProvincia;
-    private long idDepartamento;
+    private int idDepartamento;
+    private String nombreDepartamento;
 }
