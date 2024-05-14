@@ -8,5 +8,4 @@ public class ProvinciaModel {
     private String nombreProvincia;
     private String estadoProvincia;
     private int idDepartamento;
-    private String nombreDepartamento;
 }

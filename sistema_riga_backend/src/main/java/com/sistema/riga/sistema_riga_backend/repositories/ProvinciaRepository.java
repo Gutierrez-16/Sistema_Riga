@@ -41,6 +41,20 @@ public class ProvinciaRepository implements IProvinciaRepository {
     }
 
     @Override
+    public List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento) {
+        return jdbcTemplate.query("SELECT * FROM Provincia WHERE IDDepartamento = ?",
+                new Object[]{idDepartamento},
+                (rs, rowNum) -> {
+                    ProvinciaModel provinciaModel = new ProvinciaModel();
+                    provinciaModel.setIdProvincia(rs.getInt("IDProvincia"));
+                    provinciaModel.setNombreProvincia(rs.getString("NombreProv"));
+                    provinciaModel.setEstadoProvincia(rs.getString("EstadoProvincia"));
+                    provinciaModel.setIdDepartamento(rs.getInt("IDDepartamento")); // Asegúrate de asignar correctamente el ID del departamento
+                    return provinciaModel;
+                });
+    }
+
+    @Override
     public ProvinciaModel getProvinciaById(int id) {
         return jdbcTemplate.queryForObject("EXEC SP_CRUD_Provincia @IDProvincia = ?, @Operation = 'R'",
                 new Object[]{id},
@@ -49,22 +63,20 @@ public class ProvinciaRepository implements IProvinciaRepository {
                     provinciaModel.setIdProvincia(rs.getInt("IDProvincia"));
                     provinciaModel.setNombreProvincia(rs.getString("NombreProv"));
                     provinciaModel.setEstadoProvincia(rs.getString("EstadoProvincia"));
-                    provinciaModel.setIdDepartamento(rs.getInt("IDDepartamento"));
-                    provinciaModel.setNombreDepartamento(rs.getString("NombreDepartamento")); // Aquí asigna el nombre del departamento al campo correcto
+                    provinciaModel.setIdDepartamento(rs.getInt("IDDepartamento"));// Aquí asigna el nombre del departamento al campo correcto
                     return provinciaModel;
                 });
     }
 
     @Override
     public List<ProvinciaModel> getAllProvincias() {
-        return jdbcTemplate.query("EXEC SP_CRUD_Provincia  @Operation = 'A'",
+        return jdbcTemplate.query("Select * from Provincia",
                 (rs, rowNum) -> {
                     ProvinciaModel provinciaModel = new ProvinciaModel();
                     provinciaModel.setIdProvincia(rs.getInt("IDProvincia"));
                     provinciaModel.setNombreProvincia(rs.getString("NombreProv"));
                     provinciaModel.setEstadoProvincia(rs.getString("EstadoProvincia"));
-                    provinciaModel.setIdDepartamento(rs.getInt("IDDepartamento"));
-                    provinciaModel.setNombreDepartamento(rs.getString("NombreDepartamento")); // Aquí asigna el nombre del departamento al campo correcto
+                    provinciaModel.setIdDepartamento(rs.getInt("IDDepartamento"));// Aquí asigna el nombre del departamento al campo correcto
                     return provinciaModel;
                 });
     }

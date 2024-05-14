@@ -8,32 +8,33 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PersonaService implements IPersonaService{
+public class PersonaService implements IPersonaService {
+
     @Autowired
-    private IPersonaRepositry iPersonaRepositry;
+    private IPersonaRepositry personaRepository;
 
     @Override
     public List<PersonaModel> getAllPersonas() {
-        return iPersonaRepositry.getAllPersonas();
+        return personaRepository.getAllPersonas();
     }
 
     @Override
     public PersonaModel getPersonaById(int id) {
-        return iPersonaRepositry.getPersonaById(id);
+        return personaRepository.getPersonaById(id);
     }
 
     @Override
     public String insertPersona(PersonaModel personaModel) {
-        return iPersonaRepositry.insertPersona(personaModel);
+        return personaRepository.insertPersona(personaModel);
     }
 
     @Override
     public String updatePersona(PersonaModel personaModel) {
-        return iPersonaRepositry.updatePersona(personaModel);
+        return personaRepository.updatePersona(personaModel);
     }
 
     @Override
     public String deletePersona(int id) {
-        return iPersonaRepositry.deletePersona(id);
+        return personaRepository.deletePersona(id);
     }
 }

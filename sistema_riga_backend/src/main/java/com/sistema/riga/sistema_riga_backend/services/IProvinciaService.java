@@ -10,4 +10,6 @@ public interface IProvinciaService {
     String insertProvincia(ProvinciaModel provinciaModel);
     String updateProvincia(ProvinciaModel provinciaModel);
     String deleteProvincia(int id);
+
+    List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento);
 }

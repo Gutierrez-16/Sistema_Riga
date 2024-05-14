@@ -8,33 +8,38 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ProvinciaService implements IProvinciaService{
+public class ProvinciaService implements IProvinciaService {
+
     @Autowired
-    private IProvinciaRepository iProvinciaRepository;
+    private IProvinciaRepository provinciaRepository;
 
     @Override
     public List<ProvinciaModel> getAllProvincias() {
-        return iProvinciaRepository.getAllProvincias();
+        return provinciaRepository.getAllProvincias();
     }
 
     @Override
     public ProvinciaModel getProvinciaById(int id) {
-        return iProvinciaRepository.getProvinciaById(id);
+        return provinciaRepository.getProvinciaById(id);
     }
 
     @Override
     public String insertProvincia(ProvinciaModel provinciaModel) {
-        return iProvinciaRepository.insertProvincia(provinciaModel);
+        return provinciaRepository.insertProvincia(provinciaModel);
+    }
+
+    @Override
+    public List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento) {
+        return provinciaRepository.getProvinciasByDepartamento(idDepartamento);
     }
 
     @Override
     public String updateProvincia(ProvinciaModel provinciaModel) {
-        return iProvinciaRepository.updateProvincia(provinciaModel);
+        return provinciaRepository.updateProvincia(provinciaModel);
     }
 
     @Override
     public String deleteProvincia(int id) {
-        return iProvinciaRepository.deleteProvincia(id);
+        return provinciaRepository.deleteProvincia(id);
     }
-
 }

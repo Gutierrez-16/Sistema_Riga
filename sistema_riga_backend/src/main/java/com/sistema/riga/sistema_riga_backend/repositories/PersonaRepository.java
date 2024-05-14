@@ -1,6 +1,9 @@
 package com.sistema.riga.sistema_riga_backend.repositories;
 
+import com.sistema.riga.sistema_riga_backend.models.DepartamentoModel;
+import com.sistema.riga.sistema_riga_backend.models.DistritoModel;
 import com.sistema.riga.sistema_riga_backend.models.PersonaModel;
+import com.sistema.riga.sistema_riga_backend.models.ProvinciaModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -97,6 +100,41 @@ public class PersonaRepository implements IPersonaRepositry{
                     personaModel.setEstadoPersona(rs.getString("EstadoPersona"));
                     personaModel.setIdDistrito(rs.getInt("IDDistrito"));
                     return personaModel;
+                });
+    }
+
+    public List<DepartamentoModel> getAllDepartamentos() {
+        return jdbcTemplate.query("SELECT * FROM Departamento",
+                (rs, rowNum) -> {
+                    DepartamentoModel departamentoModel = new DepartamentoModel();
+                    departamentoModel.setIdDepartamento(rs.getInt("IDDepartamento"));
+                    departamentoModel.setNombreDepartamento(rs.getString("NombreDep"));
+                    // Aquí puedes agregar otros campos si los necesitas
+                    return departamentoModel;
+                });
+    }
+
+    public List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento) {
+        return jdbcTemplate.query("SELECT * FROM Provincia WHERE IDDepartamento = ?",
+                new Object[]{idDepartamento},
+                (rs, rowNum) -> {
+                    ProvinciaModel provinciaModel = new ProvinciaModel();
+                    provinciaModel.setIdProvincia(rs.getInt("IDProvincia"));
+                    provinciaModel.setNombreProvincia(rs.getString("NombreProv"));
+                    // Aquí puedes agregar otros campos si los necesitas
+                    return provinciaModel;
+                });
+    }
+
+    public List<DistritoModel> getDistritosByProvincia(int idProvincia) {
+        return jdbcTemplate.query("SELECT * FROM Distrito WHERE IDProvincia = ?",
+                new Object[]{idProvincia},
+                (rs, rowNum) -> {
+                    DistritoModel distritoModel = new DistritoModel();
+                    distritoModel.setIdDistrito(rs.getInt("IDDistrito"));
+                    distritoModel.setNombreDistrito(rs.getString("NombreDist"));
+                    // Aquí puedes agregar otros campos si los necesitas
+                    return distritoModel;
                 });
     }
 

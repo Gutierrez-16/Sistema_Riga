@@ -3,6 +3,7 @@
     padding: 0px;
     width: 100%;
     height: auto;
+    color: black;
 }
 .persona{
     width: 100%;
@@ -19,7 +20,6 @@
 table {
     width: 100%; 
     border-collapse: collapse; 
-    color: white;
 }
 
 td {
@@ -74,7 +74,6 @@ th {
 
 .boton2{
     background-color: #BF9D69;
-    color: white;
     font-weight: bold;
     width: 100px;
     margin-left: 45px;
@@ -90,7 +89,6 @@ th {
 
 .boton4{
     background-color: #644444;
-    color: white;
     font-weight: bold;
     width: 90px;
     margin-left: 45px;
@@ -151,7 +149,7 @@ button{
 }
 
 span {
-    color: white;
+    color: black;
     width: 150px;
     text-align: center;
 }
@@ -162,5 +160,5 @@ span {
 
 .input{
     height: 40px;
-    background-color: #ABEAB3;
+    background-color: #000;
 }

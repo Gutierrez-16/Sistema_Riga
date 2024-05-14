@@ -24,6 +24,11 @@ public class ProvinciaController {
         return iProvinciaService.getProvinciaById(id);
     }
 
+    @GetMapping("/department/{idDepartamento}")
+    public List<ProvinciaModel> getProvinciasByDepartamento(@PathVariable int idDepartamento) {
+        return iProvinciaService.getProvinciasByDepartamento(idDepartamento);
+    }
+
     @PostMapping
     public String insertProvincia(@RequestBody ProvinciaModel provinciaModel) {
         return iProvinciaService.insertProvincia(provinciaModel);
