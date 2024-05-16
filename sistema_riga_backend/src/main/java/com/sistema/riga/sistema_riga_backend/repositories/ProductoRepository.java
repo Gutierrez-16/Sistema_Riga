@@ -9,24 +9,29 @@ import java.util.List;
 
 @Repository
 public class ProductoRepository implements IProductoRepository{
+
+    String SQL = "INSERT INTO Producto VALUES ('ProductoNmae',23.56,?,'fgfgf','1',1,1,1,1);";
+    String SQL2 = "EXEC CRUD_Producto @NombreProducto = ?, @PrecioUnitario = ?, @Imagen = ?, @Descripcion = ?, @IDCategoria = ?, @IDUnidadMedida = ?, @IDLinea = ?, @IDMarca = ?, @Operation = 'C';";
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Override
     public String insertProducto(ProductoModel productoModel) {
-        jdbcTemplate.update("EXEC CRUD_Producto @NombreProducto = ?, @PrecioUnitario = ?, @Imagen = ?, @Descripcion = ?, " +
-                        "@IDCategoria = ?, @IDUnidadMedida = ?, @IDLinea = ?, @IDMarca = ?, @Operation = 'C'",
-                            productoModel.getNombreProd(),
-                            productoModel.getPrecioUnit(),
-                            productoModel.getImagen(),
-                            productoModel.getDescripcion(),
-                            productoModel.getIdCategoria(),
-                            productoModel.getIdUnidadMedida(),
-                            productoModel.getIdLinea(),
-                            productoModel.getIdMarca());
+        String name = productoModel.getNombreProd();
+        System.out.println("Nombre: "+name);
+        jdbcTemplate.update(
+                SQL2,
+                    productoModel.getNombreProd(),
+                    productoModel.getPrecioUnit(),
+                    productoModel.getImagen(),
+                    productoModel.getDescripcion(),
+                    productoModel.getIdCategoria(),
+                    productoModel.getIdUnidadMedida(),
+                    productoModel.getIdLinea(),
+                    productoModel.getIdMarca());
         return "productoModel";
     }
-
 
     @Override
     public String updateProducto(ProductoModel productoModel) {
@@ -54,7 +59,7 @@ public class ProductoRepository implements IProductoRepository{
 
     @Override
     public ProductoModel getProductoById(int id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM Producto WHERE IDProducto = ?",
+        return jdbcTemplate.queryForObject("EXEC CRUD_Producto @IDProducto = ?, @Operation = 'R';",
                new Object[]{id},
                (rs, rowNum) -> {
                    ProductoModel productoModel = new ProductoModel();
@@ -87,6 +92,8 @@ public class ProductoRepository implements IProductoRepository{
                       productoModel.setIdUnidadMedida(rs.getInt("IDUnidadMedida"));
                       productoModel.setIdLinea(rs.getInt("IDLinea"));
                       productoModel.setIdMarca(rs.getInt("IDMarca"));
+
+                      System.out.println("Imagen: "+productoModel.getImagen());
                       return productoModel;
           });
     }
