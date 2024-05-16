@@ -55,7 +55,7 @@ class Persona extends Component {
 
   fetchDepartamentos = async () => {
     try {
-      const response = await fetch('http://localhost:8080/department');
+      const response = await fetch('http://localhost:8080/person/departamentos');
       if (!response.ok) {
         throw new Error('No se pudo obtener la lista de departamentos');
       }
@@ -68,7 +68,7 @@ class Persona extends Component {
 
   fetchProvincias = async (idDepartamento) => {
     try {
-      const response = await fetch(`http://localhost:8080/province/department/${idDepartamento}`);
+      const response = await fetch(`http://localhost:8080/person/provincias/${idDepartamento}`);
       if (!response.ok) {
         throw new Error('No se pudo obtener la lista de provincias');
       }
@@ -81,7 +81,7 @@ class Persona extends Component {
 
   fetchDistritos = async (idProvincia) => {
     try {
-      const response = await fetch(`http://localhost:8080/district/province/${idProvincia}`);
+      const response = await fetch(`http://localhost:8080/person/distritos/${idProvincia}`);
       if (!response.ok) {
         throw new Error('No se pudo obtener la lista de distritos');
       }
@@ -115,9 +115,14 @@ class Persona extends Component {
   handleSubmit = async () => {
     try {
       const { formData, selectedDistrito } = this.state;
+
+      if (!selectedDistrito) {
+        throw new Error('Por favor, seleccione un distrito.');
+      }
+
       const dataToSend = {
         ...formData,
-        idDistrito: selectedDistrito ? selectedDistrito.idDistrito : null,
+        idDistrito: selectedDistrito.idDistrito,
       };
 
       const response = await fetch('http://localhost:8080/person', {
@@ -131,6 +136,7 @@ class Persona extends Component {
       if (!response.ok) {
         throw new Error('No se pudo insertar la persona');
       }
+
       console.log('Persona insertada exitosamente');
       this.clearForm();
     } catch (error) {
@@ -139,32 +145,26 @@ class Persona extends Component {
   };
 
   handleUpdate = (selectedPerson) => {
-    // Actualizar el formulario con los datos de la persona seleccionada
-    const { formData, selectedDepartamento, selectedProvincia } = this.state;
+    const { formData } = this.state;
     const { departamento, provincia, distrito, ...rest } = selectedPerson;
 
-    if (selectedDepartamento && selectedProvincia) {
-      this.setState({
-        formData: {
-          ...formData,
-          ...rest,
-        },
-        selectedDepartamento: departamento,
-        selectedProvincia: provincia,
-        selectedDistrito: distrito,
-        selectedPerson,
-      });
-    } else {
-      console.error('Error: Departamento o provincia no seleccionados.');
-    }
-  };
-
-  handleDelete = async () => {
-    try {
-      // Lógica para eliminar una persona
-    } catch (error) {
-      console.error('Error al eliminar persona:', error.message);
-    }
+    this.setState({
+      formData: {
+        ...formData,
+        ...rest,
+      },
+      selectedDepartamento: departamento,
+      selectedProvincia: provincia,
+      selectedDistrito: distrito,
+      selectedPerson,
+    }, () => {
+      if (departamento) {
+        this.fetchProvincias(departamento.idDepartamento);
+      }
+      if (provincia) {
+        this.fetchDistritos(provincia.idProvincia);
+      }
+    });
   };
 
   clearForm = () => {
@@ -195,7 +195,6 @@ class Persona extends Component {
   render() {
     const { formData, departamentos, provincias, distritos, selectedDepartamento, selectedProvincia, selectedDistrito, personas, selectedPerson, searchQuery } = this.state;
 
-    // Filtrar personas según la búsqueda
     const filteredPersonas = personas.filter(persona =>
       persona.nombrePersona.toLowerCase().includes(searchQuery.toLowerCase()) ||
       persona.dni.includes(searchQuery)
@@ -210,7 +209,6 @@ class Persona extends Component {
               <h1>PERSONAS</h1>
             </div>
             <div className='formulario'>
-              {/* Formulario para insertar una persona */}
               <div className='form-row'>
                 <div className='form-group col'>
                   <span className='p-float-label'>
@@ -296,7 +294,6 @@ class Persona extends Component {
                   />
                 </div>
               </div>
-              {/* Botón de envío */}
               <div className='button-group'>
                 <Button label='Insertar' onClick={this.handleSubmit} />
                 {selectedPerson && (
@@ -304,7 +301,6 @@ class Persona extends Component {
                 )}
               </div>
             </div>
-            {/* Barra de búsqueda */}
             <div className='search-bar'>
               <InputText value={searchQuery} onChange={this.handleSearchInputChange} placeholder='Buscar por nombre o DNI' />
               <div className='button-group'>
@@ -313,7 +309,6 @@ class Persona extends Component {
                 <Button label='Actualizar' />
               </div>
             </div>
-            {/* Tabla de personas */}
             <div className='table-wrapper'>
               <DataTable value={filteredPersonas} selectionMode='single' onSelectionChange={e => this.handleUpdate(e.value)} paginator rows={10} rowsPerPageOptions={[10, 20, 50]}>
                 <Column field='dni' header='DNI'></Column>
@@ -325,9 +320,7 @@ class Persona extends Component {
                 <Column field='correo' header='Correo'></Column>
                 <Column field='celular' header='Celular'></Column>
                 <Column field='direccion' header='Dirección'></Column>
-                <Column field='departamento' header='Departamento'></Column>
-                <Column field='provincia' header='Provincia'></Column>
-                <Column field='distrito' header='Distrito'></Column>
+                <Column field='idDistrito' header='idDistrito'></Column>
               </DataTable>
             </div>
           </section>

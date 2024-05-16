@@ -13,4 +13,6 @@ public interface IDistritoRepository {
     String deleteDistrito(int id);
 
     List<DistritoModel> getDistritosByProvincia(int idProvincia);
+
+    DistritoModel getDistritoByName(String nombreDistrito);
 }

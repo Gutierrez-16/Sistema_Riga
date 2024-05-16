@@ -35,6 +35,17 @@ public class DistritoService implements IDistritoService {
     }
 
     @Override
+    public int getDistritoIdByName(String nombreDistrito) {
+        DistritoModel distrito = iDistritoRepository.getDistritoByName(nombreDistrito);
+        if (distrito != null) {
+            return distrito.getIdDistrito();
+        } else {
+            // Manejar el caso en que el distrito no sea encontrado, por ejemplo, lanzando una excepción
+            throw new RuntimeException("Distrito no encontrado: " + nombreDistrito);
+        }
+    }
+
+    @Override
     public String updateDistrito(DistritoModel distritoModel) {
         return iDistritoRepository.updateDistrito(distritoModel);
     }
