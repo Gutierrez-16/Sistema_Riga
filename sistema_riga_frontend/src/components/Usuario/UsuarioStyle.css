@@ -1,10 +1,8 @@
 .body{
     margin: 0px;
     padding: 0px;
-    width: 100%;
-    height: auto;
 }
-.empleado{
+.usuario{
     width: 100%;
     height: 20px;
     text-align: center;
@@ -45,7 +43,7 @@ th {
 
 .contenedorbot{
     display: grid;
-    grid-template-columns: 1fr 1fr ;
+    grid-template-columns: 1fr 1fr;
     padding-left: 10px;
 }
 .boton{
@@ -118,31 +116,32 @@ button{
     background-color: #7c5454;
 }
 
-.globalempleado{
+.global2{
     width: 100%;
     height: auto;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    margin-top: 80px;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 50px;
     padding: 5px;
-    background-color: #43A34D;
-    border-radius: 5%;
 }
 
-.contenedorempleado{
-    height: auto;
+.contenedor{
+    align-items: center;
+    background-color: #43A34D;
+    height: 400px;
     width: 100%;
-    margin-bottom: 50px;
+    border-top-left-radius: 8%;
+    border-bottom-left-radius: 8%;
 }
-.contenedorempleado2{
-    height: auto;
+.contenedor2{
+
+    background-color: #43A34D;
+    height: 400px;
     width: 100%;
+    border-top-right-radius: 8%;
+    border-bottom-right-radius: 8%;
 }
-.contenedorempleado3{
-    height: auto;
-    width: 100%;
-}
-.subcontenedorempleado{
+.subcontenedor{
     justify-content: center;
     display: flex;
     margin:25px;
@@ -151,16 +150,15 @@ button{
 }
 
 span {
-    color: rgb(0, 0, 0);
-    width: 150px;
+    color: white;
+    width: 200px;
     text-align: center;
 }
 .p-inputgroup-addon{
     background-color:#2C7636;
-    height: 40px;
+    height: 50px;
 }
 
 .input{
-    height: 40px;
-    background-color: #ABEAB3;
+    height: 50px;
 }

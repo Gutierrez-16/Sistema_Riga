@@ -4,7 +4,7 @@
     width: 100%;
     height: auto;
 }
-.empleado{
+.producto{
     width: 100%;
     height: 20px;
     text-align: center;
@@ -118,31 +118,27 @@ button{
     background-color: #7c5454;
 }
 
-.globalempleado{
+.globalproducto{
     width: 100%;
     height: auto;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     margin-top: 80px;
     padding: 5px;
     background-color: #43A34D;
     border-radius: 5%;
 }
 
-.contenedorempleado{
+.contenedorproducto{
     height: auto;
     width: 100%;
     margin-bottom: 50px;
 }
-.contenedorempleado2{
+.contenedorproducto2{
     height: auto;
     width: 100%;
 }
-.contenedorempleado3{
-    height: auto;
-    width: 100%;
-}
-.subcontenedorempleado{
+.subcontenedorproducto{
     justify-content: center;
     display: flex;
     margin:25px;
@@ -151,16 +147,16 @@ button{
 }
 
 span {
-    color: rgb(0, 0, 0);
-    width: 150px;
+    color: white;
+    width: 200px;
     text-align: center;
 }
 .p-inputgroup-addon{
     background-color:#2C7636;
-    height: 40px;
+    height: 50px;
 }
 
 .input{
-    height: 40px;
+    height: 50px;
     background-color: #ABEAB3;
-}
+}   

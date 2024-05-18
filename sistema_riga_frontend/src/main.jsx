@@ -10,6 +10,7 @@ import Empresa from './Components/Empresa/Empresa';
 import Home from './Components/Home/Home';
 import Venta from './Components/Ventas/Venta';
 
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <Routes> {/* Utilizamos Routes en lugar de Route */}
@@ -21,6 +22,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/empresa" element={<Empresa />} />
       <Route path="/home" element={<Home />} />
       <Route path="/venta" element={<Venta />} />
+
     </Routes>
   </BrowserRouter>
 );

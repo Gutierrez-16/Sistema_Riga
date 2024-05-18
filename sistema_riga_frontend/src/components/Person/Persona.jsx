@@ -1,340 +1,385 @@
-import React, { Component } from 'react';
-import Header from '../Header/Header';
-import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import './PersonaStyle.css';
+import React, { useState, useEffect } from 'react';
 
-class Persona extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      personas: [],
-      formData: {
+const Persona = () => {
+  const [departamentos, setDepartamentos] = useState([]);
+  const [provincias, setProvincias] = useState([]);
+  const [distritos, setDistritos] = useState([]);
+  const [personas, setPersonas] = useState([]);
+  const [selectedDepartamentoId, setSelectedDepartamentoId] = useState('');
+  const [selectedProvinciaId, setSelectedProvinciaId] = useState('');
+  const [formData, setFormData] = useState({
+    idPersona: '',
+    dni: '',
+    nombrePersona: '',
+    apePaterno: '',
+    apeMaterno: '',
+    genero: '',
+    fechaNac: '',
+    correo: '',
+    celular: '',
+    direccion: '',
+    idDistrito: '',
+    idProvincia: '',
+    idDepartamento: ''
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedName, setSelectedName] = useState('');
+  const [activePage, setActivePage] = useState(1);
+  const [itemsCountPerPage] = useState(10);
+
+  useEffect(() => {
+    fetchDepartamentos();
+    fetchPersonas();
+  }, []);
+
+  const fetchDepartamentos = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/person/departamentos');
+      if (!response.ok) {
+        throw new Error('Error al obtener departamentos');
+      }
+      const data = await response.json();
+      setDepartamentos(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchProvincias = async (idDepartamento) => {
+    setSelectedDepartamentoId(idDepartamento);
+    setProvincias([]);
+    setDistritos([]);
+    try {
+      const response = await fetch(`http://localhost:8080/person/provincias/${idDepartamento}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener provincias');
+      }
+      const data = await response.json();
+      setProvincias(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchDistritos = async (idProvincia) => {
+    setSelectedProvinciaId(idProvincia);
+    setDistritos([]);
+    try {
+      const response = await fetch(`http://localhost:8080/person/distritos/${idProvincia}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener distritos');
+      }
+      const data = await response.json();
+      setDistritos(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const method = isEditing ? 'PUT' : 'POST';
+    const url = isEditing
+      ? `http://localhost:8080/person/${formData.idPersona}`
+      : 'http://localhost:8080/person';
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.text();
+      console.log('Respuesta:', data);
+      fetchPersonas();
+      setFormData({
+        idPersona: '',
         dni: '',
         nombrePersona: '',
+        apePaterno: '',
+        apeMaterno: '',
         genero: '',
         fechaNac: '',
         correo: '',
         celular: '',
         direccion: '',
-        idDistrito: null,
-        apePaterno: '',
-        apeMaterno: '',
-      },
-      departamentos: [],
-      provincias: [],
-      distritos: [],
-      selectedDepartamento: null,
-      selectedProvincia: null,
-      selectedDistrito: null,
-      selectedPerson: null,
-      searchQuery: '',
-    };
-  }
+        idDistrito: '',
+        idProvincia: '',
+        idDepartamento: ''
+      });
+      setIsEditing(false);
+      
+    } catch (error) {
+      console.error('Error al enviar el formulario:', error);
+    }
+  };
 
-  componentDidMount() {
-    this.fetchPersonas();
-    this.fetchDepartamentos();
-  }
-
-  fetchPersonas = async () => {
+  const fetchPersonas = async () => {
     try {
       const response = await fetch('http://localhost:8080/person');
-      if (!response.ok) {
-        throw new Error('No se pudo obtener la lista de personas');
-      }
       const data = await response.json();
-      this.setState({ personas: data });
+      setPersonas(data);
     } catch (error) {
-      console.error('Error al obtener personas:', error.message);
+      console.error('Error al obtener personas:', error);
     }
   };
 
-  fetchDepartamentos = async () => {
+  const handleEdit = async (persona) => {
+    setFormData({ ...persona, idDistrito: persona.idDistrito });
+    setIsEditing(true);
+    setSelectedName(persona.nombrePersona);
+  
+    const idDistrito = persona.idDistrito;
+    console.log(`Selected Persona ID: ${persona.idPersona}`);
+    console.log(`Selected Distrito ID: ${idDistrito}`);
+  
+    let provincia; // Declara la variable provincia aquí
+  
     try {
-      const response = await fetch('http://localhost:8080/department');
-      if (!response.ok) {
-        throw new Error('No se pudo obtener la lista de departamentos');
+      // Fetch the province corresponding to the district
+      const provinciaResponse = await fetch(`http://localhost:8080/person/provincias/distrito/${idDistrito}`);
+      const provinciaData = await provinciaResponse.json();
+      if (provinciaData && provinciaData.length > 0) {
+        provincia = provinciaData[0]; // Asigna el valor dentro del bloque if
+        const provinciaNombre = provincia.nombreProvincia;
+        console.log(`Fetched Provincia Nombre: ${provinciaNombre}, ID: ${provincia.idProvincia}`);
+  
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          idProvincia: provincia.idProvincia
+        }));
+  
+        // Fetch provinces for the selected department
+        await fetchProvincias(provincia.idDepartamento);
+  
+        // Fetch the department corresponding to the province
+        const departamentoResponse = await fetch(`http://localhost:8080/person/departamentos/provincia/${provinciaNombre}`);
+        const departamentoData = await departamentoResponse.json();
+        if (departamentoData && departamentoData.length > 0) {
+          const departamento = departamentoData[0];
+          console.log(`Fetched Departamento Nombre: ${departamento.nombreDepartamento}, ID: ${departamento.idDepartamento}`);
+  
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            idDepartamento: departamento.idDepartamento
+          }));
+          setSelectedDepartamentoId(departamento.idDepartamento);
+  
+          // Fetch provinces for the selected department again (in case they were not fetched previously)
+          await fetchProvincias(departamento.idDepartamento);
+        }
       }
-      const data = await response.json();
-      this.setState({ departamentos: data });
+  
+      // Fetch all districts for the selected province
+      await fetchDistritos(provincia.idProvincia); // Ahora provincia está definida en este punto
     } catch (error) {
-      console.error('Error al obtener departamentos:', error.message);
+      console.error('Error al obtener provincias o departamentos:', error);
     }
   };
+  
 
-  fetchProvincias = async (idDepartamento) => {
+  const handleDelete = async (idPersona) => {
     try {
-      const response = await fetch(`http://localhost:8080/province/department/${idDepartamento}`);
-      if (!response.ok) {
-        throw new Error('No se pudo obtener la lista de provincias');
-      }
-      const data = await response.json();
-      this.setState({ provincias: data });
-    } catch (error) {
-      console.error('Error al obtener provincias:', error.message);
-    }
-  };
-
-  fetchDistritos = async (idProvincia) => {
-    try {
-      const response = await fetch(`http://localhost:8080/district/province/${idProvincia}`);
-      if (!response.ok) {
-        throw new Error('No se pudo obtener la lista de distritos');
-      }
-      const data = await response.json();
-      this.setState({ distritos: data });
-    } catch (error) {
-      console.error('Error al obtener distritos:', error.message);
-    }
-  };
-
-  handleInputChange = (e) => {
-    const { name, value } = e.target;
-    this.setState((prevState) => ({
-      formData: {
-        ...prevState.formData,
-        [name]: value,
-      },
-    }));
-  };
-
-  handleDropdownChange = (name, value) => {
-    this.setState({ [name]: value });
-
-    if (name === 'selectedDepartamento') {
-      this.fetchProvincias(value.idDepartamento);
-    } else if (name === 'selectedProvincia') {
-      this.fetchDistritos(value.idProvincia);
-    }
-  };
-
-  handleSubmit = async () => {
-    try {
-      const { formData, selectedDistrito } = this.state;
-      const dataToSend = {
-        ...formData,
-        idDistrito: selectedDistrito ? selectedDistrito.idDistrito : null,
-      };
-
-      const response = await fetch('http://localhost:8080/person', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend),
+      const response = await fetch(`http://localhost:8080/person/${idPersona}`, {
+        method: 'DELETE'
       });
 
-      if (!response.ok) {
-        throw new Error('No se pudo insertar la persona');
-      }
-      console.log('Persona insertada exitosamente');
-      this.clearForm();
+      const data = await response.text();
+      console.log('Respuesta:', data);
+      fetchPersonas();
     } catch (error) {
-      console.error('Error al insertar persona:', error.message);
+      console.error('Error al eliminar persona:', error);
     }
   };
 
-  handleUpdate = (selectedPerson) => {
-    // Actualizar el formulario con los datos de la persona seleccionada
-    const { formData, selectedDepartamento, selectedProvincia } = this.state;
-    const { departamento, provincia, distrito, ...rest } = selectedPerson;
+  const handlePageChange = (pageNumber) => {
+    setActivePage(pageNumber);
+  };
 
-    if (selectedDepartamento && selectedProvincia) {
-      this.setState({
-        formData: {
-          ...formData,
-          ...rest,
-        },
-        selectedDepartamento: departamento,
-        selectedProvincia: provincia,
-        selectedDistrito: distrito,
-        selectedPerson,
-      });
-    } else {
-      console.error('Error: Departamento o provincia no seleccionados.');
+  const indexOfLastPersona = activePage * itemsCountPerPage;
+  const indexOfFirstPersona = indexOfLastPersona - itemsCountPerPage;
+  const currentPersonas = personas.slice(indexOfFirstPersona, indexOfLastPersona);
+
+  const renderPagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(personas.length / itemsCountPerPage); i++) {
+      pageNumbers.push(i);
     }
-  };
-
-  handleDelete = async () => {
-    try {
-      // Lógica para eliminar una persona
-    } catch (error) {
-      console.error('Error al eliminar persona:', error.message);
-    }
-  };
-
-  clearForm = () => {
-    this.setState({
-      formData: {
-        dni: '',
-        nombrePersona: '',
-        genero: '',
-        fechaNac: '',
-        correo: '',
-        celular: '',
-        direccion: '',
-        idDistrito: null,
-        apePaterno: '',
-        apeMaterno: '',
-      },
-      selectedDepartamento: null,
-      selectedProvincia: null,
-      selectedDistrito: null,
-      selectedPerson: null,
-    });
-  };
-
-  handleSearchInputChange = (e) => {
-    this.setState({ searchQuery: e.target.value });
-  };
-
-  render() {
-    const { formData, departamentos, provincias, distritos, selectedDepartamento, selectedProvincia, selectedDistrito, personas, selectedPerson, searchQuery } = this.state;
-
-    // Filtrar personas según la búsqueda
-    const filteredPersonas = personas.filter(persona =>
-      persona.nombrePersona.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      persona.dni.includes(searchQuery)
-    );
-
     return (
-      <article>
-        <div>
-          <Header />
-          <section>
-            <div className='persona'>
-              <h1>PERSONAS</h1>
-            </div>
-            <div className='formulario'>
-              {/* Formulario para insertar una persona */}
-              <div className='form-row'>
-                <div className='form-group col'>
-                  <span className='p-float-label'>
-                    <InputText name='dni' value={formData.dni} onChange={this.handleInputChange} />
-                    <label htmlFor='dni'>DNI</label>
-                  </span>
-                </div>
-                <div className='form-group col'>
-                  <span className='p-float-label'>
-                    <InputText name='nombrePersona' value={formData.nombrePersona} onChange={this.handleInputChange} />
-                    <label htmlFor='nombrePersona'>Nombre</label>
-                  </span>
-                </div>
-                <div className='form-group col'>
-                  <span className='p-float-label'>
-                    <InputText name='apePaterno' value={formData.apePaterno} onChange={this.handleInputChange} />
-                    <label htmlFor='apePaterno'>Apellido Paterno</label>
-                  </span>
-                </div>
-                <div className='form-group col'>
-                  <span className='p-float-label'>
-                    <InputText name='apeMaterno' value={formData.apeMaterno} onChange={this.handleInputChange} />
-                    <label htmlFor='apeMaterno'>Apellido Materno</label>
-                  </span>
-                </div>
-                <div className='form-group col'>
-                  <span className='p-float-label'>
-                    <InputText name='genero' value={formData.genero} onChange={this.handleInputChange} />
-                    <label htmlFor='genero'>Género</label>
-                  </span>
-                </div>
-                <div className='form-group col'>
-                  <span className='p-float-label'>
-                    <InputText name='fechaNac' value={formData.fechaNac} onChange={this.handleInputChange} />
-                    <label htmlFor='fechaNac'>Fecha de Nacimiento</label>
-                  </span>
-                </div>
-                <div className='form-group col'>
-                  <span className='p-float-label'>
-                    <InputText name='correo' value={formData.correo} onChange={this.handleInputChange} />
-                    <label htmlFor='correo'>Correo</label>
-                  </span>
-                </div>
-                <div className='form-group col'>
-                  <span className='p-float-label'>
-                    <InputText name='celular' value={formData.celular} onChange={this.handleInputChange} />
-                    <label htmlFor='celular'>Celular</label>
-                  </span>
-                </div>
-                <div className='form-group col'>
-                  <span className='p-float-label'>
-                    <InputText name='direccion' value={formData.direccion} onChange={this.handleInputChange} />
-                    <label htmlFor='direccion'>Dirección</label>
-                  </span>
-                </div>
-                <div className='form-group col'>
-                  <Dropdown
-                    value={selectedDepartamento}
-                    options={departamentos}
-                    onChange={(e) => this.handleDropdownChange('selectedDepartamento', e.value)}
-                    optionLabel='nombreDepartamento'
-                    placeholder='Seleccione departamento'
-                  />
-                </div>
-                <div className='form-group col'>
-                  <Dropdown
-                    value={selectedProvincia}
-                    options={provincias}
-                    onChange={(e) => this.handleDropdownChange('selectedProvincia', e.value)}
-                    optionLabel='nombreProvincia'
-                    placeholder='Seleccione provincia'
-                    disabled={!selectedDepartamento}
-                  />
-                </div>
-                <div className='form-group col'>
-                  <Dropdown
-                    value={selectedDistrito}
-                    options={distritos}
-                    onChange={(e) => this.handleDropdownChange('selectedDistrito', e.value)}
-                    optionLabel='nombreDistrito'
-                    placeholder='Seleccione distrito'
-                    disabled={!selectedProvincia}
-                  />
-                </div>
-              </div>
-              {/* Botón de envío */}
-              <div className='button-group'>
-                <Button label='Insertar' onClick={this.handleSubmit} />
-                {selectedPerson && (
-                  <Button label='Actualizar' onClick={() => this.handleUpdate(selectedPerson)} />
-                )}
-              </div>
-            </div>
-            {/* Barra de búsqueda */}
-            <div className='search-bar'>
-              <InputText value={searchQuery} onChange={this.handleSearchInputChange} placeholder='Buscar por nombre o DNI' />
-              <div className='button-group'>
-                <Button label='Nuevo' />
-                <Button label='Eliminar' />
-                <Button label='Actualizar' />
-              </div>
-            </div>
-            {/* Tabla de personas */}
-            <div className='table-wrapper'>
-              <DataTable value={filteredPersonas} selectionMode='single' onSelectionChange={e => this.handleUpdate(e.value)} paginator rows={10} rowsPerPageOptions={[10, 20, 50]}>
-                <Column field='dni' header='DNI'></Column>
-                <Column field='nombrePersona' header='Nombre'></Column>
-                <Column field='apePaterno' header='Apellido Paterno'></Column>
-                <Column field='apeMaterno' header='Apellido Materno'></Column>
-                <Column field='genero' header='Género'></Column>
-                <Column field='fechaNac' header='Fecha de Nacimiento'></Column>
-                <Column field='correo' header='Correo'></Column>
-                <Column field='celular' header='Celular'></Column>
-                <Column field='direccion' header='Dirección'></Column>
-                <Column field='departamento' header='Departamento'></Column>
-                <Column field='provincia' header='Provincia'></Column>
-                <Column field='distrito' header='Distrito'></Column>
-              </DataTable>
-            </div>
-          </section>
-        </div>
-      </article>
+      <div>
+        {pageNumbers.map((number) => (
+          <button key={number} onClick={() => handlePageChange(number)} disabled={number === activePage}>
+            {number}
+          </button>
+        ))}
+      </div>
     );
-  }
-}
+  };
+
+  return (
+    <div>
+      <h2>{isEditing ? 'Actualizar Persona' : 'Registrar Persona'}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>
+          DNI:
+          <input type="text" name="dni" value={formData.dni} onChange={handleInputChange} />
+        </label>
+        <br />
+        <label>
+          Nombre:
+          <input type="text" name="nombrePersona" value={formData.nombrePersona} onChange={handleInputChange} />
+        </label>
+        <br />
+        <label>
+          Apellido Paterno:
+          <input type="text" name="apePaterno" value={formData.apePaterno} onChange={handleInputChange} />
+        </label>
+        <br />
+        <label>
+          Apellido Materno:
+          <input type="text" name="apeMaterno" value={formData.apeMaterno} onChange={handleInputChange} />
+        </label>
+        <br />
+        <label>
+          Género:
+          <select name="genero" value={formData.genero} onChange={handleInputChange}>
+            <option value="">Selecciona el género</option>
+            <option value="M">M</option>
+            <option value="F">F</option>
+          </select>
+        </label>
+        <br />
+        <label>
+          Fecha de Nacimiento:
+          <input type="date" name="fechaNac" value={formData.fechaNac} onChange={handleInputChange} />
+        </label>
+        <br />
+        <label>
+          Correo:
+          <input type="email" name="correo" value={formData.correo} onChange={handleInputChange} />
+        </label>
+        <br />
+        <label>
+          Celular:
+          <input type="tel" name="celular" value={formData.celular} onChange={handleInputChange} />
+        </label>
+        <br />
+        <label>
+          Dirección:
+          <input type="text" name="direccion" value={formData.direccion} onChange={handleInputChange} />
+        </label>
+        <br />
+        
+        <label>
+          Departamento:
+          <select
+            name="idDepartamento"
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              setFormData({ ...formData, idDepartamento: selectedId });
+              fetchProvincias(selectedId);
+            }}
+            value={formData.idDepartamento}
+          >
+            <option value="">Selecciona un departamento</option>
+            {departamentos.map((departamento) => (
+              <option key={departamento.idDepartamento} value={departamento.idDepartamento}>
+                {departamento.nombreDepartamento}
+              </option>
+            ))}
+          </select>
+        </label>
+        <br />
+
+        <label>
+          Provincia:
+          <select
+            name="idProvincia"
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              setFormData({ ...formData, idProvincia: selectedId });
+              fetchDistritos(selectedId);
+            }}
+            value={formData.idProvincia}
+          >
+            <option value="">Selecciona una provincia</option>
+            {provincias.map((provincia) => (
+              <option key={provincia.idProvincia} value={provincia.idProvincia}>
+                {provincia.nombreProvincia}
+              </option>
+            ))}
+          </select>
+        </label>
+        <br />
+
+        <label>
+          Distrito:
+          <select name="idDistrito" value={formData.idDistrito} onChange={handleInputChange}>
+            <option value="">Selecciona un distrito</option>
+            {distritos.map((distrito) => (
+              <option key={distrito.idDistrito} value={distrito.idDistrito}>
+                {distrito.nombreDistrito}
+              </option>
+            ))}
+          </select>
+        </label>
+        <br />
+        <button type="submit">{isEditing ? 'Actualizar' : 'Registrar'}</button>
+      </form>
+
+      <div>
+        <h2>Personas Registradas</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>DNI</th>
+              <th>Nombre</th>
+              <th>Apellido Paterno</th>
+              <th>Apellido Materno</th>
+              <th>Género</th>
+              <th>Fecha de Nacimiento</th>
+              <th>Correo</th>
+              <th>Celular</th>
+              <th>Dirección</th>
+              <th>Distrito</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentPersonas.map((persona, index) => (
+              <tr key={index}>
+                <td>{persona.idPersona}</td>
+                <td>{persona.dni}</td>
+                <td>{persona.nombrePersona}</td>
+                <td>{persona.apePaterno}</td>
+                <td>{persona.apeMaterno}</td>
+                <td>{persona.genero}</td>
+                <td>{persona.fechaNac}</td>
+                <td>{persona.correo}</td>
+                <td>{persona.celular}</td>
+                <td>{persona.direccion}</td>
+                <td>{persona.idDistrito}</td>
+                <td>
+                  <button onClick={() => handleEdit(persona)}>Editar</button>
+                  <button onClick={() => handleDelete(persona.idPersona)}>Eliminar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {renderPagination()}
+      </div>
+    </div>
+  );
+};
 
 export default Persona;

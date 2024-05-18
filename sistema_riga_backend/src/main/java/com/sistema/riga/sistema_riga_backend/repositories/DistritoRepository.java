@@ -20,7 +20,19 @@ public class DistritoRepository implements IDistritoRepository {
                 distritoModel.getIdProvincia());
         return "distritoModel";
     }
-
+    @Override
+    public DistritoModel getDistritoByName(String nombreDistrito) {
+        return jdbcTemplate.queryForObject("SELECT * FROM Distrito WHERE NombreDist = ?",
+                new Object[]{nombreDistrito},
+                (rs, rowNum) -> {
+                    DistritoModel distritoModel = new DistritoModel();
+                    distritoModel.setIdDistrito(rs.getInt("IDDistrito"));
+                    distritoModel.setNombreDistrito(rs.getString("NombreDist"));
+                    distritoModel.setEstadoDistrito(rs.getString("EstadoDistrito"));
+                    distritoModel.setIdProvincia(rs.getInt("IDProvincia"));
+                    return distritoModel;
+                });
+    }
 
     @Override
     public String updateDistrito(DistritoModel distritoModel) {

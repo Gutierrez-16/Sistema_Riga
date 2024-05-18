@@ -102,18 +102,17 @@ public class PersonaRepository implements IPersonaRepositry{
                     return personaModel;
                 });
     }
-
+    @Override
     public List<DepartamentoModel> getAllDepartamentos() {
         return jdbcTemplate.query("SELECT * FROM Departamento",
                 (rs, rowNum) -> {
                     DepartamentoModel departamentoModel = new DepartamentoModel();
                     departamentoModel.setIdDepartamento(rs.getInt("IDDepartamento"));
                     departamentoModel.setNombreDepartamento(rs.getString("NombreDep"));
-                    // Aquí puedes agregar otros campos si los necesitas
                     return departamentoModel;
                 });
     }
-
+    @Override
     public List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento) {
         return jdbcTemplate.query("SELECT * FROM Provincia WHERE IDDepartamento = ?",
                 new Object[]{idDepartamento},
@@ -121,11 +120,10 @@ public class PersonaRepository implements IPersonaRepositry{
                     ProvinciaModel provinciaModel = new ProvinciaModel();
                     provinciaModel.setIdProvincia(rs.getInt("IDProvincia"));
                     provinciaModel.setNombreProvincia(rs.getString("NombreProv"));
-                    // Aquí puedes agregar otros campos si los necesitas
                     return provinciaModel;
                 });
     }
-
+    @Override
     public List<DistritoModel> getDistritosByProvincia(int idProvincia) {
         return jdbcTemplate.query("SELECT * FROM Distrito WHERE IDProvincia = ?",
                 new Object[]{idProvincia},
@@ -133,9 +131,40 @@ public class PersonaRepository implements IPersonaRepositry{
                     DistritoModel distritoModel = new DistritoModel();
                     distritoModel.setIdDistrito(rs.getInt("IDDistrito"));
                     distritoModel.setNombreDistrito(rs.getString("NombreDist"));
-                    // Aquí puedes agregar otros campos si los necesitas
                     return distritoModel;
                 });
     }
+
+    @Override
+    public List<ProvinciaModel> getProvinciasByDistrito(int idDistrito) {
+        return jdbcTemplate.query("SELECT p.NombreProv, p.IDProvincia " +
+                        "FROM Provincia p " +
+                        "INNER JOIN Distrito d ON p.IDProvincia = d.IDProvincia " +
+                        "WHERE d.IDDistrito = ?;",
+                new Object[]{idDistrito},
+                (rs, rowNum) -> {
+                    ProvinciaModel provinciaModel = new ProvinciaModel();
+                    provinciaModel.setNombreProvincia(rs.getString("NombreProv"));
+                    provinciaModel.setIdProvincia(rs.getInt("IDProvincia"));
+                    return provinciaModel;
+                });
+    }
+
+
+    @Override
+    public List<DepartamentoModel> getDepartamentosByProvincia(String provincia) {
+        return jdbcTemplate.query("SELECT d.NombreDep, d.IDDepartamento " +
+                        "FROM Departamento d " +
+                        "INNER JOIN Provincia p ON d.IDDepartamento = p.IDDepartamento " +
+                        "WHERE p.NombreProv = ?;",
+                new Object[]{provincia},
+                (rs, rowNum) -> {
+                    DepartamentoModel departamentoModel = new DepartamentoModel();
+                    departamentoModel.setNombreDepartamento(rs.getString("NombreDep"));
+                    departamentoModel.setIdDepartamento(rs.getInt("IDDepartamento"));
+                    return departamentoModel;
+                });
+    }
+
 
 }

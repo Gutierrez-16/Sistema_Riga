@@ -13,4 +13,5 @@ public interface IDistritoService {
     String updateDistrito(DistritoModel distritoModel);
     String deleteDistrito(int id);
     List<DistritoModel> getDistritosByProvincia(int idProvincia);
+    int getDistritoIdByName(String nombreDistrito);
 }
