@@ -5,10 +5,10 @@ const Persona = () => {
   const [provincias, setProvincias] = useState([]);
   const [distritos, setDistritos] = useState([]);
   const [personas, setPersonas] = useState([]);
-  const [selectedDepartamentoNombre, setSelectedDepartamentoNombre] = useState('');
-  const [selectedProvinciaNombre, setSelectedProvinciaNombre] = useState('');
-
+  const [selectedDepartamentoId, setSelectedDepartamentoId] = useState('');
+  const [selectedProvinciaId, setSelectedProvinciaId] = useState('');
   const [formData, setFormData] = useState({
+    idPersona: '',
     dni: '',
     nombrePersona: '',
     apePaterno: '',
@@ -22,7 +22,10 @@ const Persona = () => {
     idProvincia: '',
     idDepartamento: ''
   });
+  const [isEditing, setIsEditing] = useState(false);
   const [selectedName, setSelectedName] = useState('');
+  const [activePage, setActivePage] = useState(1);
+  const [itemsCountPerPage] = useState(10);
 
   useEffect(() => {
     fetchDepartamentos();
@@ -37,14 +40,15 @@ const Persona = () => {
       }
       const data = await response.json();
       setDepartamentos(data);
-      console.log(data);
     } catch (error) {
       console.error(error);
     }
   };
 
   const fetchProvincias = async (idDepartamento) => {
-    console.log('Tu IDDEPART ES: ', idDepartamento);
+    setSelectedDepartamentoId(idDepartamento);
+    setProvincias([]);
+    setDistritos([]);
     try {
       const response = await fetch(`http://localhost:8080/person/provincias/${idDepartamento}`);
       if (!response.ok) {
@@ -58,6 +62,8 @@ const Persona = () => {
   };
 
   const fetchDistritos = async (idProvincia) => {
+    setSelectedProvinciaId(idProvincia);
+    setDistritos([]);
     try {
       const response = await fetch(`http://localhost:8080/person/distritos/${idProvincia}`);
       if (!response.ok) {
@@ -70,7 +76,6 @@ const Persona = () => {
     }
   };
 
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -78,18 +83,25 @@ const Persona = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const method = isEditing ? 'PUT' : 'POST';
+    const url = isEditing
+      ? `http://localhost:8080/person/${formData.idPersona}`
+      : 'http://localhost:8080/person';
+
     try {
-      const response = await fetch('http://localhost:8080/person', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
       });
+
       const data = await response.text();
       console.log('Respuesta:', data);
       fetchPersonas();
       setFormData({
+        idPersona: '',
         dni: '',
         nombrePersona: '',
         apePaterno: '',
@@ -103,6 +115,8 @@ const Persona = () => {
         idProvincia: '',
         idDepartamento: ''
       });
+      setIsEditing(false);
+      
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
     }
@@ -119,67 +133,100 @@ const Persona = () => {
   };
 
   const handleEdit = async (persona) => {
-    setFormData({ ...persona, idDistrito: persona.idDistrito, nombreProvincia: '', nombreDepartamento: '' });
+    setFormData({ ...persona, idDistrito: persona.idDistrito });
+    setIsEditing(true);
     setSelectedName(persona.nombrePersona);
-
+  
     const idDistrito = persona.idDistrito;
+    console.log(`Selected Persona ID: ${persona.idPersona}`);
+    console.log(`Selected Distrito ID: ${idDistrito}`);
+  
+    let provincia; // Declara la variable provincia aquí
+  
     try {
+      // Fetch the province corresponding to the district
       const provinciaResponse = await fetch(`http://localhost:8080/person/provincias/distrito/${idDistrito}`);
       const provinciaData = await provinciaResponse.json();
       if (provinciaData && provinciaData.length > 0) {
-        const departamentoId = provinciaData[0].idProvincia;
-        const provinciaNombre = provinciaData[0].nombreProvincia;
-
-
-        console.log('TU IDDEPART ES', departamentoId);
-        console.log('TU PROVINCIA ES: ', provinciaNombre);
-
-        setFormData(prevFormData => ({
+        provincia = provinciaData[0]; // Asigna el valor dentro del bloque if
+        const provinciaNombre = provincia.nombreProvincia;
+        console.log(`Fetched Provincia Nombre: ${provinciaNombre}, ID: ${provincia.idProvincia}`);
+  
+        setFormData((prevFormData) => ({
           ...prevFormData,
-          nombreProvincia: provinciaNombre
+          idProvincia: provincia.idProvincia
         }));
-        fetchProvincias(departamentoId);
+  
+        // Fetch provinces for the selected department
+        await fetchProvincias(provincia.idDepartamento);
+  
+        // Fetch the department corresponding to the province
         const departamentoResponse = await fetch(`http://localhost:8080/person/departamentos/provincia/${provinciaNombre}`);
         const departamentoData = await departamentoResponse.json();
         if (departamentoData && departamentoData.length > 0) {
-          const departamentoNombre = departamentoData[0].nombreDepartamento;
-          console.log('DEPARTAMENTO: ', departamentoNombre);
-
-          setSelectedDepartamentoNombre(departamentoNombre);
-
-          setFormData(prevFormData => ({
+          const departamento = departamentoData[0];
+          console.log(`Fetched Departamento Nombre: ${departamento.nombreDepartamento}, ID: ${departamento.idDepartamento}`);
+  
+          setFormData((prevFormData) => ({
             ...prevFormData,
-            nombreDepartamento: departamentoNombre
+            idDepartamento: departamento.idDepartamento
           }));
-
-        } else {
-          console.error('No se encontraron datos de departamento para la provincia:', provinciaNombre);
+          setSelectedDepartamentoId(departamento.idDepartamento);
+  
+          // Fetch provinces for the selected department again (in case they were not fetched previously)
+          await fetchProvincias(departamento.idDepartamento);
         }
-      } else {
-        console.error('No se encontraron datos de provincia para el distrito:', idDistrito);
       }
+  
+      // Fetch all districts for the selected province
+      await fetchDistritos(provincia.idProvincia); // Ahora provincia está definida en este punto
     } catch (error) {
       console.error('Error al obtener provincias o departamentos:', error);
     }
   };
+  
 
+  const handleDelete = async (idPersona) => {
+    try {
+      const response = await fetch(`http://localhost:8080/person/${idPersona}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.text();
+      console.log('Respuesta:', data);
+      fetchPersonas();
+    } catch (error) {
+      console.error('Error al eliminar persona:', error);
+    }
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setActivePage(pageNumber);
+  };
+
+  const indexOfLastPersona = activePage * itemsCountPerPage;
+  const indexOfFirstPersona = indexOfLastPersona - itemsCountPerPage;
+  const currentPersonas = personas.slice(indexOfFirstPersona, indexOfLastPersona);
+
+  const renderPagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(personas.length / itemsCountPerPage); i++) {
+      pageNumbers.push(i);
+    }
+    return (
+      <div>
+        {pageNumbers.map((number) => (
+          <button key={number} onClick={() => handlePageChange(number)} disabled={number === activePage}>
+            {number}
+          </button>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div>
-
-      <label>
-        Nombre:
-        <select value={selectedName} onChange={(e) => setSelectedName(e.target.value)}>
-          <option value="">Selecciona un nombre</option>
-          {personas.map((persona, index) => (
-            <option key={index} value={persona.nombrePersona}>
-              {persona.nombrePersona}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <h2>Registrar Persona</h2>
+      <h2>{isEditing ? 'Actualizar Persona' : 'Registrar Persona'}</h2>
       <form onSubmit={handleSubmit}>
         <label>
           DNI:
@@ -230,69 +277,66 @@ const Persona = () => {
           <input type="text" name="direccion" value={formData.direccion} onChange={handleInputChange} />
         </label>
         <br />
-        {/* Departamentos */}
+        
         <label>
           Departamento:
-          <select onChange={(e) => { fetchProvincias(e.target.value); }} value={selectedDepartamentoNombre}>
+          <select
+            name="idDepartamento"
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              setFormData({ ...formData, idDepartamento: selectedId });
+              fetchProvincias(selectedId);
+            }}
+            value={formData.idDepartamento}
+          >
             <option value="">Selecciona un departamento</option>
             {departamentos.map((departamento) => (
-              <option key={departamento.idDepartamento} value={departamento.nombreDepartamento}>
+              <option key={departamento.idDepartamento} value={departamento.idDepartamento}>
                 {departamento.nombreDepartamento}
               </option>
             ))}
           </select>
         </label>
-
         <br />
 
-        {/* Provincias */}
         <label>
           Provincia:
-          <select onChange={(e) => { fetchDistritos(e.target.value); }} value={formData.idProvincia}>
+          <select
+            name="idProvincia"
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              setFormData({ ...formData, idProvincia: selectedId });
+              fetchDistritos(selectedId);
+            }}
+            value={formData.idProvincia}
+          >
             <option value="">Selecciona una provincia</option>
-            {provincias.length > 0 ? (
-              provincias.map((provincia, index) => (
-                <option key={index} value={provincia.idProvincia}>
-                  {provincia.nombreProvincia}
-                </option>
-              ))
-            ) : (
-              <option value="" disabled>
-                Cargando provincias...
+            {provincias.map((provincia) => (
+              <option key={provincia.idProvincia} value={provincia.idProvincia}>
+                {provincia.nombreProvincia}
               </option>
-            )}
+            ))}
           </select>
         </label>
         <br />
 
-        {/* Distritos */}
         <label>
           Distrito:
           <select name="idDistrito" value={formData.idDistrito} onChange={handleInputChange}>
             <option value="">Selecciona un distrito</option>
-            {distritos.length > 0 ? (
-              distritos.map((distrito, index) => (
-                <option key={index} value={distrito.idDistrito}>
-                  {distrito.nombreDistrito}
-                </option>
-              ))
-            ) : (
-              <option value="" disabled>
-                Cargando distritos...
+            {distritos.map((distrito) => (
+              <option key={distrito.idDistrito} value={distrito.idDistrito}>
+                {distrito.nombreDistrito}
               </option>
-            )}
+            ))}
           </select>
         </label>
-
-
         <br />
-
-        <button type="submit">Registrar</button>
+        <button type="submit">{isEditing ? 'Actualizar' : 'Registrar'}</button>
       </form>
 
       <div>
         <h2>Personas Registradas</h2>
-        {/* Tabla de personas */}
         <table>
           <thead>
             <tr>
@@ -311,7 +355,7 @@ const Persona = () => {
             </tr>
           </thead>
           <tbody>
-            {personas.map((persona, index) => (
+            {currentPersonas.map((persona, index) => (
               <tr key={index}>
                 <td>{persona.idPersona}</td>
                 <td>{persona.dni}</td>
@@ -326,11 +370,13 @@ const Persona = () => {
                 <td>{persona.idDistrito}</td>
                 <td>
                   <button onClick={() => handleEdit(persona)}>Editar</button>
+                  <button onClick={() => handleDelete(persona.idPersona)}>Eliminar</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        {renderPagination()}
       </div>
     </div>
   );
