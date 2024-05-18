@@ -9,6 +9,8 @@ import Empleado from './Components/Employer/Empleado';
 import Empresa from './Components/Empresa/Empresa';
 import Home from './Components/Home/Home';
 import Venta from './Components/Ventas/Venta';
+import Prueba from './Components/Person/Prueba';
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -21,6 +23,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/empresa" element={<Empresa />} />
       <Route path="/home" element={<Home />} />
       <Route path="/venta" element={<Venta />} />
+      <Route path="/prueba" element={<Prueba />} />
+
     </Routes>
   </BrowserRouter>
 );

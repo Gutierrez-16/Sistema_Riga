@@ -135,4 +135,37 @@ public class PersonaRepository implements IPersonaRepositry{
                 });
     }
 
+    @Override
+    public List<ProvinciaModel> getProvinciasByDistrito(int idDistrito) {
+        return jdbcTemplate.query("SELECT p.NombreProv, d.IDProvincia, d.NombreDist, P.IDDepartamento\n" +
+                        "FROM Provincia p\n" +
+                        "INNER JOIN Distrito d ON p.IDProvincia = d.IDProvincia\n" +
+                        "WHERE d.IDDistrito = ?;",
+                new Object[]{idDistrito},
+                (rs, rowNum) -> {
+                    ProvinciaModel provinciaModel = new ProvinciaModel();
+                    provinciaModel.setNombreProvincia(rs.getString("NombreProv"));
+                    provinciaModel.setIdProvincia(rs.getInt(4));
+
+
+                    return provinciaModel;
+                });
+    }
+
+    @Override
+    public List<DepartamentoModel> getDepartamentosByProvincia(String provincia) {
+        return jdbcTemplate.query("SELECT d.NombreDep, d.IDDepartamento\n" +
+                        "FROM Departamento d\n" +
+                        "INNER JOIN Provincia p ON d.IDDepartamento = p.IDDepartamento\n" +
+                        "WHERE p.NombreProv = ?;",
+                new Object[]{provincia},
+                (rs, rowNum) -> {
+                    DepartamentoModel departamentoModel = new DepartamentoModel();
+                    departamentoModel.setNombreDepartamento(rs.getString("NombreDep"));
+                    departamentoModel.setIdDepartamento(rs.getInt(2));
+
+                    return departamentoModel;
+                });
+    }
+
 }

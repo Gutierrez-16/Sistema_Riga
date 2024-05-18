@@ -54,4 +54,16 @@ public class PersonaService implements IPersonaService {
     public List<DistritoModel> getDistritosByProvincia(int idProvincia) {
         return personaRepository.getDistritosByProvincia(idProvincia);
     }
+
+
+
+    @Override
+    public List<ProvinciaModel> getProvinciasByDistrito(int idDistrito) {
+        return personaRepository.getProvinciasByDistrito(idDistrito);
+    }
+
+    @Override
+    public List<DepartamentoModel> getDepartamentosByProvincia(String provincia) {
+        return personaRepository.getDepartamentosByProvincia(provincia);
+    }
 }

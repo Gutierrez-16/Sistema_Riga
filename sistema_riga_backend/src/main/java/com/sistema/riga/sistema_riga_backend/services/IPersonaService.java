@@ -18,4 +18,7 @@ public interface IPersonaService {
     List<DepartamentoModel> getAllDepartamentos();
     List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento);
     List<DistritoModel> getDistritosByProvincia(int idProvincia);
+
+    List<ProvinciaModel> getProvinciasByDistrito(int idDistrito);
+    List<DepartamentoModel> getDepartamentosByProvincia(String provincia);
 }
