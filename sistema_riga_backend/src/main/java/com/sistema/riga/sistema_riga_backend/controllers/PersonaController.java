@@ -44,7 +44,6 @@ public class PersonaController {
         return iPersonaService.getDistritosByProvincia(idProvincia);
     }
 
-    //
 
     @GetMapping("/provincias/distrito/{idDistrito}")
     public List<ProvinciaModel> getProvinciasByDistrito(@PathVariable int idDistrito) {
