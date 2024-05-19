@@ -1,6 +1,5 @@
 package com.sistema.riga.sistema_riga_backend.repositories;
 
-import com.sistema.riga.sistema_riga_backend.models.DepartamentoModel;
 import com.sistema.riga.sistema_riga_backend.models.ProvinciaModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
