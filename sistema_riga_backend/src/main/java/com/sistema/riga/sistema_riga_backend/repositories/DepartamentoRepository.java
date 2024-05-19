@@ -4,11 +4,11 @@ package com.sistema.riga.sistema_riga_backend.repositories;
 import com.sistema.riga.sistema_riga_backend.models.DepartamentoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Service
+@Repository
 public class DepartamentoRepository implements IDepartamentoRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
