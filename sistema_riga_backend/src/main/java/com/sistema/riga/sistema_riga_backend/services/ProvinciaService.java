@@ -11,35 +11,25 @@ import java.util.List;
 public class ProvinciaService implements IProvinciaService {
 
     @Autowired
-    private IProvinciaRepository provinciaRepository;
+    private IProvinciaRepository iProvinciaRepository;
 
     @Override
     public List<ProvinciaModel> getAllProvincias() {
-        return provinciaRepository.getAllProvincias();
+        return iProvinciaRepository.getAllProvincias();
     }
 
     @Override
     public ProvinciaModel getProvinciaById(int id) {
-        return provinciaRepository.getProvinciaById(id);
+        return iProvinciaRepository.getProvinciaById(id);
     }
 
     @Override
-    public String insertProvincia(ProvinciaModel provinciaModel) {
-        return provinciaRepository.insertProvincia(provinciaModel);
-    }
+    public List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento){
+        return iProvinciaRepository.getProvinciasByDepartamento(idDepartamento);
+    };
 
     @Override
-    public List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento) {
-        return provinciaRepository.getProvinciasByDepartamento(idDepartamento);
-    }
-
-    @Override
-    public String updateProvincia(ProvinciaModel provinciaModel) {
-        return provinciaRepository.updateProvincia(provinciaModel);
-    }
-
-    @Override
-    public String deleteProvincia(int id) {
-        return provinciaRepository.deleteProvincia(id);
+    public ProvinciaModel getProvinciaByDistrito(int idDistrito) {
+        return iProvinciaRepository.getProvinciaByDistrito(idDistrito);
     }
 }

@@ -3,12 +3,13 @@ package com.sistema.riga.sistema_riga_backend.repositories;
 import com.sistema.riga.sistema_riga_backend.models.EmpresaModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Service
+@Repository
 public class EmpresaRepository implements IEmpresaRepositry{
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 

@@ -10,4 +10,6 @@ public interface IDepartamentoRepository {
     String insertDepartamento(DepartamentoModel departamentoModel);
     String updateDepartamento(DepartamentoModel departamentoModel);
     String deleteDepartamento(int id);
+
+    DepartamentoModel getDepartamentoByProvincia(String provinciaNombre);
 }
