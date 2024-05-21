@@ -13,6 +13,11 @@ public class DepartamentoRepository implements IDepartamentoRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    public static String GET_DEPARTAMENTO_PROVINCIA = "SELECT d.IDDepartamento, d.NombreDep " +
+                                                    "FROM Departamento d INNER JOIN Provincia p " +
+                                                    "ON d.IDDepartamento = p.IDDepartamento " +
+                                                    "WHERE p.NombreProv = ?";
+
     @Override
     public String insertDepartamento(DepartamentoModel departamentoModel) {
         jdbcTemplate.update("EXEC SP_CRUD_Departamento @NombreDep = ?, @Operation = 'C'",
@@ -61,4 +66,15 @@ public class DepartamentoRepository implements IDepartamentoRepository {
                 });
     }
 
+    @Override
+    public DepartamentoModel getDepartamentoByProvincia(String provinciaNombre) {
+        return jdbcTemplate.queryForObject(GET_DEPARTAMENTO_PROVINCIA,
+                new Object[]{provinciaNombre},
+                (rs, rowNum) -> {
+                    DepartamentoModel departamentoModel = new DepartamentoModel();
+                    departamentoModel.setIdDepartamento(rs.getInt(1));
+                    departamentoModel.setNombreDepartamento(rs.getString(2));
+                    return departamentoModel;
+                });
+    }
 }

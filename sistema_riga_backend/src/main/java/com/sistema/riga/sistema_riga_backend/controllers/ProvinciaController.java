@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/province")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/provincia")
 public class ProvinciaController {
     @Autowired
     private IProvinciaService iProvinciaService;
@@ -24,24 +23,13 @@ public class ProvinciaController {
         return iProvinciaService.getProvinciaById(id);
     }
 
-    @GetMapping("/department/{idDepartamento}")
+    @GetMapping("/departamento/{idDepartamento}")
     public List<ProvinciaModel> getProvinciasByDepartamento(@PathVariable int idDepartamento) {
         return iProvinciaService.getProvinciasByDepartamento(idDepartamento);
     }
 
-    @PostMapping
-    public String insertProvincia(@RequestBody ProvinciaModel provinciaModel) {
-        return iProvinciaService.insertProvincia(provinciaModel);
-    }
-
-    @PutMapping("/{id}")
-    public String updateProvincia(@PathVariable int id, @RequestBody ProvinciaModel provinciaModel) {
-        provinciaModel.setIdDepartamento(id);
-        return iProvinciaService.updateProvincia(provinciaModel);
-    }
-
-    @DeleteMapping("/{id}")
-    public String deleteProvincia(@PathVariable int id) {
-        return iProvinciaService.deleteProvincia(id);
+    @GetMapping("/distrito/{idDistrito}")
+    public ProvinciaModel getProvinciaByDistrito(@PathVariable int idDistrito) {
+        return iProvinciaService.getProvinciaByDistrito(idDistrito);
     }
 }

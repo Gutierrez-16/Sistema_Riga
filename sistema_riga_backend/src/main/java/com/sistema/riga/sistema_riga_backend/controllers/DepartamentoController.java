@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/department")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/departamento")
 public class DepartamentoController {
     @Autowired
     private IDepartamentoService iDepartamentoService;
@@ -24,19 +23,8 @@ public class DepartamentoController {
         return iDepartamentoService.getDepartamentoById(id);
     }
 
-    @PostMapping
-    public String insertDepartamento(@RequestBody DepartamentoModel departamentoModel) {
-        return iDepartamentoService.insertDepartamento(departamentoModel);
-    }
-
-    @PutMapping("/{id}")
-    public String updateDepartamento(@PathVariable int id, @RequestBody DepartamentoModel departamentoModel) {
-        departamentoModel.setIdDepartamento(id);
-        return iDepartamentoService.updateDepartamento(departamentoModel);
-    }
-
-    @DeleteMapping("/{id}")
-    public String deleteDepartamento(@PathVariable int id) {
-        return iDepartamentoService.deleteDepartamento(id);
+    @GetMapping("/provincia/{provinciaNombre}")
+    public DepartamentoModel getDepartamentoByProvincia(@PathVariable String provinciaNombre) {
+        return iDepartamentoService.getDepartamentoByProvincia(provinciaNombre);
     }
 }
