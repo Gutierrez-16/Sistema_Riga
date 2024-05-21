@@ -1,6 +1,6 @@
 package com.sistema.riga.sistema_riga_backend.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
+/*import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.*;
@@ -12,9 +12,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import javax.sql.DataSource;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity*/
 public class WebSecurityConfig {
-    @Autowired
+   /* @Autowired
     private DataSource dataSource;
 
     @Autowired
@@ -37,5 +37,5 @@ public class WebSecurityConfig {
         ;
 
         return http.build();
-    }
+    }*/
 }

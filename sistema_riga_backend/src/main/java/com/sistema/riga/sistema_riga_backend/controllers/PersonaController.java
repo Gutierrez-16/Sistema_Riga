@@ -61,6 +61,11 @@ public class PersonaController {
         return iPersonaService.getAllPersonas();
     }
 
+    @GetMapping("/buscar/{persona}")
+    public List<PersonaModel> search(@PathVariable String persona) {
+        return iPersonaService.search(persona);
+    }
+
     @GetMapping("/{id}")
     public PersonaModel getPersonaById(@PathVariable int id) {
         return iPersonaService.getPersonaById(id);
