@@ -14,57 +14,57 @@ import java.util.List;
 public class PersonaService implements IPersonaService {
 
     @Autowired
-    private IPersonaRepositry iPersonaRepositry;
+    private IPersonaRepositry personaRepository;
 
     @Override
     public String updatePersona(PersonaModel personaModel) {
-        return iPersonaRepositry.updatePersona(personaModel);
+        return personaRepository.updatePersona(personaModel);
     }
     @Override
     public List<PersonaModel> getAllPersonas() {
-        return iPersonaRepositry.getAllPersonas();
+        return personaRepository.getAllPersonas();
     }
 
     @Override
     public PersonaModel getPersonaById(int id) {
-        return iPersonaRepositry.getPersonaById(id);
+        return personaRepository.getPersonaById(id);
     }
 
     @Override
     public String insertPersona(PersonaModel personaModel) {
-        return iPersonaRepositry.insertPersona(personaModel);
+        return personaRepository.insertPersona(personaModel);
     }
 
     @Override
     public String deletePersona(int id) {
-        return iPersonaRepositry.deletePersona(id);
+        return personaRepository.deletePersona(id);
     }
 
     @Override
     public List<DepartamentoModel> getAllDepartamentos() {
-        return iPersonaRepositry.getAllDepartamentos();
+        return personaRepository.getAllDepartamentos();
     }
 
     @Override
     public List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento) {
-        return iPersonaRepositry.getProvinciasByDepartamento(idDepartamento);
+        return personaRepository.getProvinciasByDepartamento(idDepartamento);
     }
 
     @Override
     public List<DistritoModel> getDistritosByProvincia(int idProvincia) {
-        return iPersonaRepositry.getDistritosByProvincia(idProvincia);
+        return personaRepository.getDistritosByProvincia(idProvincia);
     }
 
 
 
     @Override
     public List<ProvinciaModel> getProvinciasByDistrito(int idDistrito) {
-        return iPersonaRepositry.getProvinciasByDistrito(idDistrito);
+        return personaRepository.getProvinciasByDistrito(idDistrito);
     }
 
     @Override
     public List<DepartamentoModel> getDepartamentosByProvincia(String provincia) {
-        return iPersonaRepositry.getDepartamentosByProvincia(provincia);
+        return personaRepository.getDepartamentosByProvincia(provincia);
     }
     @Override
     public  List<PersonaModel> search(String persona) {

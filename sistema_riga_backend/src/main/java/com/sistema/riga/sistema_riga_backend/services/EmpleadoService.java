@@ -1,9 +1,7 @@
 package com.sistema.riga.sistema_riga_backend.services;
 
 
-import com.sistema.riga.sistema_riga_backend.models.CargoModel;
 import com.sistema.riga.sistema_riga_backend.models.EmpleadoModel;
-import com.sistema.riga.sistema_riga_backend.models.PersonaModel;
 import com.sistema.riga.sistema_riga_backend.repositories.IEmpleadoRepositry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,15 +36,5 @@ public class EmpleadoService implements IEmpleadoService{
     @Override
     public String deleteEmpleado(int id) {
         return iEmpleadoRepositry.deleteEmpleado(id);
-    }
-
-    @Override
-    public List<CargoModel> getAllCargos() {
-        return iEmpleadoRepositry.getAllCargos();
-    }
-
-    @Override
-    public List<PersonaModel> getAllPersonas() {
-        return iEmpleadoRepositry.getAllPersonas();
     }
 }

@@ -11,19 +11,25 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/district")
+@RequestMapping("/distrito")
 public class DistritoController {
 
-    private final IDistritoService distritoService;
-
     @Autowired
-    public DistritoController(IDistritoService distritoService) {
-        this.distritoService = distritoService;
+    private IDistritoService iDistritoService;
+
+    @GetMapping
+    public List<DistritoModel> getAllDistritos() {
+        return iDistritoService.getAllDistritos();
     }
 
-    @GetMapping("/province/{idProvincia}")
+    @GetMapping("/{id}")
+    public DistritoModel getDistritoById(@PathVariable int id) {
+        return iDistritoService.getDistritoById(id);
+    }
+
+    @GetMapping("/provincia/{idProvincia}")
     public List<DistritoModel> getDistritosByProvincia(@PathVariable int idProvincia) {
-        return distritoService.getDistritosByProvincia(idProvincia);
+        return iDistritoService.getDistritosByProvincia(idProvincia);
     }
 }
 

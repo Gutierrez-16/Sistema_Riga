@@ -1,15 +1,13 @@
 package com.sistema.riga.sistema_riga_backend.repositories;
 
-import com.sistema.riga.sistema_riga_backend.models.CargoModel;
 import com.sistema.riga.sistema_riga_backend.models.EmpleadoModel;
-import com.sistema.riga.sistema_riga_backend.models.PersonaModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Repository
+@Service
 public class EmpleadoRepository implements IEmpleadoRepositry{
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -87,39 +85,6 @@ public class EmpleadoRepository implements IEmpleadoRepositry{
                     empleadoModel.setIdCargo(rs.getInt("IDCargo"));
                     empleadoModel.setIdPersona(rs.getInt("IDPersona"));
                     return empleadoModel;
-                });
-    }
-
-    @Override
-    public List<CargoModel> getAllCargos() {
-        return jdbcTemplate.query("SELECT * FROM Cargo",
-                (rs, rowNum) -> {
-                    CargoModel cargoModel = new CargoModel();
-                    cargoModel.setIdCargo(rs.getInt(1));
-                    cargoModel.setNombreCargo(rs.getString(2));
-                    cargoModel.setEstadoCargo(rs.getString(3));
-                    return cargoModel;
-                });
-    }
-
-    @Override
-    public List<PersonaModel> getAllPersonas() {
-        return jdbcTemplate.query("SELECT * FROM Persona",
-                (rs, rowNum) -> {
-                    PersonaModel personaModel = new PersonaModel();
-                    personaModel.setIdPersona(rs.getInt("IDPersona"));
-                    personaModel.setDni(rs.getString("DNI"));
-                    personaModel.setNombrePersona(rs.getString("Nombre"));
-                    personaModel.setApePaterno(rs.getString("Ape_Pat"));
-                    personaModel.setApeMaterno(rs.getString("Ape_Mat"));
-                    personaModel.setGenero(rs.getString("Genero"));
-                    personaModel.setFechaNac(rs.getDate("Fecha_Nac"));
-                    personaModel.setCorreo(rs.getString("Correo"));
-                    personaModel.setCelular(rs.getString("Celular"));
-                    personaModel.setDireccion(rs.getString("Direccion"));
-                    personaModel.setEstadoPersona(rs.getString("EstadoPersona"));
-                    personaModel.setIdDistrito(rs.getInt("IDDistrito"));
-                    return personaModel;
                 });
     }
 }
