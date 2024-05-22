@@ -1,297 +1,342 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { classNames } from 'primereact/utils';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Toast } from 'primereact/toast';
+import { Button } from 'primereact/button';
+import { Toolbar } from 'primereact/toolbar';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+import { InputText } from 'primereact/inputtext';
+import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
+import 'primeflex/primeflex.css';
 
-const Empresa = () => {
-  const [departamentos, setDepartamentos] = useState([]);
-  const [provincias, setProvincias] = useState([]);
-  const [distritos, setDistritos] = useState([]);
-  const [empresas, setEmpresas] = useState([]);
-  const [selectedDepartamentoId, setSelectedDepartamentoId] = useState('');
-  const [selectedProvinciaId, setSelectedProvinciaId] = useState('');
-  const [formData, setFormData] = useState({
-    idEmpresa: '',
-    ruc: '',
-    razonSocial: '',
-    direccion: '',
-    idDistrito: '',
-    idProvincia: '',
-    idDepartamento: ''
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [activePage, setActivePage] = useState(1);
-  const [itemsCountPerPage] = useState(10);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchDepartamentos();
-      await fetchEmpresas();
+export default function ProductsDemo() {
+    let emptyProduct = {
+        idEmpresa: '',
+        ruc: '',
+        razonSocial: '',
+        direccion: '',
+        idDistrito: '',
+        idProvincia: '',
+        idDepartamento: ''
     };
-    fetchData();
-  }, []);
 
-  const fetchDepartamentos = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/departamento');
-      if (!response.ok) throw new Error('Error al obtener departamentos');
-      const data = await response.json();
-      setDepartamentos(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    const [departamentos, setDepartamentos] = useState([]);
+    const [provincias, setProvincias] = useState([]);
+    const [distritos, setDistritos] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [productDialog, setProductDialog] = useState(false);
+    const [deleteProductDialog, setDeleteProductDialog] = useState(false);
+    const [product, setProduct] = useState(emptyProduct);
+    const [selectedProducts, setSelectedProducts] = useState(null);
+    const [submitted, setSubmitted] = useState(false);
+    const [globalFilter, setGlobalFilter] = useState(null);
+    const toast = useRef(null);
+    const dt = useRef(null);
 
-  const fetchProvincias = async (idDepartamento) => {
-    try {
-      setSelectedDepartamentoId(idDepartamento);
-      setProvincias([]);
-      setDistritos([]);
-      const response = await fetch(`http://localhost:8080/provincia/departamento/${idDepartamento}`);
-      if (!response.ok) throw new Error('Error al obtener provincias');
-      const data = await response.json();
-      setProvincias(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    useEffect(() => {
+        fetchDepartamentos();
+        fetchEmpresas();
+    }, []);
 
-  const fetchDistritos = async (idProvincia) => {
-    try {
-      setSelectedProvinciaId(idProvincia);
-      setDistritos([]);
-      const response = await fetch(`http://localhost:8080/distrito/provincia/${idProvincia}`);
-      if (!response.ok) throw new Error('Error al obtener distritos');
-      const data = await response.json();
-      setDistritos(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    const fetchDepartamentos = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/departamento');
+            if (!response.ok) throw new Error('Error al obtener departamentos');
+            const data = await response.json();
+            setDepartamentos(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const method = isEditing ? 'PUT' : 'POST';
-    const url = isEditing
-      ? `http://localhost:8080/person/${formData.idEmpresa}`
-      : 'http://localhost:8080/empresa';
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.text();
-      console.log('Respuesta:', data);
-      await fetchPersonas();
-      resetForm();
-    } catch (error) {
-      console.error('Error al enviar el formulario:', error);
-    }
-  };
-
-  const fetchEmpresas = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/empresa');
-      if (!response.ok) throw new Error('Error al obtener empresas');
-      const data = await response.json();
-      setEmpresas(data);
-    } catch (error) {
-      console.error('Error al obtener empresas:', error);
-    }
-  };
-
-  const handleEdit = async (empresa) => {
-    setFormData({ ...empresa, idDistrito: empresa.idDistrito });
-    setIsEditing(true);
-
-    const { idDistrito } = empresa;
-  try {
-    const provinciaResponse = await fetch(`http://localhost:8080/provincia/distrito/${idDistrito}`);
-    if (!provinciaResponse.ok) {
-      throw new Error('Error al obtener la provincia');
-    }
-    const provinciaData = await provinciaResponse.json();
-
-    const provinciaNombre = provinciaData.nombreProvincia;
-    console.log('TU NOMBREPROV: ', provinciaNombre);
+    const fetchProvincias = async (departamentoId) => {
+        try {
+            setProduct((prevProduct) => ({ ...prevProduct, idDepartamento: departamentoId }));
+            setProvincias([]);
+            setDistritos([]);
+            const response = await fetch(`http://localhost:8080/provincia/departamento/${departamentoId}`);
+            if (!response.ok) throw new Error('Error al obtener provincias');
+            const data = await response.json();
+            setProvincias(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
 
-      const departamentoResponse = await fetch(`http://localhost:8080/departamento/provincia/${provinciaNombre}`);
-      if (!departamentoResponse.ok) throw new Error('Error al obtener departamentos');
+    const fetchDistritos = async (idProvincia) => {
+        try {
+            setProduct((prevProduct) => ({ ...prevProduct, idProvincia }));
+            setDistritos([]);
+            const response = await fetch(`http://localhost:8080/distrito/provincia/${idProvincia}`);
+            if (!response.ok) throw new Error('Error al obtener distritos');
+            const data = await response.json();
+            setDistritos(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
-      const departamentoData = await departamentoResponse.json();
+    const fetchEmpresas = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/empresa');
+            if (!response.ok) throw new Error('Error al obtener empresas');
+            const data = await response.json();
+            setProducts(data);
+        } catch (error) {
+            console.error('Error al obtener empresas:', error);
+        }
+    };
 
-      console.log(departamentoData)
+    const saveProduct = async () => {
+        setSubmitted(true);
 
-      const departamentoNombre = departamentoData.nombreDepartamento;
-      console.log('TU DEPART: ', departamentoNombre);
+        if (product.razonSocial.trim()) {
+            let _products = [...products];
+            let _product = { ...product };
+            const method = _product.idEmpresa ? 'PUT' : 'POST';
+            const url = _product.idEmpresa
+                ? `http://localhost:8080/empresa/${_product.idEmpresa}`
+                : 'http://localhost:8080/empresa';
 
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        idProvincia: provinciaData.idProvincia,
-        idDepartamento: departamentoData.idDepartamento
-      }));
-      setSelectedDepartamentoId(departamentoData.idDepartamento);
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(_product)
+                });
 
-      await fetchProvincias(departamentoData.idDepartamento);
-      await fetchDistritos(provinciaData.idProvincia);
-    } catch (error) {
-      console.error('Error al obtener provincias o departamentos:', error);
-    }
-  };
+                if (!response.ok) throw new Error('Error al guardar la empresa');
 
-  const handleDelete = async (idEmpresa) => {
-    try {
-      const response = await fetch(`http://localhost:8080/empresa/${idEmpresa}`, { method: 'DELETE' });
-      const data = await response.text();
-      console.log('Respuesta:', data);
-      await fetchPersonas();
-    } catch (error) {
-      console.error('Error al eliminar persona:', error);
-    }
-  };
+                const data = await response.json();
 
-  const handlePageChange = (pageNumber) => {
-    setActivePage(pageNumber);
-  };
+                if (method === 'POST') {
+                    _products.push(data);
+                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Creada', life: 3000 });
+                } else {
+                    const index = findIndexById(_product.idEmpresa);
+                    _products[index] = data;
+                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Actualizada', life: 3000 });
+                }
 
-  const resetForm = () => {
-    setFormData({
-      idEmpresa: '',
-      ruc: '',
-      razonSocial: '',
-      direccion: '',
-      idDistrito: '',
-      idProvincia: '',
-      idDepartamento: ''
-    });
-    setIsEditing(false);
-  };
+                setProducts(_products);
+                setProductDialog(false);
+                setProduct(emptyProduct);
+            } catch (error) {
+                console.error('Error al guardar la empresa:', error);
+            }
+        }
+    };
 
-  const indexOfLastEmpresa = activePage * itemsCountPerPage;
-  const indexOfFirstEmpresa = indexOfLastEmpresa - itemsCountPerPage;
-  const currentEmpresas = empresas.slice(indexOfFirstEmpresa, indexOfLastEmpresa);
+    const editProduct = (product) => {
+        setProduct({ ...product });
+        setProductDialog(true);
+        fetchProvincias(product.idDepartamento);
+        fetchDistritos(product.idProvincia);
+    };
 
-  const renderPagination = () => {
-    const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(empresas.length / itemsCountPerPage); i++) {
-      pageNumbers.push(i);
-    }
-    return (
-      <div>
-        {pageNumbers.map((number) => (
-          <button key={number} onClick={() => handlePageChange(number)} disabled={number === activePage}>
-            {number}
-          </button>
-        ))}
-      </div>
+    const confirmDeleteProduct = (product) => {
+        setProduct(product);
+        setDeleteProductDialog(true);
+    };
+
+    const deleteProduct = async () => {
+        try {
+            await fetch(`http://localhost:8080/empresa/${product.idEmpresa}`, { method: 'DELETE' });
+            let _products = products.filter((val) => val.idEmpresa !== product.idEmpresa);
+            setProducts(_products);
+            setDeleteProductDialog(false);
+            setProduct(emptyProduct);
+            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Eliminada', life: 3000 });
+        } catch (error) {
+            console.error('Error al eliminar la empresa:', error);
+        }
+    };
+
+    const findIndexById = (id) => {
+        let index = -1;
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].idEmpresa === id) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    };
+
+    const openNew = () => {
+        setProduct(emptyProduct);
+        setSubmitted(false);
+        setProductDialog(true);
+    };
+
+    const hideDialog = () => {
+        setSubmitted(false);
+        setProductDialog(false);
+    };
+
+    const hideDeleteProductDialog = () => {
+        setDeleteProductDialog(false);
+    };
+
+    const onInputChange = (e, name) => {
+        const val = (e.target && e.target.value) || '';
+        let _product = { ...product };
+        _product[`${name}`] = val;
+        setProduct(_product);
+    };
+
+    const leftToolbarTemplate = () => {
+        return (
+            <div className="flex flex-wrap gap-2">
+                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
+                <Button label="Delete" icon="pi pi-trash" severity="danger" disabled={!selectedProducts || !selectedProducts.length} />
+            </div>
+        );
+    };
+
+    const rightToolbarTemplate = () => {
+        return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={() => dt.current.exportCSV()} />;
+    };
+
+    const actionBodyTemplate = (rowData) => {
+        return (
+            <React.Fragment>
+                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editProduct(rowData)} />
+                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
+            </React.Fragment>
+        );
+    };
+
+    const header = (
+        <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+            <h4 className="m-0">Manage Empresas</h4>
+            <IconField iconPosition="left">
+                <InputIcon className="pi pi-search" />
+                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
+            </IconField>
+        </div>
     );
-  };
+    const productDialogFooter = (
+        <React.Fragment>
+            <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Save" icon="pi pi-check" onClick={saveProduct} />
+        </React.Fragment>
+    );
+    const deleteProductDialogFooter = (
+        <React.Fragment>
+            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteProductDialog} />
+            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteProduct} />
+        </React.Fragment>
+    );
 
-  return (
-    <div>
-      <h2>{isEditing ? 'Actualizar Empresas' : 'Registrar Empresas'}</h2>
-      <form onSubmit={handleSubmit}>
-        {['ruc', 'razonSocial', 'direccion'].map((field) => (
-          <div key={field}>
-            <label>
-              {field.charAt(0).toUpperCase() + field.slice(1)}:
-              <input type="text" name={field} value={formData[field]} onChange={handleInputChange} />
-            </label>
-          </div>
-        ))}
-        <label>
-          Departamento:
-          <select
-            name="idDepartamento"
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              setFormData({ ...formData, idDepartamento: selectedId });
-              fetchProvincias(selectedId);
-            }}
-            value={formData.idDepartamento}
-          >
-            <option value="">Selecciona un departamento</option>
-            {departamentos.map((departamento) => (
-              <option key={departamento.idDepartamento} value={departamento.idDepartamento}>
-                {departamento.nombreDepartamento}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <label>
-          Provincia:
-          <select
-            name="idProvincia"
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              setFormData({ ...formData, idProvincia: selectedId });
-              fetchDistritos(selectedId);
-            }}
-            value={formData.idProvincia}
-          >
-            <option value="">Selecciona una provincia</option>
-            {provincias.map((provincia) => (
-              <option key={provincia.idProvincia} value={provincia.idProvincia}>
-                {provincia.nombreProvincia}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <label>
-          Distrito:
-          <select name="idDistrito" value={formData.idDistrito} onChange={handleInputChange}>
-            <option value="">Selecciona un distrito</option>
-            {distritos.map((distrito) => (
-              <option key={distrito.idDistrito} value={distrito.idDistrito}>
-                {distrito.nombreDistrito}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <button type="submit">{isEditing ? 'Actualizar' : 'Registrar'}</button>
-      </form>
-      <div>
-        <h2>Empresas Registradas</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>RUC</th>
-              <th>Razon Social</th>
-              <th>Dirección</th>
-              <th>Distrito</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentEmpresas.map((empresa, index) => (
-              <tr key={index}>
-                <td>{empresa.idEmpresa}</td>
-                <td>{empresa.ruc}</td>
-                <td>{empresa.razonSocial}</td>
-                <td>{empresa.direccion}</td>
-                <td>{empresa.idDistrito}</td>
-                <td>
-                  <button onClick={() => handleEdit(empresa)}>Editar</button>
-                  <button onClick={() => handleDelete(empresa.idEmpresa)}>Eliminar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {renderPagination()}
-      </div>
-    </div>
-  );
-};
+    return (
+        <div>
+            <Toast ref={toast} />
+            <div className="card">
+                <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
-export default Empresa;
+                <DataTable ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}
+                    dataKey="idEmpresa" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} empresas" globalFilter={globalFilter} header={header}>
+                    <Column selectionMode="multiple" exportable={false}></Column>
+                    <Column field="idEmpresa" header="ID" sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column field="ruc" header="RUC" sortable style={{ minWidth: '8rem' }}></Column>
+                    <Column field="razonSocial" header="Razón Social" sortable style={{ minWidth: '12rem' }}></Column>
+                    <Column field="direccion" header="Dirección" sortable style={{ minWidth: '12rem' }}></Column>
+                    <Column field="idDistrito" header="Distrito" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '8rem' }}></Column>
+                </DataTable>
+            </div>
+
+            <Dialog visible={productDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Detalles de Empresa" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
+                <div className="field">
+                    <label htmlFor="ruc" className="font-bold">
+                        RUC
+                    </label>
+                    <InputText id="ruc" value={product.ruc} onChange={(e) => onInputChange(e, 'ruc')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.ruc })} />
+                    {submitted && !product.ruc && <small className="p-error">RUC es requerido.</small>}
+                </div>
+                <div className="field">
+                    <label htmlFor="razonSocial" className="font-bold">
+                        Razón Social
+                    </label>
+                    <InputText id="razonSocial" value={product.razonSocial} onChange={(e) => onInputChange(e, 'razonSocial')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.razonSocial })} />
+                    {submitted && !product.razonSocial && <small className="p-error">Razón Social es requerido.</small>}
+                </div>
+                <div className="field">
+                    <label htmlFor="direccion" className="font-bold">
+                        Dirección
+                    </label>
+                    <InputTextarea id="direccion" value={product.direccion} onChange={(e) => onInputChange(e, 'direccion')} required rows={3} cols={20} />
+                    {submitted && !product.direccion && <small className="p-error">Dirección es requerido.</small>}
+                </div>
+                <div className="formgrid grid">
+                    <div className="field col">
+                        <label htmlFor="idDepartamento" className="font-bold">
+                            Departamento
+                        </label>
+                        <Dropdown
+                            id="departamentoDropdown"
+                            value={product.idDepartamento}
+                            options={departamentos}
+                            onChange={(e) => fetchProvincias(e.value)}
+                            optionLabel="nombreDepartamento"
+                            optionValue="idDepartamento"
+                            placeholder="Seleccione un Departamento"
+                        />
+
+                    </div>
+                    <div className="field col">
+                        <label htmlFor="idProvincia" className="font-bold">
+                            Provincia
+                        </label>
+
+                        <Dropdown
+                            id="idProvincia"
+                            value={product.idProvincia}
+                            options={provincias} // Usar provincias en lugar de departamentos
+                            onChange={(e) => fetchDistritos(e.value)}
+                            optionLabel="nombreProvincia"
+                            optionValue="idProvincia"
+                            placeholder="Seleccione un Provincia"
+                        />
+
+                    </div>
+                    <div className="field col">
+                        <label htmlFor="idDistrito" className="font-bold">
+                            Distrito
+                        </label>
+                        <Dropdown
+                            id="idDistrito"
+                            value={product.idDistrito}
+                            options={distritos} // Utilizando la variable distritos en lugar de iddistrito
+                            onChange={(e) => onInputChange(e, 'idDistrito')}
+                            optionLabel="nombreDistrito"
+                            optionValue="idDistrito"
+                            placeholder="Seleccione un Distrito"
+                        />
+
+                    </div>
+                </div>
+
+            </Dialog>
+
+            <Dialog visible={deleteProductDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
+                <div className="confirmation-content">
+                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                    {product && (
+                        <span>
+                            Are you sure you want to delete <b>{product.razonSocial}</b>?
+                        </span>
+                    )}
+                </div>
+            </Dialog>
+        </div>
+    );
+}

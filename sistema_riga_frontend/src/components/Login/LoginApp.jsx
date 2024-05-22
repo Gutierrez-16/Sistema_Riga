@@ -1,75 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaCircleUser } from "react-icons/fa6";
+import { FaUserCircle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Galleria } from 'primereact/galleria';
-
-import GokuD from '../Imagenes/GokuD.png';
-
 import './AppLogin.css';
-
+import imagen1 from '../Imagenes/1.jpeg';
+import imagen3 from '../Imagenes/3.jpeg';
+import imagen4 from '../Imagenes/4.jpeg';
+import imagen5 from '../Imagenes/5.jpeg';
+import imagen6 from '../Imagenes/6.jpeg';
+import imagen7 from '../Imagenes/10.jpg';
 
 function LoginApp() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [images, setImages] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchedImages = [
-      {
-        itemImageSrc: GokuD,
-        thumbnailImageSrc: 'https://primefaces.org/cdn/primereact/images/galleria/galleria1s.jpg',
-        alt: 'Description for Image 1',
-        title: 'Title 1'
-      },
-      {
-        itemImageSrc: 'https://primefaces.org/cdn/primereact/images/galleria/galleria2.jpg',
-        thumbnailImageSrc: 'https://primefaces.org/cdn/primereact/images/galleria/galleria2s.jpg',
-        alt: 'Description for Image 2',
-        title: 'Title 2'
-      },
-      {
-        itemImageSrc: 'https://primefaces.org/cdn/primereact/images/galleria/galleria3.jpg',
-        thumbnailImageSrc: 'https://primefaces.org/cdn/primereact/images/galleria/galleria3s.jpg',
-        alt: 'Description for Image 3',
-        title: 'Title 3'
-      },
+      { itemImageSrc: imagen1, thumbnailImageSrc: imagen1 },
+      { itemImageSrc: imagen3, thumbnailImageSrc: imagen3 },
+      { itemImageSrc: imagen4, thumbnailImageSrc: imagen4 },
+      { itemImageSrc: imagen5, thumbnailImageSrc: imagen5 },
+      { itemImageSrc: imagen6, thumbnailImageSrc: imagen6 },
+      { itemImageSrc: imagen7, thumbnailImageSrc: imagen7 },
     ];
     setImages(fetchedImages);
   }, []);
 
   const responsiveOptions = [
-    {
-      breakpoint: '991px',
-      numVisible: 4
-    },
-    {
-      breakpoint: '767px',
-      numVisible: 3
-    },
-    {
-      breakpoint: '575px',
-      numVisible: 1
-    }
+    { breakpoint: '991px', numVisible: 4 },
+    { breakpoint: '767px', numVisible: 3 },
+    { breakpoint: '575px', numVisible: 1 },
   ];
 
-  const itemTemplate = (item) => {
-    return <img src={item.itemImageSrc} alt={item.alt} style={{ width: '100%', display: 'block' }} />;
-  }
+  const itemTemplate = (item) => <img src={item.itemImageSrc} alt={item.alt} style={{ width: '100%', display: 'block' }} />;
 
-  const thumbnailTemplate = (item) => {
-    return <img src={item.thumbnailImageSrc} alt={item.alt} style={{ display: 'block' }} />;
-  }
+  const thumbnailTemplate = (item) => <img src={item.thumbnailImageSrc} alt={item.alt} style={{ display: 'block' }} />;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
       const response = await fetch('http://localhost:8080/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
       const data = await response.json();
@@ -87,11 +63,11 @@ function LoginApp() {
   return (
     <div className='globallogin'>
       <div className='contenedorlogin'>
-        <h1>RIGA</h1>
+        <h1 className='titulo'>RIGA</h1>
         <div className="login-container">
           <div className='title'>LOGIN</div>
           <div className='login'>
-            <FaCircleUser size={80} color="#43A34F" className="iconimg" />
+            <FaUserCircle size={80} color="#43A34F" className="iconimg" />
             <h2>Iniciar Sesión</h2>
             <form className="login-form" onSubmit={handleSubmit}>
               <div>
@@ -104,15 +80,18 @@ function LoginApp() {
                   required
                 />
               </div>
-              <div>
+              <div className='password-container'>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   id="password"
                   placeholder='Ingrese su contraseña'
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                <span onClick={() => setShowPassword(!showPassword)} className='password-toggle'>
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
               </div>
               <button type="submit">Iniciar Sesión</button>
             </form>
