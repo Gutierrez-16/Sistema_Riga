@@ -131,12 +131,39 @@ export default function ProductsDemo() {
             }
         }
     };
-
-    const editProduct = (product) => {
-        setProduct({ ...product });
+    const handleEdit = async (empresa) => {
+        setProduct({ ...empresa });
         setProductDialog(true);
-        fetchProvincias(product.idDepartamento);
-        fetchDistritos(product.idProvincia);
+
+        const { idDistrito } = empresa;
+        try {
+            const provinciaResponse = await fetch(`http://localhost:8080/provincia/distrito/${idDistrito}`);
+            if (!provinciaResponse.ok) {
+                throw new Error('Error al obtener la provincia');
+            }
+            const provinciaData = await provinciaResponse.json();
+            const provinciaNombre = provinciaData.nombreProvincia;
+
+            const departamentoResponse = await fetch(`http://localhost:8080/departamento/provincia/${provinciaNombre}`);
+            if (!departamentoResponse.ok) throw new Error('Error al obtener departamentos');
+
+            const departamentoData = await departamentoResponse.json();
+
+            setProduct((prevFormData) => ({
+                ...prevFormData,
+                idProvincia: provinciaData.idProvincia,
+                idDepartamento: departamentoData.idDepartamento
+            }));
+
+            await fetchProvincias(departamentoData.idDepartamento);
+            await fetchDistritos(provinciaData.idProvincia);
+        } catch (error) {
+            console.error('Error al obtener provincias o departamentos:', error);
+        }
+    };
+
+    const editProduct = async (product) => {
+        handleEdit(product);
     };
 
     const confirmDeleteProduct = (product) => {
@@ -300,7 +327,7 @@ export default function ProductsDemo() {
                         <Dropdown
                             id="idProvincia"
                             value={product.idProvincia}
-                            options={provincias} // Usar provincias en lugar de departamentos
+                            options={provincias}
                             onChange={(e) => fetchDistritos(e.value)}
                             optionLabel="nombreProvincia"
                             optionValue="idProvincia"
@@ -315,7 +342,7 @@ export default function ProductsDemo() {
                         <Dropdown
                             id="idDistrito"
                             value={product.idDistrito}
-                            options={distritos} // Utilizando la variable distritos en lugar de iddistrito
+                            options={distritos} 
                             onChange={(e) => onInputChange(e, 'idDistrito')}
                             optionLabel="nombreDistrito"
                             optionValue="idDistrito"

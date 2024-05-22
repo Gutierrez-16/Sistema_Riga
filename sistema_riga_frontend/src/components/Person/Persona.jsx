@@ -116,7 +116,7 @@ const Persona = () => {
         idDepartamento: ''
       });
       setIsEditing(false);
-      
+
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
     }
@@ -136,13 +136,13 @@ const Persona = () => {
     setFormData({ ...persona, idDistrito: persona.idDistrito });
     setIsEditing(true);
     setSelectedName(persona.nombrePersona);
-  
+
     const idDistrito = persona.idDistrito;
     console.log(`Selected Persona ID: ${persona.idPersona}`);
     console.log(`Selected Distrito ID: ${idDistrito}`);
-  
+
     let provincia; // Declara la variable provincia aquí
-  
+
     try {
       // Fetch the province corresponding to the district
       const provinciaResponse = await fetch(`http://localhost:8080/person/provincias/distrito/${idDistrito}`);
@@ -151,40 +151,40 @@ const Persona = () => {
         provincia = provinciaData[0]; // Asigna el valor dentro del bloque if
         const provinciaNombre = provincia.nombreProvincia;
         console.log(`Fetched Provincia Nombre: ${provinciaNombre}, ID: ${provincia.idProvincia}`);
-  
+
         setFormData((prevFormData) => ({
           ...prevFormData,
           idProvincia: provincia.idProvincia
         }));
-  
+
         // Fetch provinces for the selected department
         await fetchProvincias(provincia.idDepartamento);
-  
+
         // Fetch the department corresponding to the province
         const departamentoResponse = await fetch(`http://localhost:8080/person/departamentos/provincia/${provinciaNombre}`);
         const departamentoData = await departamentoResponse.json();
         if (departamentoData && departamentoData.length > 0) {
           const departamento = departamentoData[0];
           console.log(`Fetched Departamento Nombre: ${departamento.nombreDepartamento}, ID: ${departamento.idDepartamento}`);
-  
+
           setFormData((prevFormData) => ({
             ...prevFormData,
             idDepartamento: departamento.idDepartamento
           }));
           setSelectedDepartamentoId(departamento.idDepartamento);
-  
+
           // Fetch provinces for the selected department again (in case they were not fetched previously)
           await fetchProvincias(departamento.idDepartamento);
         }
       }
-  
+
       // Fetch all districts for the selected province
       await fetchDistritos(provincia.idProvincia); // Ahora provincia está definida en este punto
     } catch (error) {
       console.error('Error al obtener provincias o departamentos:', error);
     }
   };
-  
+
 
   const handleDelete = async (idPersona) => {
     try {
@@ -277,7 +277,7 @@ const Persona = () => {
           <input type="text" name="direccion" value={formData.direccion} onChange={handleInputChange} />
         </label>
         <br />
-        
+
         <label>
           Departamento:
           <select
