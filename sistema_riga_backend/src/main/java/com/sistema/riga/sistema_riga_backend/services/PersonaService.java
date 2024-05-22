@@ -68,6 +68,6 @@ public class PersonaService implements IPersonaService {
     }
     @Override
     public  List<PersonaModel> search(String persona) {
-        return iPersonaRepositry.search(persona);
+        return personaRepository.search(persona);
     }
 }
