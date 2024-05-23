@@ -1,0 +1,41 @@
+/* HeaderStyle.css */
+.titleheader {
+    font-family: 'Arial', sans-serif;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+
+.subhead nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #f2f2f2;
+    /* Add a subtle background color */
+}
+
+.subhead nav ul li {
+    display: inline-block;
+    margin-right: 1em;
+    padding: 10px 15px;
+    /* Add padding to menu items */
+}
+
+.subhead nav ul li:hover {
+    background-color: #eee;
+    /* Hover effect */
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .subhead nav ul {
+        flex-direction: column;
+        /* Stack menu items vertically */
+    }
+
+    .subhead nav ul li {
+        margin-bottom: 10px;
+        /* Add space between menu items */
+    }
+}

@@ -1,9 +1,6 @@
 package com.sistema.riga.sistema_riga_backend.controllers;
 
-import com.sistema.riga.sistema_riga_backend.models.DepartamentoModel;
-import com.sistema.riga.sistema_riga_backend.models.DistritoModel;
 import com.sistema.riga.sistema_riga_backend.models.EmpresaModel;
-import com.sistema.riga.sistema_riga_backend.models.ProvinciaModel;
 import com.sistema.riga.sistema_riga_backend.services.IEmpresaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

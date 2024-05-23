@@ -27,29 +27,12 @@ function LoginApp() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      const response = await fetch(`http://localhost:8080/auth/logout/${userId}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      if (response.ok) {
-        setMessage('Sesión cerrada exitosamente');
-        setUserId(null); // Limpiar el ID de usuario al cerrar sesión
-      } else {
-        setMessage('Error al cerrar sesión');
-      }
-    } catch (error) {
-      console.error('Error al enviar la solicitud:', error);
-    }
-  };
-
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div>
-          <button onClick={handleLogout}>Cerrar sesión</button>
-          {message && <p>{message}</p>}
+      <div>
+            <button onClick={handleLogout}>Cerrar sesión</button>
+            {message && <p>{message}</p>}
         </div>
       </form>
       {/* Pasa el ID de usuario al componente LogoutButton */}

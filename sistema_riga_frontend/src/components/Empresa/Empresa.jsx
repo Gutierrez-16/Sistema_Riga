@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Header from '../Header/Header';
 import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -12,7 +13,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import 'primeflex/primeflex.css';
-
+import './EmpresaStyle.css';
 export default function ProductsDemo() {
     let emptyProduct = {
         idEmpresa: '',
@@ -21,7 +22,8 @@ export default function ProductsDemo() {
         direccion: '',
         idDistrito: '',
         idProvincia: '',
-        idDepartamento: ''
+        idDepartamento: '',
+        estado: 1 // Añadir el estado aquí
     };
 
     const [departamentos, setDepartamentos] = useState([]);
@@ -67,7 +69,6 @@ export default function ProductsDemo() {
         }
     };
 
-
     const fetchDistritos = async (idProvincia) => {
         try {
             setProduct((prevProduct) => ({ ...prevProduct, idProvincia }));
@@ -94,23 +95,39 @@ export default function ProductsDemo() {
 
     const saveProduct = async () => {
         setSubmitted(true);
-
+    
         if (product.razonSocial.trim()) {
             let _products = [...products];
             let _product = { ...product };
+            
+            const payload = {
+                ruc: _product.ruc,
+                razonSocial: _product.razonSocial,
+                direccion: _product.direccion,
+                idDistrito: _product.idDistrito
+            };
+
             const method = _product.idEmpresa ? 'PUT' : 'POST';
             const url = _product.idEmpresa
                 ? `http://localhost:8080/empresa/${_product.idEmpresa}`
                 : 'http://localhost:8080/empresa';
 
+            if (method === 'PUT') {
+                payload.idEmpresa = _product.idEmpresa;
+            }
+
             try {
                 const response = await fetch(url, {
                     method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(_product)
+                    body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) throw new Error('Error al guardar la empresa');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error al guardar la empresa:', errorText);
+                    throw new Error('No se pudo guardar la empresa. Inténtalo de nuevo.');
+                }
 
                 const data = await response.json();
 
@@ -128,9 +145,11 @@ export default function ProductsDemo() {
                 setProduct(emptyProduct);
             } catch (error) {
                 console.error('Error al guardar la empresa:', error);
+                toast.current.show({ severity: 'error', summary: 'Error', detail: error.message, life: 3000 });
             }
         }
     };
+
     const handleEdit = async (empresa) => {
         setProduct({ ...empresa });
         setProductDialog(true);
@@ -173,8 +192,19 @@ export default function ProductsDemo() {
 
     const deleteProduct = async () => {
         try {
-            await fetch(`http://localhost:8080/empresa/${product.idEmpresa}`, { method: 'DELETE' });
-            let _products = products.filter((val) => val.idEmpresa !== product.idEmpresa);
+            // Cambiar el estado de la empresa a 0 en lugar de eliminarla
+            const response = await fetch(`http://localhost:8080/empresa/${product.idEmpresa}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...product, estado: 0 })
+            });
+            if (!response.ok) throw new Error('Error al actualizar la empresa');
+
+            let _products = products.map((p) => (p.idEmpresa === product.idEmpresa ? { ...p, estado: 0 } : p));
+            
+            // Mover las empresas eliminadas al final de la lista
+            _products = _products.sort((a, b) => a.estado - b.estado);
+
             setProducts(_products);
             setDeleteProductDialog(false);
             setProduct(emptyProduct);
@@ -220,49 +250,74 @@ export default function ProductsDemo() {
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
-                <Button label="Delete" icon="pi pi-trash" severity="danger" disabled={!selectedProducts || !selectedProducts.length} />
+                <Button label="New" icon="pi pi-plus" className="p-button-success mr-2" onClick={openNew} />
+                <Button
+                    label="Delete"
+                    icon="pi pi-trash"
+                    className="p-button-danger"
+                    onClick={() => confirmDeleteProduct(selectedProducts)}
+                    disabled={!selectedProducts || !selectedProducts.length}
+                />
             </div>
         );
     };
 
     const rightToolbarTemplate = () => {
-        return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={() => dt.current.exportCSV()} />;
-    };
-
-    const actionBodyTemplate = (rowData) => {
         return (
-            <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editProduct(rowData)} />
-                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
-            </React.Fragment>
+            <div className="flex align-items-center justify-content-end gap-2">
+                <Button
+                    label="Export"
+                    icon="pi pi-upload"
+                    className="p-button-help"
+                    onClick={() => dt.current.exportCSV()}
+                    disabled={!products || !products.length}
+                />
+            </div>
         );
     };
 
     const header = (
-        <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Manage Empresas</h4>
-            <IconField iconPosition="left">
-                <InputIcon className="pi pi-search" />
+        <div className="table-header">
+            <h5 className="mx-0 my-1">Manage Companies</h5>
+            <span className="p-input-icon-left">
+                <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
-            </IconField>
+            </span>
         </div>
     );
+
+    const actionBodyTemplate = (rowData) => {
+        return (
+            <React.Fragment>
+                <Button icon="pi pi-pencil" className="p-button-rounded p-button-success mr-2" onClick={() => editProduct(rowData)} />
+                <Button icon="pi pi-trash" className="p-button-rounded p-button-warning" onClick={() => confirmDeleteProduct(rowData)} />
+            </React.Fragment>
+        );
+    };
+
     const productDialogFooter = (
         <React.Fragment>
-            <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" onClick={saveProduct} />
-        </React.Fragment>
-    );
-    const deleteProductDialogFooter = (
-        <React.Fragment>
-            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteProductDialog} />
-            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteProduct} />
+            <Button label="Cancel" icon="pi pi-times" className="p-button-text" onClick={hideDialog} />
+            <Button label="Save" icon="pi pi-check" className="p-button-text" onClick={saveProduct} />
         </React.Fragment>
     );
 
+    const deleteProductDialogFooter = (
+        <React.Fragment>
+            <Button label="No" icon="pi pi-times" className="p-button-text" onClick={hideDeleteProductDialog} />
+            <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={deleteProduct} />
+        </React.Fragment>
+    );
+
+    const rowClassName = (rowData) => {
+        return {
+            'eliminated-row': rowData.estado === 0
+        };
+    };
+
     return (
         <div>
+            <Header />
             <Toast ref={toast} />
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
@@ -270,7 +325,8 @@ export default function ProductsDemo() {
                 <DataTable ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}
                     dataKey="idEmpresa" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} empresas" globalFilter={globalFilter} header={header}>
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} empresas" globalFilter={globalFilter} header={header}
+                    rowClassName={rowClassName}>
                     <Column selectionMode="multiple" exportable={false}></Column>
                     <Column field="idEmpresa" header="ID" sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="ruc" header="RUC" sortable style={{ minWidth: '8rem' }}></Column>
@@ -317,13 +373,11 @@ export default function ProductsDemo() {
                             optionValue="idDepartamento"
                             placeholder="Seleccione un Departamento"
                         />
-
                     </div>
                     <div className="field col">
                         <label htmlFor="idProvincia" className="font-bold">
                             Provincia
                         </label>
-
                         <Dropdown
                             id="idProvincia"
                             value={product.idProvincia}
@@ -333,7 +387,6 @@ export default function ProductsDemo() {
                             optionValue="idProvincia"
                             placeholder="Seleccione un Provincia"
                         />
-
                     </div>
                     <div className="field col">
                         <label htmlFor="idDistrito" className="font-bold">
@@ -342,16 +395,14 @@ export default function ProductsDemo() {
                         <Dropdown
                             id="idDistrito"
                             value={product.idDistrito}
-                            options={distritos} 
+                            options={distritos}
                             onChange={(e) => onInputChange(e, 'idDistrito')}
                             optionLabel="nombreDistrito"
                             optionValue="idDistrito"
                             placeholder="Seleccione un Distrito"
                         />
-
                     </div>
                 </div>
-
             </Dialog>
 
             <Dialog visible={deleteProductDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
