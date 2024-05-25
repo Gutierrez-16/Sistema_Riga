@@ -15,8 +15,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/person")
+@CrossOrigin(origins = "http://localhost:5173")
 public class PersonaController {
-
     @Autowired
     private IPersonaService iPersonaService;
 
@@ -59,6 +59,11 @@ public class PersonaController {
     @GetMapping
     public List<PersonaModel> getAllPersonas() {
         return iPersonaService.getAllPersonas();
+    }
+
+    @GetMapping("/buscar/{persona}")
+    public List<PersonaModel> search(@PathVariable String persona) {
+        return iPersonaService.search(persona);
     }
 
     @GetMapping("/{id}")

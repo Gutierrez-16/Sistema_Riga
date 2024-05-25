@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/provincia")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProvinciaController {
     @Autowired
     private IProvinciaService iProvinciaService;

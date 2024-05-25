@@ -11,7 +11,7 @@ public class UsuarioRepository implements IUsuarioRepository{
 
     @Override
     public int validateUser(String logeo, String clave) {
-        String sql = "SELECT IDUsuario FROM Usuario WHERE Logeo = ? AND Clave = ?";
+        String sql = "EXEC SP_LoginUsuario ?, ?";
         Object[] params = { logeo, clave };
         Integer count = jdbcTemplate.queryForObject(sql, params, Integer.class);
         return count != null ? count.intValue() : 0;
