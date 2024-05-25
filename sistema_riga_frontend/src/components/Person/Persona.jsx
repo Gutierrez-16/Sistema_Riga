@@ -1,385 +1,353 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { classNames } from 'primereact/utils';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Toast } from 'primereact/toast';
+import { Button } from 'primereact/button';
+import { Toolbar } from 'primereact/toolbar';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+import { InputText } from 'primereact/inputtext';
+import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
+import 'primeflex/primeflex.css';
+import "primeicons/primeicons.css";
+import { Tag } from 'primereact/tag';
 
-const Persona = () => {
-  const [departamentos, setDepartamentos] = useState([]);
-  const [provincias, setProvincias] = useState([]);
-  const [distritos, setDistritos] = useState([]);
-  const [personas, setPersonas] = useState([]);
-  const [selectedDepartamentoId, setSelectedDepartamentoId] = useState('');
-  const [selectedProvinciaId, setSelectedProvinciaId] = useState('');
-  const [formData, setFormData] = useState({
-    idPersona: '',
-    dni: '',
-    nombrePersona: '',
-    apePaterno: '',
-    apeMaterno: '',
-    genero: '',
-    fechaNac: '',
-    correo: '',
-    celular: '',
-    direccion: '',
-    idDistrito: '',
-    idProvincia: '',
-    idDepartamento: ''
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [selectedName, setSelectedName] = useState('');
-  const [activePage, setActivePage] = useState(1);
-  const [itemsCountPerPage] = useState(10);
-
-  useEffect(() => {
-    fetchDepartamentos();
-    fetchPersonas();
-  }, []);
-
-  const fetchDepartamentos = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/person/departamentos');
-      if (!response.ok) {
-        throw new Error('Error al obtener departamentos');
-      }
-      const data = await response.json();
-      setDepartamentos(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchProvincias = async (idDepartamento) => {
-    setSelectedDepartamentoId(idDepartamento);
-    setProvincias([]);
-    setDistritos([]);
-    try {
-      const response = await fetch(`http://localhost:8080/person/provincias/${idDepartamento}`);
-      if (!response.ok) {
-        throw new Error('Error al obtener provincias');
-      }
-      const data = await response.json();
-      setProvincias(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchDistritos = async (idProvincia) => {
-    setSelectedProvinciaId(idProvincia);
-    setDistritos([]);
-    try {
-      const response = await fetch(`http://localhost:8080/person/distritos/${idProvincia}`);
-      if (!response.ok) {
-        throw new Error('Error al obtener distritos');
-      }
-      const data = await response.json();
-      setDistritos(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const method = isEditing ? 'PUT' : 'POST';
-    const url = isEditing
-      ? `http://localhost:8080/person/${formData.idPersona}`
-      : 'http://localhost:8080/person';
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.text();
-      console.log('Respuesta:', data);
-      fetchPersonas();
-      setFormData({
-        idPersona: '',
-        dni: '',
-        nombrePersona: '',
-        apePaterno: '',
-        apeMaterno: '',
-        genero: '',
-        fechaNac: '',
-        correo: '',
-        celular: '',
+export default function ProductsDemo() {
+    let emptyProduct = {
+        idEmpresa: '',
+        ruc: '',
+        razonSocial: '',
         direccion: '',
         idDistrito: '',
         idProvincia: '',
-        idDepartamento: ''
-      });
-      setIsEditing(false);
+        idDepartamento: '',
+        estadoEmpresa: '1'
+    };
 
-    } catch (error) {
-      console.error('Error al enviar el formulario:', error);
-    }
-  };
+    const [departamentos, setDepartamentos] = useState([]);
+    const [provincias, setProvincias] = useState([]);
+    const [distritos, setDistritos] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [productDialog, setProductDialog] = useState(false);
+    const [deleteProductDialog, setDeleteProductDialog] = useState(false);
+    const [product, setProduct] = useState(emptyProduct);
+    const [selectedProducts, setSelectedProducts] = useState(null);
+    const [submitted, setSubmitted] = useState(false);
+    const [globalFilter, setGlobalFilter] = useState(null);
+    const toast = useRef(null);
+    const dt = useRef(null);
 
-  const fetchPersonas = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/person');
-      const data = await response.json();
-      setPersonas(data);
-    } catch (error) {
-      console.error('Error al obtener personas:', error);
-    }
-  };
+    useEffect(() => {
+        fetchDepartamentos();
+        fetchEmpresas();
+    }, []);
 
-  const handleEdit = async (persona) => {
-    setFormData({ ...persona, idDistrito: persona.idDistrito });
-    setIsEditing(true);
-    setSelectedName(persona.nombrePersona);
-
-    const idDistrito = persona.idDistrito;
-    console.log(`Selected Persona ID: ${persona.idPersona}`);
-    console.log(`Selected Distrito ID: ${idDistrito}`);
-
-    let provincia; // Declara la variable provincia aquí
-
-    try {
-      // Fetch the province corresponding to the district
-      const provinciaResponse = await fetch(`http://localhost:8080/person/provincias/distrito/${idDistrito}`);
-      const provinciaData = await provinciaResponse.json();
-      if (provinciaData && provinciaData.length > 0) {
-        provincia = provinciaData[0]; // Asigna el valor dentro del bloque if
-        const provinciaNombre = provincia.nombreProvincia;
-        console.log(`Fetched Provincia Nombre: ${provinciaNombre}, ID: ${provincia.idProvincia}`);
-
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          idProvincia: provincia.idProvincia
-        }));
-
-        // Fetch provinces for the selected department
-        await fetchProvincias(provincia.idDepartamento);
-
-        // Fetch the department corresponding to the province
-        const departamentoResponse = await fetch(`http://localhost:8080/person/departamentos/provincia/${provinciaNombre}`);
-        const departamentoData = await departamentoResponse.json();
-        if (departamentoData && departamentoData.length > 0) {
-          const departamento = departamentoData[0];
-          console.log(`Fetched Departamento Nombre: ${departamento.nombreDepartamento}, ID: ${departamento.idDepartamento}`);
-
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            idDepartamento: departamento.idDepartamento
-          }));
-          setSelectedDepartamentoId(departamento.idDepartamento);
-
-          // Fetch provinces for the selected department again (in case they were not fetched previously)
-          await fetchProvincias(departamento.idDepartamento);
+    const fetchDepartamentos = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/departamento');
+            if (!response.ok) throw new Error('Error al obtener departamentos');
+            const data = await response.json();
+            setDepartamentos(data);
+        } catch (error) {
+            console.error(error);
         }
-      }
+    };
 
-      // Fetch all districts for the selected province
-      await fetchDistritos(provincia.idProvincia); // Ahora provincia está definida en este punto
-    } catch (error) {
-      console.error('Error al obtener provincias o departamentos:', error);
-    }
-  };
+    const fetchProvincias = async (departamentoId) => {
+        try {
+            setProduct((prevProduct) => ({ ...prevProduct, idDepartamento: departamentoId }));
+            setProvincias([]);
+            setDistritos([]);
+            const response = await fetch(`http://localhost:8080/provincia/departamento/${departamentoId}`);
+            if (!response.ok) throw new Error('Error al obtener provincias');
+            const data = await response.json();
+            setProvincias(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
+    const fetchDistritos = async (idProvincia) => {
+        try {
+            setProduct((prevProduct) => ({ ...prevProduct, idProvincia }));
+            setDistritos([]);
+            const response = await fetch(`http://localhost:8080/distrito/provincia/${idProvincia}`);
+            if (!response.ok) throw new Error('Error al obtener distritos');
+            const data = await response.json();
+            setDistritos(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
-  const handleDelete = async (idPersona) => {
-    try {
-      const response = await fetch(`http://localhost:8080/person/${idPersona}`, {
-        method: 'DELETE'
-      });
+    const fetchEmpresas = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/empresa');
+            if (!response.ok) throw new Error('Error al obtener empresas');
+            const data = await response.json();
+            setProducts(data);
+        } catch (error) {
+            console.error('Error al obtener empresas:', error);
+        }
+    };
 
-      const data = await response.text();
-      console.log('Respuesta:', data);
-      fetchPersonas();
-    } catch (error) {
-      console.error('Error al eliminar persona:', error);
-    }
-  };
+    const saveProduct = async () => {
+        setSubmitted(true);
 
-  const handlePageChange = (pageNumber) => {
-    setActivePage(pageNumber);
-  };
+        if (product.razonSocial.trim()) {
+            const method = product.idEmpresa ? 'PUT' : 'POST';
+            const url = product.idEmpresa
+                ? `http://localhost:8080/empresa/${product.idEmpresa}`
+                : 'http://localhost:8080/empresa';
 
-  const indexOfLastPersona = activePage * itemsCountPerPage;
-  const indexOfFirstPersona = indexOfLastPersona - itemsCountPerPage;
-  const currentPersonas = personas.slice(indexOfFirstPersona, indexOfLastPersona);
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                });
 
-  const renderPagination = () => {
-    const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(personas.length / itemsCountPerPage); i++) {
-      pageNumbers.push(i);
-    }
-    return (
-      <div>
-        {pageNumbers.map((number) => (
-          <button key={number} onClick={() => handlePageChange(number)} disabled={number === activePage}>
-            {number}
-          </button>
-        ))}
-      </div>
+                if (!response.ok) throw new Error('Error al guardar la empresa');
+
+                fetchEmpresas();
+                setProductDialog(false);
+                setProduct(emptyProduct);
+            } catch (error) {
+                console.error('Error al guardar la empresa:', error);
+            }
+        }
+    };
+
+    const handleEdit = async (empresa) => {
+        setProduct({ ...empresa });
+        setProductDialog(true);
+
+        const { idDistrito } = empresa;
+        try {
+            const provinciaResponse = await fetch(`http://localhost:8080/provincia/distrito/${idDistrito}`);
+            if (!provinciaResponse.ok) {
+                throw new Error('Error al obtener la provincia');
+            }
+            const provinciaData = await provinciaResponse.json();
+            const provinciaNombre = provinciaData.nombreProvincia;
+
+            const departamentoResponse = await fetch(`http://localhost:8080/departamento/provincia/${provinciaNombre}`);
+            if (!departamentoResponse.ok) throw new Error('Error al obtener departamentos');
+
+            const departamentoData = await departamentoResponse.json();
+
+            setProduct((prevFormData) => ({
+                ...prevFormData,
+                idProvincia: provinciaData.idProvincia,
+                idDepartamento: departamentoData.idDepartamento
+            }));
+
+            await fetchProvincias(departamentoData.idDepartamento);
+            await fetchDistritos(provinciaData.idProvincia);
+        } catch (error) {
+            console.error('Error al obtener provincias o departamentos:', error);
+        }
+    };
+
+    const editProduct = async (product) => {
+        handleEdit(product);
+    };
+
+    const confirmDeleteProduct = (product) => {
+        if (Array.isArray(product)) {
+            setSelectedProducts(product);
+        } else {
+            setProduct(product);
+        }
+        setDeleteProductDialog(true);
+    };
+
+    const deleteProduct = async () => {
+        if (product.idEmpresa) {
+            try {
+                const response = await fetch(`http://localhost:8080/empresa/${product.idEmpresa}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Error al eliminar la empresa');
+                setDeleteProductDialog(false);
+                setProduct(emptyProduct);
+                fetchEmpresas();
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Eliminada', life: 3000 });
+            } catch (error) {
+                console.error('Error al eliminar la empresa:', error);
+            }
+        } else if (selectedProducts && selectedProducts.length > 0) {
+            try {
+                for (const prod of selectedProducts) {
+                    await fetch(`http://localhost:8080/empresa/${prod.idEmpresa}`, { method: 'DELETE' });
+                }
+                setDeleteProductDialog(false);
+                setSelectedProducts(null);
+                fetchEmpresas();
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresas Eliminadas', life: 3000 });
+            } catch (error) {
+                console.error('Error al eliminar las empresas:', error);
+            }
+        } else {
+            console.error('No se puede eliminar la empresa. ID de empresa no encontrado.');
+        }
+    };
+
+    const openNew = () => {
+        setProduct(emptyProduct);
+        setSubmitted(false);
+        setProductDialog(true);
+    };
+
+    const hideDialog = () => {
+        setSubmitted(false);
+        setProductDialog(false);
+    };
+
+    const hideDeleteProductDialog = () => {
+        setDeleteProductDialog(false);
+    };
+
+    const onInputChange = (e, name) => {
+        const val = (e.target && e.target.value) || '';
+        let _product = { ...product };
+        _product[`${name}`] = val;
+        setProduct(_product);
+    };
+
+    const leftToolbarTemplate = () => {
+        return (
+            <div className="flex flex-wrap gap-2">
+                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
+                <Button
+                    label="Delete"
+                    icon="pi pi-trash"
+                    className="p-button-danger"
+                    onClick={() => confirmDeleteProduct(selectedProducts)}
+                    disabled={!selectedProducts || !selectedProducts.length}
+                />            
+            </div>
+        );
+    };
+
+    const rightToolbarTemplate = () => {
+        return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={() => dt.current.exportCSV()} />;
+    };
+
+    const actionBodyTemplate = (rowData) => {
+        return (
+            <React.Fragment>
+                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editProduct(rowData)} />
+                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
+            </React.Fragment>
+        );
+    };
+
+    const header = (
+        <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+            <h4 className="m-0">Manage Empresas</h4>
+            <IconField iconPosition="left">
+                <InputIcon className="pi pi-search" />
+                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
+            </IconField>
+        </div>
     );
-  };
 
-  return (
-    <div>
-      <h2>{isEditing ? 'Actualizar Persona' : 'Registrar Persona'}</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          DNI:
-          <input type="text" name="dni" value={formData.dni} onChange={handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Nombre:
-          <input type="text" name="nombrePersona" value={formData.nombrePersona} onChange={handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Apellido Paterno:
-          <input type="text" name="apePaterno" value={formData.apePaterno} onChange={handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Apellido Materno:
-          <input type="text" name="apeMaterno" value={formData.apeMaterno} onChange={handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Género:
-          <select name="genero" value={formData.genero} onChange={handleInputChange}>
-            <option value="">Selecciona el género</option>
-            <option value="M">M</option>
-            <option value="F">F</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          Fecha de Nacimiento:
-          <input type="date" name="fechaNac" value={formData.fechaNac} onChange={handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Correo:
-          <input type="email" name="correo" value={formData.correo} onChange={handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Celular:
-          <input type="tel" name="celular" value={formData.celular} onChange={handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Dirección:
-          <input type="text" name="direccion" value={formData.direccion} onChange={handleInputChange} />
-        </label>
-        <br />
+    const productDialogFooter = (
+        <React.Fragment>
+            <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Save" icon="pi pi-check" onClick={saveProduct} />
+        </React.Fragment>
+    );
 
-        <label>
-          Departamento:
-          <select
-            name="idDepartamento"
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              setFormData({ ...formData, idDepartamento: selectedId });
-              fetchProvincias(selectedId);
-            }}
-            value={formData.idDepartamento}
-          >
-            <option value="">Selecciona un departamento</option>
-            {departamentos.map((departamento) => (
-              <option key={departamento.idDepartamento} value={departamento.idDepartamento}>
-                {departamento.nombreDepartamento}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
+    const deleteProductDialogFooter = (
+        <React.Fragment>
+            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteProductDialog} />
+            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteProduct} />
+        </React.Fragment>
+    );
 
-        <label>
-          Provincia:
-          <select
-            name="idProvincia"
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              setFormData({ ...formData, idProvincia: selectedId });
-              fetchDistritos(selectedId);
-            }}
-            value={formData.idProvincia}
-          >
-            <option value="">Selecciona una provincia</option>
-            {provincias.map((provincia) => (
-              <option key={provincia.idProvincia} value={provincia.idProvincia}>
-                {provincia.nombreProvincia}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
+    const statusBodyTemplate = (rowData) => {
+        return <Tag value={rowData.estadoEmpresa === '1' ? 'ACTIVO' : 'INACTIVO'} severity={getSeverity(rowData)} />;
+    };
 
-        <label>
-          Distrito:
-          <select name="idDistrito" value={formData.idDistrito} onChange={handleInputChange}>
-            <option value="">Selecciona un distrito</option>
-            {distritos.map((distrito) => (
-              <option key={distrito.idDistrito} value={distrito.idDistrito}>
-                {distrito.nombreDistrito}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <button type="submit">{isEditing ? 'Actualizar' : 'Registrar'}</button>
-      </form>
+    const getSeverity = (product) => {
+        switch (product.estadoEmpresa) {
+            case '1':
+                return 'success';
+            case '0':
+                return 'warning';
+            default:
+                return null;
+        }
+    };
 
-      <div>
-        <h2>Personas Registradas</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>DNI</th>
-              <th>Nombre</th>
-              <th>Apellido Paterno</th>
-              <th>Apellido Materno</th>
-              <th>Género</th>
-              <th>Fecha de Nacimiento</th>
-              <th>Correo</th>
-              <th>Celular</th>
-              <th>Dirección</th>
-              <th>Distrito</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentPersonas.map((persona, index) => (
-              <tr key={index}>
-                <td>{persona.idPersona}</td>
-                <td>{persona.dni}</td>
-                <td>{persona.nombrePersona}</td>
-                <td>{persona.apePaterno}</td>
-                <td>{persona.apeMaterno}</td>
-                <td>{persona.genero}</td>
-                <td>{persona.fechaNac}</td>
-                <td>{persona.correo}</td>
-                <td>{persona.celular}</td>
-                <td>{persona.direccion}</td>
-                <td>{persona.idDistrito}</td>
-                <td>
-                  <button onClick={() => handleEdit(persona)}>Editar</button>
-                  <button onClick={() => handleDelete(persona.idPersona)}>Eliminar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {renderPagination()}
-      </div>
-    </div>
-  );
-};
+    return (
+        <div className="grid crud-demo">
+            <div className="col-12">
+                <div className="card">
+                    <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
+                    <DataTable
+                        ref={dt}
+                        value={products}
+                        selection={selectedProducts}
+                        onSelectionChange={(e) => setSelectedProducts(e.value)}
+                        dataKey="idEmpresa"
+                        paginator
+                        rows={10}
+                        rowsPerPageOptions={[5, 10, 25]}
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                        globalFilter={globalFilter}
+                        header={header}
+                    >
+                        <Column selectionMode="multiple" exportable={false}></Column>
+                        <Column field="ruc" header="RUC" sortable></Column>
+                        <Column field="razonSocial" header="Razon Social" sortable></Column>
+                        <Column field="direccion" header="Direccion" sortable></Column>
+                        <Column field="distrito" header="Distrito" sortable></Column>
+                        <Column field="provincia" header="Provincia" sortable></Column>
+                        <Column field="departamento" header="Departamento" sortable></Column>
+                        <Column field="estadoEmpresa" header="Estado Empresa" body={statusBodyTemplate} sortable></Column>
+                        <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
+                    </DataTable>
 
-export default Persona;
+                    <Dialog visible={productDialog} style={{ width: '450px' }} header="Company Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
+                        <div className="field">
+                            <label htmlFor="ruc">RUC</label>
+                            <InputText id="ruc" value={product.ruc} onChange={(e) => onInputChange(e, 'ruc')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.ruc })} />
+                            {submitted && !product.ruc && <small className="p-error">RUC is required.</small>}
+                        </div>
+                        <div className="field">
+                            <label htmlFor="razonSocial">Razon Social</label>
+                            <InputTextarea id="razonSocial" value={product.razonSocial} onChange={(e) => onInputChange(e, 'razonSocial')} required rows={3} cols={20} />
+                        </div>
+                        <div className="field">
+                            <label htmlFor="direccion">Direccion</label>
+                            <InputTextarea id="direccion" value={product.direccion} onChange={(e) => onInputChange(e, 'direccion')} required rows={3} cols={20} />
+                        </div>
+                        <div className="field">
+                            <label htmlFor="departamento">Departamento</label>
+                            <Dropdown id="departamento" value={product.idDepartamento} options={departamentos} onChange={(e) => fetchProvincias(e.value)} optionLabel="nombreDepartamento" placeholder="Select a Department" />
+                        </div>
+                        <div className="field">
+                            <label htmlFor="provincia">Provincia</label>
+                            <Dropdown id="provincia" value={product.idProvincia} options={provincias} onChange={(e) => fetchDistritos(e.value)} optionLabel="nombreProvincia" placeholder="Select a Province" />
+                        </div>
+                        <div className="field">
+                            <label htmlFor="distrito">Distrito</label>
+                            <Dropdown id="distrito" value={product.idDistrito} options={distritos} onChange={(e) => onInputChange(e, 'idDistrito')} optionLabel="nombreDistrito" placeholder="Select a District" />
+                        </div>
+                    </Dialog>
+
+                    <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
+                        <div className="confirmation-content">
+                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            {product && <span>Are you sure you want to delete <b>{product.razonSocial}</b>?</span>}
+                        </div>
+                    </Dialog>
+                </div>
+            </div>
+        </div>
+    );
+}

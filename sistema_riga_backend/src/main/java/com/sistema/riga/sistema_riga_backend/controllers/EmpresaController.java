@@ -20,6 +20,7 @@ public class EmpresaController {
     @GetMapping
     public List<EmpresaModel> getAllEmpresas() {
         return iEmpresaService.getAllEmpresas();
+
     }
 
     @GetMapping("/{id}")

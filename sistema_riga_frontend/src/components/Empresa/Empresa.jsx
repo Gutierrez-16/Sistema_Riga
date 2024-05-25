@@ -12,6 +12,9 @@ import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import 'primeflex/primeflex.css';
+import './EmpresaStyle.css'
+import "primeicons/primeicons.css";
+import { Tag } from 'primereact/tag';
 
 export default function ProductsDemo() {
     let emptyProduct = {
@@ -21,7 +24,8 @@ export default function ProductsDemo() {
         direccion: '',
         idDistrito: '',
         idProvincia: '',
-        idDepartamento: ''
+        idDepartamento: '',
+        estadoEmpresa: '1'
     };
 
     const [departamentos, setDepartamentos] = useState([]);
@@ -87,6 +91,7 @@ export default function ProductsDemo() {
             if (!response.ok) throw new Error('Error al obtener empresas');
             const data = await response.json();
             setProducts(data);
+
         } catch (error) {
             console.error('Error al obtener empresas:', error);
         }
@@ -94,6 +99,7 @@ export default function ProductsDemo() {
 
     const saveProduct = async () => {
         setSubmitted(true);
+        
 
         if (product.razonSocial.trim()) {
             let _products = [...products];
@@ -112,17 +118,7 @@ export default function ProductsDemo() {
 
                 if (!response.ok) throw new Error('Error al guardar la empresa');
 
-                const data = await response.json();
-
-                if (method === 'POST') {
-                    _products.push(data);
-                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Creada', life: 3000 });
-                } else {
-                    const index = findIndexById(_product.idEmpresa);
-                    _products[index] = data;
-                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Actualizada', life: 3000 });
-                }
-
+                fetchEmpresas();
                 setProducts(_products);
                 setProductDialog(false);
                 setProduct(emptyProduct);
@@ -172,29 +168,41 @@ export default function ProductsDemo() {
     };
 
     const deleteProduct = async () => {
-        try {
-            await fetch(`http://localhost:8080/empresa/${product.idEmpresa}`, { method: 'DELETE' });
-            let _products = products.filter((val) => val.idEmpresa !== product.idEmpresa);
-            setProducts(_products);
-            setDeleteProductDialog(false);
-            setProduct(emptyProduct);
-            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Eliminada', life: 3000 });
-        } catch (error) {
-            console.error('Error al eliminar la empresa:', error);
-        }
-    };
-
-    const findIndexById = (id) => {
-        let index = -1;
-        for (let i = 0; i < products.length; i++) {
-            if (products[i].idEmpresa === id) {
-                index = i;
-                break;
+        if (product.idEmpresa) {
+            // Eliminar una empresa específica
+            try {
+                const response = await fetch(`http://localhost:8080/empresa/${product.idEmpresa}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Error al eliminar la empresa');
+                setDeleteProductDialog(false);
+                setProduct(emptyProduct);
+                fetchEmpresas();
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Eliminada', life: 3000 });
+            } catch (error) {
+                console.error('Error al eliminar la empresa:', error);
             }
-        }
-        return index;
-    };
+        } else if (selectedProducts && selectedProducts.length > 0 && selectedProducts.length < 5) {
+            // Eliminar múltiples empresas
+            try {
+                const deletePromises = selectedProducts.map((prod) =>
 
+                    fetch(`http://localhost:8080/empresa/${prod.idEmpresa}`, { method: 'DELETE' })
+                );
+                await Promise.all(deletePromises);
+                setDeleteProductDialog(false);
+                setSelectedProducts(null);
+                fetchEmpresas();
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresas Eliminadas', life: 3000 });
+                
+            } catch (error) {
+                    console.error('Error al eliminar las empresas:', error);
+                }
+            } else {
+                console.error('No se puede eliminar la empresa. ID de empresa no encontrado.');
+            }
+    };
+    
+
+    
     const openNew = () => {
         setProduct(emptyProduct);
         setSubmitted(false);
@@ -221,8 +229,14 @@ export default function ProductsDemo() {
         return (
             <div className="flex flex-wrap gap-2">
                 <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
-                <Button label="Delete" icon="pi pi-trash" severity="danger" disabled={!selectedProducts || !selectedProducts.length} />
-            </div>
+                <Button
+                    label="Delete"
+                    icon="pi pi-trash"
+                    className="p-button-danger"
+                    onClick={() => confirmDeleteProduct(selectedProducts)}
+                    disabled={!selectedProducts || !selectedProducts.length}
+                />            
+                </div>
         );
     };
 
@@ -238,6 +252,7 @@ export default function ProductsDemo() {
             </React.Fragment>
         );
     };
+
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -260,6 +275,30 @@ export default function ProductsDemo() {
             <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteProduct} />
         </React.Fragment>
     );
+    const rowClassName = (rowData) => {
+        return {
+            'eliminated-row': rowData.estadoEmpresa === '0'
+        };
+
+    };
+    
+    const statusBodyTemplate = (rowData) => {
+        const severity = getSeverity(rowData.estadoEmpresa);
+        return <Tag value={severity === 'success'} severity={severity}>{severity === 'success' ? 'Habilitado' : 'Deshabilitado'}</Tag>;
+      };
+      
+      const getSeverity = (estadoEmpresa) => {
+        switch (estadoEmpresa) {
+          case '1':
+          case 'Habilitado': 
+            return 'success';
+          case '0':
+            return 'warning';
+          default:
+            return null;
+        }
+      };
+      
 
     return (
         <div>
@@ -267,18 +306,37 @@ export default function ProductsDemo() {
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
-                <DataTable ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}
-                    dataKey="idEmpresa" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                <DataTable
+                    ref={dt}
+                    value={products}
+                    selection={selectedProducts}
+
+                    onSelectionChange={(e) => {
+                        
+                        console.log('Selected products:', e.value);
+                        setSelectedProducts(e.value);
+                    }}
+                    
+                    dataKey="idEmpresa"
+                    paginator
+                    rows={10}
+                    rowsPerPageOptions={[5, 10, 25]}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} empresas" globalFilter={globalFilter} header={header}>
-                    <Column selectionMode="multiple" exportable={false}></Column>
-                    <Column field="idEmpresa" header="ID" sortable style={{ minWidth: '6rem' }}></Column>
-                    <Column field="ruc" header="RUC" sortable style={{ minWidth: '8rem' }}></Column>
-                    <Column field="razonSocial" header="Razón Social" sortable style={{ minWidth: '12rem' }}></Column>
-                    <Column field="direccion" header="Dirección" sortable style={{ minWidth: '12rem' }}></Column>
-                    <Column field="idDistrito" header="Distrito" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '8rem' }}></Column>
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} empresas"
+                    globalFilter={globalFilter}
+                    header={header}
+                    rowClassName={rowClassName}
+                >
+                    <Column selectionMode="multiple" exportable={false} />
+                    <Column field="idEmpresa" header="ID" sortable style={{ minWidth: '6rem' }} />
+                    <Column field="ruc" header="RUC" sortable style={{ minWidth: '8rem' }} />
+                    <Column field="razonSocial" header="Razón Social" sortable style={{ minWidth: '12rem' }} />
+                    <Column field="direccion" header="Dirección" sortable style={{ minWidth: '12rem' }} />
+                    <Column field="idDistrito" header="Distrito" sortable style={{ minWidth: '10rem' }} />
+                    <Column field="estadoEmpresa" header="EstadoEmpresa" body={statusBodyTemplate} sortable style={{ minWidth: '12rem' }}></Column>
+                    <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '8rem' }} />
                 </DataTable>
+
             </div>
 
             <Dialog visible={productDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Detalles de Empresa" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
@@ -286,7 +344,7 @@ export default function ProductsDemo() {
                     <label htmlFor="ruc" className="font-bold">
                         RUC
                     </label>
-                    <InputText id="ruc" value={product.ruc} onChange={(e) => onInputChange(e, 'ruc')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.ruc })} />
+                    <InputText id="ruc" value={product.ruc} keyfilter="int" onChange={(e) => onInputChange(e, 'ruc')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.ruc })} />
                     {submitted && !product.ruc && <small className="p-error">RUC es requerido.</small>}
                 </div>
                 <div className="field">
@@ -342,7 +400,7 @@ export default function ProductsDemo() {
                         <Dropdown
                             id="idDistrito"
                             value={product.idDistrito}
-                            options={distritos} 
+                            options={distritos}
                             onChange={(e) => onInputChange(e, 'idDistrito')}
                             optionLabel="nombreDistrito"
                             optionValue="idDistrito"
@@ -350,20 +408,27 @@ export default function ProductsDemo() {
                         />
 
                     </div>
+                    <div className="field">
+                        <label htmlFor="estadoEmpresa" className="font-bold">
+                            Estado Empresa
+                        </label>
+                        <InputText id="estadoEmpresa" value={product.estadoEmpresa} onChange={(e) => onInputChange(e, 'estadoEmpresa')} />
+                    </div>
+
                 </div>
 
-            </Dialog>
+            </Dialog >
 
-            <Dialog visible={deleteProductDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
-                <div className="confirmation-content">
-                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {product && (
-                        <span>
-                            Are you sure you want to delete <b>{product.razonSocial}</b>?
-                        </span>
-                    )}
-                </div>
-            </Dialog>
-        </div>
+        <Dialog visible={deleteProductDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
+            <div className="confirmation-content">
+                <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                {product && (
+                    <span>
+                        Are you sure you want to delete <b>{product.razonSocial}</b>?
+                    </span>
+                )}
+            </div>
+        </Dialog>
+        </div >
     );
 }
