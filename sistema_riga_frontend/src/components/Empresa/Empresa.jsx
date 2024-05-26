@@ -99,7 +99,15 @@ export default function ProductsDemo() {
 
     const saveProduct = async () => {
         setSubmitted(true);
-        
+        if (typeof product.ruc === 'string') {
+            if (product.ruc.length < 11 || product.ruc.length > 11) {
+              console.log('Error: RUC must be 11 characters long');
+              return; // Exit the function if RUC length is invalid
+            }
+          } else {
+            console.log('Error: RUC is not a string');
+            return; // Exit the function if RUC is not a string
+          }
 
         if (product.razonSocial.trim()) {
             let _products = [...products];
@@ -125,7 +133,8 @@ export default function ProductsDemo() {
             } catch (error) {
                 console.error('Error al guardar la empresa:', error);
             }
-        }
+        
+    };
     };
     const handleEdit = async (empresa) => {
         setProduct({ ...empresa });
@@ -169,7 +178,6 @@ export default function ProductsDemo() {
 
     const deleteProduct = async () => {
         if (product.idEmpresa) {
-            // Eliminar una empresa específica
             try {
                 const response = await fetch(`http://localhost:8080/empresa/${product.idEmpresa}`, { method: 'DELETE' });
                 if (!response.ok) throw new Error('Error al eliminar la empresa');
@@ -181,7 +189,6 @@ export default function ProductsDemo() {
                 console.error('Error al eliminar la empresa:', error);
             }
         } else if (selectedProducts && selectedProducts.length > 0 && selectedProducts.length < 5) {
-            // Eliminar múltiples empresas
             try {
                 const deletePromises = selectedProducts.map((prod) =>
 
@@ -344,7 +351,7 @@ export default function ProductsDemo() {
                     <label htmlFor="ruc" className="font-bold">
                         RUC
                     </label>
-                    <InputText id="ruc" value={product.ruc} keyfilter="int" onChange={(e) => onInputChange(e, 'ruc')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.ruc })} />
+                    <InputText id="ruc" value={product.ruc} keyfilter="int" maxLength="11" onChange={(e) => onInputChange(e, 'ruc')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.ruc })} />
                     {submitted && !product.ruc && <small className="p-error">RUC es requerido.</small>}
                 </div>
                 <div className="field">
