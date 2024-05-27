@@ -1,353 +1,949 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { classNames } from 'primereact/utils';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Toast } from 'primereact/toast';
-import { Button } from 'primereact/button';
-import { Toolbar } from 'primereact/toolbar';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon';
-import { InputText } from 'primereact/inputtext';
-import { Dialog } from 'primereact/dialog';
-import { Dropdown } from 'primereact/dropdown';
-import 'primeflex/primeflex.css';
+import React, { useState, useEffect, useRef } from "react";
+import { classNames } from "primereact/utils";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Toast } from "primereact/toast";
+import { Button } from "primereact/button";
+import { Toolbar } from "primereact/toolbar";
+
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
+import { Dropdown } from "primereact/dropdown";
+
+import { Calendar } from "primereact/calendar";
+
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+
 import "primeicons/primeicons.css";
-import { Tag } from 'primereact/tag';
 
-export default function ProductsDemo() {
-    let emptyProduct = {
-        idEmpresa: '',
-        ruc: '',
-        razonSocial: '',
-        direccion: '',
-        idDistrito: '',
-        idProvincia: '',
-        idDepartamento: '',
-        estadoEmpresa: '1'
-    };
+export default function PersonaR() {
+  let emptyPersona = {
+    idPersona: "",
+    dni: "",
+    nombrePersona: "",
+    apePaterno: "",
+    apeMaterno: "",
+    genero: "",
+    fechaNac: "",
+    correo: "",
+    celular: "",
+    direccion: "",
+    departamento: "",
+    provincia: "",
+    distrito: "",
+  };
 
-    const [departamentos, setDepartamentos] = useState([]);
-    const [provincias, setProvincias] = useState([]);
-    const [distritos, setDistritos] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [productDialog, setProductDialog] = useState(false);
-    const [deleteProductDialog, setDeleteProductDialog] = useState(false);
-    const [product, setProduct] = useState(emptyProduct);
-    const [selectedProducts, setSelectedProducts] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
-    const [globalFilter, setGlobalFilter] = useState(null);
-    const toast = useRef(null);
-    const dt = useRef(null);
+  const [personas, setPersonas] = useState([]);
+  const [persona, setPersona] = useState({
+    idPersona: "",
+    dni: "",
+    nombrePersona: "",
+    apePaterno: "",
+    apeMaterno: "",
+    genero: "",
+    fechaNac: "",
+    correo: "",
+    celular: "",
+    direccion: "",
+    idDistrito: "",
+  });
 
-    useEffect(() => {
-        fetchDepartamentos();
-        fetchEmpresas();
-    }, []);
+  const [selectedPersonas, setSelectedPersonas] = useState([]);
 
-    const fetchDepartamentos = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/departamento');
-            if (!response.ok) throw new Error('Error al obtener departamentos');
-            const data = await response.json();
-            setDepartamentos(data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+  const [departamentos, setDepartamentos] = useState([]);
+  const [departamento, setDepartamento] = useState([]);
 
-    const fetchProvincias = async (departamentoId) => {
-        try {
-            setProduct((prevProduct) => ({ ...prevProduct, idDepartamento: departamentoId }));
-            setProvincias([]);
-            setDistritos([]);
-            const response = await fetch(`http://localhost:8080/provincia/departamento/${departamentoId}`);
-            if (!response.ok) throw new Error('Error al obtener provincias');
-            const data = await response.json();
-            setProvincias(data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+  const [provincias, setProvincias] = useState([]);
+  const [provincia, setProvincia] = useState([]);
 
-    const fetchDistritos = async (idProvincia) => {
-        try {
-            setProduct((prevProduct) => ({ ...prevProduct, idProvincia }));
-            setDistritos([]);
-            const response = await fetch(`http://localhost:8080/distrito/provincia/${idProvincia}`);
-            if (!response.ok) throw new Error('Error al obtener distritos');
-            const data = await response.json();
-            setDistritos(data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+  const [distritos, setDistritos] = useState([]);
+  const [distrito, setDistrito] = useState([]);
 
-    const fetchEmpresas = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/empresa');
-            if (!response.ok) throw new Error('Error al obtener empresas');
-            const data = await response.json();
-            setProducts(data);
-        } catch (error) {
-            console.error('Error al obtener empresas:', error);
-        }
-    };
+  const [fechaNac, setFechaNac] = useState([]);
 
-    const saveProduct = async () => {
-        setSubmitted(true);
+  const [submitted, setSubmitted] = useState(false);
 
-        if (product.razonSocial.trim()) {
-            const method = product.idEmpresa ? 'PUT' : 'POST';
-            const url = product.idEmpresa
-                ? `http://localhost:8080/empresa/${product.idEmpresa}`
-                : 'http://localhost:8080/empresa';
+  const [newPersonaDialog, setNewPersonaDialog] = useState(false);
 
-            try {
-                const response = await fetch(url, {
-                    method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(product)
-                });
+  const [deletePersonaDialog, setDeletePersonaDialog] = useState(false);
+  const [deletePersonasDialog, setDeletePersonasDialog] = useState(false);
 
-                if (!response.ok) throw new Error('Error al guardar la empresa');
+  const [activatePersonaDialog, setActivatePersonaDialog] = useState(false);
 
-                fetchEmpresas();
-                setProductDialog(false);
-                setProduct(emptyProduct);
-            } catch (error) {
-                console.error('Error al guardar la empresa:', error);
-            }
-        }
-    };
+  const [activatePersonasDialog, setActivatePersonasDialog] = useState(false);
 
-    const handleEdit = async (empresa) => {
-        setProduct({ ...empresa });
-        setProductDialog(true);
+  const toast = useRef(null);
+  const dt = useRef(null);
 
-        const { idDistrito } = empresa;
-        try {
-            const provinciaResponse = await fetch(`http://localhost:8080/provincia/distrito/${idDistrito}`);
-            if (!provinciaResponse.ok) {
-                throw new Error('Error al obtener la provincia');
-            }
-            const provinciaData = await provinciaResponse.json();
-            const provinciaNombre = provinciaData.nombreProvincia;
+  const hideActivatePersonaDialog = () => {
+    setActivatePersonaDialog(false);
+  };
 
-            const departamentoResponse = await fetch(`http://localhost:8080/departamento/provincia/${provinciaNombre}`);
-            if (!departamentoResponse.ok) throw new Error('Error al obtener departamentos');
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setPersona({ ...persona, [id]: value });
+  };
 
-            const departamentoData = await departamentoResponse.json();
+  const fechaEdit = (rowData) => {
+    const fecha = rowData.fechaNac;
 
-            setProduct((prevFormData) => ({
-                ...prevFormData,
-                idProvincia: provinciaData.idProvincia,
-                idDepartamento: departamentoData.idDepartamento
-            }));
+    const partesFecha = rowData.fechaNac.split("-");
+    const fechaJavaScript = new Date(
+      partesFecha[0],
+      partesFecha[1] - 1,
+      partesFecha[2]
+    );
+    return fechaJavaScript;
+  };
 
-            await fetchProvincias(departamentoData.idDepartamento);
-            await fetchDistritos(provinciaData.idProvincia);
-        } catch (error) {
-            console.error('Error al obtener provincias o departamentos:', error);
-        }
-    };
+  const comboEdit = async (idDistrito) => {
+    try {
+      const provinciaResponse = await fetch(
+        `http://localhost:8080/provincia/distrito/${idDistrito}`
+      );
+      if (!provinciaResponse.ok) {
+        throw new Error("Error al obtener la provincia");
+      }
+      const provinciaData = await provinciaResponse.json();
+      const provinciaNombre = provinciaData.nombreProvincia;
 
-    const editProduct = async (product) => {
-        handleEdit(product);
-    };
+      const departamentoResponse = await fetch(
+        `http://localhost:8080/departamento/provincia/${provinciaNombre}`
+      );
+      if (!departamentoResponse.ok)
+        throw new Error("Error al obtener departamentos");
 
-    const confirmDeleteProduct = (product) => {
-        if (Array.isArray(product)) {
-            setSelectedProducts(product);
-        } else {
-            setProduct(product);
-        }
-        setDeleteProductDialog(true);
-    };
+      const departamentoData = await departamentoResponse.json();
 
-    const deleteProduct = async () => {
-        if (product.idEmpresa) {
-            try {
-                const response = await fetch(`http://localhost:8080/empresa/${product.idEmpresa}`, { method: 'DELETE' });
-                if (!response.ok) throw new Error('Error al eliminar la empresa');
-                setDeleteProductDialog(false);
-                setProduct(emptyProduct);
-                fetchEmpresas();
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Eliminada', life: 3000 });
-            } catch (error) {
-                console.error('Error al eliminar la empresa:', error);
-            }
-        } else if (selectedProducts && selectedProducts.length > 0) {
-            try {
-                for (const prod of selectedProducts) {
-                    await fetch(`http://localhost:8080/empresa/${prod.idEmpresa}`, { method: 'DELETE' });
-                }
-                setDeleteProductDialog(false);
-                setSelectedProducts(null);
-                fetchEmpresas();
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresas Eliminadas', life: 3000 });
-            } catch (error) {
-                console.error('Error al eliminar las empresas:', error);
-            }
-        } else {
-            console.error('No se puede eliminar la empresa. ID de empresa no encontrado.');
-        }
-    };
+      setPersona((prevPersona) => ({
+        ...prevPersona,
+        idDistrito: idDistrito,
+        idProvincia: provinciaData.idProvincia,
+        idDepartamento: departamentoData.idDepartamento,
+      }));
 
-    const openNew = () => {
-        setProduct(emptyProduct);
-        setSubmitted(false);
-        setProductDialog(true);
-    };
+      await fetchProvincias(departamentoData.idDepartamento);
+      await fetchDistritos(provinciaData.idProvincia);
+      setDistrito(idDistrito);
+    } catch (error) {
+      console.error("Error al obtener provincias o departamentos:", error);
+    }
+  };
 
-    const hideDialog = () => {
-        setSubmitted(false);
-        setProductDialog(false);
-    };
+  useEffect(() => {
+    fetchPersonas();
+    fetchDepartamentos();
+  }, []);
 
-    const hideDeleteProductDialog = () => {
-        setDeleteProductDialog(false);
-    };
+  const fetchPersonas = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/person");
+      if (!response.ok) throw new Error("Error al obtener personas");
+      const data = await response.json();
+      setPersonas(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    const onInputChange = (e, name) => {
-        const val = (e.target && e.target.value) || '';
-        let _product = { ...product };
-        _product[`${name}`] = val;
-        setProduct(_product);
-    };
+  const fetchDepartamentos = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/departamento");
+      if (!response.ok) throw new Error("Error al obtener departamentos");
+      const data = await response.json();
+      setDepartamentos(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    const leftToolbarTemplate = () => {
-        return (
-            <div className="flex flex-wrap gap-2">
-                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
-                <Button
-                    label="Delete"
-                    icon="pi pi-trash"
-                    className="p-button-danger"
-                    onClick={() => confirmDeleteProduct(selectedProducts)}
-                    disabled={!selectedProducts || !selectedProducts.length}
-                />            
-            </div>
+  const fetchProvincias = async (idDepartamento) => {
+    try {
+      setDepartamento(idDepartamento);
+      const response = await fetch(
+        `http://localhost:8080/provincia/departamento/${idDepartamento}`
+      );
+      if (!response.ok) throw new Error("Error al obtener provincias");
+      const data = await response.json();
+      setProvincias(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchDistritos = async (idProvincia) => {
+    try {
+      setProvincia(idProvincia);
+
+      const response = await fetch(
+        `http://localhost:8080/distrito/provincia/${idProvincia}`
+      );
+      if (!response.ok) throw new Error("Error al obtener distritos");
+      const data = await response.json();
+      setDistritos(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const openNew = () => {
+    setPersona(emptyPersona);
+    setSubmitted(false);
+    setNewPersonaDialog(true);
+  };
+
+  const hideDialog = () => {
+    setSubmitted(false);
+    setNewPersonaDialog(false);
+  };
+
+  const hideDeletePersonaDialog = () => {
+    setDeletePersonaDialog(false);
+  };
+
+  const hideDeletePersonasDialog = () => {
+    setDeletePersonasDialog(false);
+  };
+
+  const confirmDeleteSelected = () => {
+    setDeletePersonasDialog(true);
+  };
+
+  const savePersona = async () => {
+    console.log(persona);
+    setSubmitted(true);
+
+    if (persona.nombrePersona.trim()) {
+      const method = persona.idPersona ? "PUT" : "POST";
+      const url = persona.idPersona
+        ? `http://localhost:8080/person/${persona.idPersona}`
+        : "http://localhost:8080/person";
+
+      try {
+        const response = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(persona),
+        });
+
+        if (!response.ok) throw new Error("Error al guardar la persona");
+      } catch (error) {
+        console.error(error);
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Error al guardar la persona",
+          life: 3000,
+        });
+        return;
+      }
+
+      if (persona.idPersona) {
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Persona Updated",
+          life: 3000,
+        });
+      } else {
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Persona Created",
+          life: 3000,
+        });
+      }
+
+      setNewPersonaDialog(false);
+      fetchPersonas();
+    }
+  };
+
+  const editPersona = async (persona) => {
+    fechaEdit(persona);
+    setPersona(persona);
+    setNewPersonaDialog(true);
+    comboEdit(persona.idDistrito);
+    console.log(persona);
+  };
+
+  const activatePersona = async (rowData) => {
+    if (rowData.idPersona) {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/person/${rowData.idPersona}`,
+          {
+            method: "PATCH",
+          }
         );
-    };
-
-    const rightToolbarTemplate = () => {
-        return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={() => dt.current.exportCSV()} />;
-    };
-
-    const actionBodyTemplate = (rowData) => {
-        return (
-            <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editProduct(rowData)} />
-                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
-            </React.Fragment>
+        if (!response.ok) throw new Error("Error al actualizar la persona");
+        setPersona(emptyPersona);
+        fetchPersonas();
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Persona Actualizada",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al actualizar la persona:", error);
+      }
+    } else if (selectedPersonas && selectedPersonas.length > 0) {
+      try {
+        console.log(selectedPersonas);
+        const activatePromises = selectedPersonas.map((persona) =>
+          fetch(`http://localhost:8080/person/${persona.idPersona}`, {
+            method: "PATCH",
+          })
         );
-    };
+        await Promise.all(activatePromises);
+        setSelectedPersonas(null);
+        fetchPersonas();
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Personas activadas",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al activar las personas:", error);
+      }
+    }
+  };
 
-    const header = (
-        <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Manage Empresas</h4>
-            <IconField iconPosition="left">
-                <InputIcon className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
-            </IconField>
-        </div>
-    );
+  const confirmDeletePersona = (persona) => {
+    setPersona(persona);
+    setDeletePersonaDialog(true);
+  };
 
-    const productDialogFooter = (
-        <React.Fragment>
-            <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" onClick={saveProduct} />
-        </React.Fragment>
-    );
+  const deletePersona = async () => {
+    if (persona.idPersona) {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/person/${persona.idPersona}`,
+          { method: "DELETE" }
+        );
+        if (!response.ok) throw new Error("Error al eliminar el empleado");
+        setDeletePersonaDialog(false);
+        setPersona(emptyPersona);
+        fetchPersonas();
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Persona Eliminada",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al eliminar la persona:", error);
+      }
+    } else if (selectedPersonas && selectedPersonas.length > 0) {
+      try {
+        console.log(selectedPersonas);
+        const deletePromises = selectedPersonas.map((persona) =>
+          fetch(`http://localhost:8080/person/${persona.idPersona}`, {
+            method: "DELETE",
+          })
+        );
+        await Promise.all(deletePromises);
+        setDeletePersonaDialog(false);
+        setSelectedPersonas(null);
+        fetchPersonas();
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Personas Eliminadas",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al eliminar las personas:", error);
+      }
+    } else {
+      console.error(
+        "No se puede eliminar la persona. ID de persona no encontrado."
+      );
+    }
+  };
 
-    const deleteProductDialogFooter = (
-        <React.Fragment>
-            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteProductDialog} />
-            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteProduct} />
-        </React.Fragment>
-    );
+  const exportCSV = () => {
+    dt.current.exportCSV();
+  };
 
-    const statusBodyTemplate = (rowData) => {
-        return <Tag value={rowData.estadoEmpresa === '1' ? 'ACTIVO' : 'INACTIVO'} severity={getSeverity(rowData)} />;
-    };
+  const handleSetDate = (rowData) => {
+    setPersona({
+      ...persona,
+      fechaNac: rowData.fechaNac,
+    });
 
-    const getSeverity = (product) => {
-        switch (product.estadoEmpresa) {
-            case '1':
-                return 'success';
-            case '0':
-                return 'warning';
-            default:
-                return null;
-        }
-    };
+    console.log(persona.fechaNac);
+  };
 
+  const activatePersonaDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        outlined
+        onClick={hideActivatePersonaDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        severity="success"
+        onClick={activatePersona}
+      />
+    </React.Fragment>
+  );
+
+  const deleteSelectedPersonas = () => {
+    setDeletePersonasDialog(false);
+    setSelectedPersonas([]);
+    deletePersona();
+  };
+
+  const deletePersonaDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        outlined
+        onClick={hideDeletePersonaDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        severity="danger"
+        onClick={deletePersona}
+      />
+    </React.Fragment>
+  );
+
+  const leftToolbarTemplate = () => {
     return (
-        <div className="grid crud-demo">
-            <div className="col-12">
-                <div className="card">
-                    <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
-                    <DataTable
-                        ref={dt}
-                        value={products}
-                        selection={selectedProducts}
-                        onSelectionChange={(e) => setSelectedProducts(e.value)}
-                        dataKey="idEmpresa"
-                        paginator
-                        rows={10}
-                        rowsPerPageOptions={[5, 10, 25]}
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-                        globalFilter={globalFilter}
-                        header={header}
-                    >
-                        <Column selectionMode="multiple" exportable={false}></Column>
-                        <Column field="ruc" header="RUC" sortable></Column>
-                        <Column field="razonSocial" header="Razon Social" sortable></Column>
-                        <Column field="direccion" header="Direccion" sortable></Column>
-                        <Column field="distrito" header="Distrito" sortable></Column>
-                        <Column field="provincia" header="Provincia" sortable></Column>
-                        <Column field="departamento" header="Departamento" sortable></Column>
-                        <Column field="estadoEmpresa" header="Estado Empresa" body={statusBodyTemplate} sortable></Column>
-                        <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
-                    </DataTable>
-
-                    <Dialog visible={productDialog} style={{ width: '450px' }} header="Company Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
-                        <div className="field">
-                            <label htmlFor="ruc">RUC</label>
-                            <InputText id="ruc" value={product.ruc} onChange={(e) => onInputChange(e, 'ruc')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.ruc })} />
-                            {submitted && !product.ruc && <small className="p-error">RUC is required.</small>}
-                        </div>
-                        <div className="field">
-                            <label htmlFor="razonSocial">Razon Social</label>
-                            <InputTextarea id="razonSocial" value={product.razonSocial} onChange={(e) => onInputChange(e, 'razonSocial')} required rows={3} cols={20} />
-                        </div>
-                        <div className="field">
-                            <label htmlFor="direccion">Direccion</label>
-                            <InputTextarea id="direccion" value={product.direccion} onChange={(e) => onInputChange(e, 'direccion')} required rows={3} cols={20} />
-                        </div>
-                        <div className="field">
-                            <label htmlFor="departamento">Departamento</label>
-                            <Dropdown id="departamento" value={product.idDepartamento} options={departamentos} onChange={(e) => fetchProvincias(e.value)} optionLabel="nombreDepartamento" placeholder="Select a Department" />
-                        </div>
-                        <div className="field">
-                            <label htmlFor="provincia">Provincia</label>
-                            <Dropdown id="provincia" value={product.idProvincia} options={provincias} onChange={(e) => fetchDistritos(e.value)} optionLabel="nombreProvincia" placeholder="Select a Province" />
-                        </div>
-                        <div className="field">
-                            <label htmlFor="distrito">Distrito</label>
-                            <Dropdown id="distrito" value={product.idDistrito} options={distritos} onChange={(e) => onInputChange(e, 'idDistrito')} optionLabel="nombreDistrito" placeholder="Select a District" />
-                        </div>
-                    </Dialog>
-
-                    <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
-                        <div className="confirmation-content">
-                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                            {product && <span>Are you sure you want to delete <b>{product.razonSocial}</b>?</span>}
-                        </div>
-                    </Dialog>
-                </div>
-            </div>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          severity="success"
+          onClick={openNew}
+        />{" "}
+        <Button
+          label="Delete"
+          icon="pi pi-trash"
+          severity="danger"
+          onClick={confirmDeleteSelected}
+          disabled={!selectedPersonas || !selectedPersonas.length}
+        />{" "}
+        <Button
+          label="Activar"
+          icon="pi pi-check"
+          severity="info"
+          onClick={activatePersona}
+          disabled={!selectedPersonas || !selectedPersonas.length}
+        />
+      </div>
     );
+  };
+
+  const rightToolbarTemplate = () => {
+    return (
+      <Button
+        label="Export"
+        icon="pi pi-upload"
+        className="p-button-help"
+        onClick={exportCSV}
+      />
+    );
+  };
+
+  const actionBodyTemplate = (rowData) => {
+    return (
+      <React.Fragment>
+        <Button
+          icon="pi pi-pencil"
+          rounded
+          outlined
+          className="mr-3"
+          onClick={() => {
+            editPersona(rowData);
+          }}
+        />
+        <Button
+          icon={rowData.estadoPersona === "1" ? "pi pi-trash" : "pi pi-check"}
+          rounded
+          outlined
+          severity={rowData.estadoPersona === "1" ? "danger" : "success"}
+          onClick={() => {
+            if (rowData.estadoPersona === "1") {
+              confirmDeletePersona(rowData);
+            } else {
+              activatePersona(rowData);
+            }
+          }}
+        />
+      </React.Fragment>
+    );
+  };
+
+  const getSeverity = (persona) => {
+    switch (persona.inventoryStatus) {
+      case "INSTOCK":
+        return "success";
+
+      case "LOWSTOCK":
+        return "warning";
+
+      case "OUTOFSTOCK":
+        return "danger";
+
+      default:
+        return null;
+    }
+  };
+
+  const statusBodyTemplate = (rowData) => {
+    return (
+      <Tag
+        value={rowData.inventoryStatus}
+        severity={getSeverity(rowData)}
+      ></Tag>
+    );
+  };
+
+  const statusItemTemplate = (option) => {
+    return (
+      <Tag value={option} severity={getSeverity(option)}>
+        {option}
+      </Tag>
+    );
+  };
+
+  const header = (
+    <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+      <h4 className="m-0">Manage Personas</h4>
+    </div>
+  );
+
+  const personaDialogFooter = (
+    <React.Fragment>
+      <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
+      <Button label="Save" icon="pi pi-check" onClick={savePersona} />
+    </React.Fragment>
+  );
+
+  const deletePersonasDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        outlined
+        onClick={hideDeletePersonasDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        severity="danger"
+        onClick={deleteSelectedPersonas}
+      />
+    </React.Fragment>
+  );
+  const handleDateChange = (e) => {
+    let _persona = { ...persona };
+    _persona.fechaNac = e.value.toISOString().split("T")[0];  // Guarda la fecha en formato YYYY-MM-DD
+    setPersona(_persona);
+};
+
+
+  return (
+    <div className="">
+      <div className="col-12">
+        <div className="card">
+          <Toast ref={toast} />
+          <Toolbar
+            className="mb-4"
+            left={leftToolbarTemplate}
+            right={rightToolbarTemplate}
+          ></Toolbar>
+
+          <DataTable
+            ref={dt}
+            value={personas}
+            selection={selectedPersonas}
+            onSelectionChange={(e) => setSelectedPersonas(e.value)}
+            dataKey="idPersona"
+            paginator
+            rows={10}
+            rowsPerPageOptions={[5, 10, 25]}
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} personas"
+            header={header}
+            responsiveLayout="scroll"
+          >
+            <Column selectionMode="multiple" exportable={false}></Column>
+            <Column field="idPersona" header="ID" sortable></Column>
+            <Column field="dni" header="DNI" sortable></Column>
+            <Column field="nombrePersona" header="Nombre" sortable></Column>
+            <Column field="apePaterno" header="Ape. Paterno" sortable></Column>
+            <Column field="apeMaterno" header="Ape. Materno" sortable></Column>
+            <Column
+              field="fechaNac"
+              header="Fecha"
+              sortable
+              style={{ minWidth: "10rem" }}
+            ></Column>
+            <Column field="correo" header="Correo" sortable>
+              style={{ minWidth: "1rem" }}
+            </Column>
+            <Column
+              field="celular"
+              header="Celular"
+              sortable
+              style={{ minWidth: "10rem" }}
+            ></Column>
+            <Column
+              field="direccion"
+              header="Direccion"
+              sortable
+              style={{ minWidth: "1rem" }}
+            ></Column>
+            <Column
+              field="estadoPersona"
+              header="ESTADO"
+              sortable
+              style={{ minWidth: "1rem" }}
+            ></Column>
+            <Column
+              field="idDistrito"
+              header="Distrito"
+              sortable
+              style={{ minWidth: "1rem" }}
+            ></Column>
+            <Column
+              body={actionBodyTemplate}
+              style={{ minWidth: "12rem" }}
+            ></Column>
+          </DataTable>
+
+          <Dialog
+            visible={newPersonaDialog}
+            style={{ width: "32rem" }}
+            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+            header="Registro Persona"
+            modal
+            className="p-fluid"
+            footer={personaDialogFooter}
+            onHide={hideDialog}
+          >
+            <div className="field">
+              <label className="font-bold" htmlFor="dni">
+                DNI
+              </label>
+              <InputText
+                id="dni"
+                keyfilter="int"
+                maxLength="8"
+                value={persona.dni}
+                onChange={handleInputChange}
+                required
+                autoFocus
+                className={classNames({
+                  "p-invalid": submitted && !persona.dni,
+                })}
+              />
+              {submitted && !persona.dni && (
+                <small className="p-error">DNI es requerido.</small>
+              )}
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="nombrePersona">
+                Nombre
+              </label>
+              <InputText
+                id="nombrePersona"
+                value={persona.nombrePersona}
+                onChange={handleInputChange}
+                required
+                className={classNames({
+                  "p-invalid": submitted && !persona.nombrePersona,
+                })}
+              />
+              {submitted && !persona.nombrePersona && (
+                <small className="p-error">Nombre es requerido.</small>
+              )}
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="apePaterno">
+                Apellido Paterno
+              </label>
+              <InputText
+                id="apePaterno"
+                value={persona.apePaterno}
+                onChange={handleInputChange}
+                required
+                className={classNames({
+                  "p-invalid": submitted && !persona.apePaterno,
+                })}
+              />
+              {submitted && !persona.apePaterno && (
+                <small className="p-error">
+                  Apellido Paterno es requerido.
+                </small>
+              )}
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="apeMaterno">
+                Apellido Materno
+              </label>
+              <InputText
+                id="apeMaterno"
+                value={persona.apeMaterno}
+                onChange={handleInputChange}
+                required
+                className={classNames({
+                  "p-invalid": submitted && !persona.apeMaterno,
+                })}
+              />
+              {submitted && !persona.apeMaterno && (
+                <small className="p-error">
+                  Apellido Materno es requerido.
+                </small>
+              )}
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="fechaNac">
+                Fecha de Nacimiento
+              </label>
+              <Calendar
+                id="fechaNac"
+                value={new Date(persona.fechaNac)}  // Asegura que la fecha sea un objeto Date
+                onChange={handleDateChange}
+                dateFormat="dd/mm/yy"
+                showIcon
+                required
+                className={classNames({
+                  "p-invalid": submitted && !persona.fechaNac,
+                })}
+              />
+
+            
+
+              {submitted && !persona.fechaNac && (
+                <small className="p-error">Fecha Nacimiento is required.</small>
+              )}
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="correo">
+                Correo
+              </label>
+              <InputText
+                id="correo"
+                value={persona.correo}
+                onChange={handleInputChange}
+                required
+                className={classNames({
+                  "p-invalid": submitted && !persona.correo,
+                })}
+              />
+              {submitted && !persona.correo && (
+                <small className="p-error">Correo es requerido.</small>
+              )}
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="celular">
+                Celular
+              </label>
+              <InputText
+                id="celular"
+                keyfilter="int"
+                maxLength="9"
+                value={persona.celular}
+                onChange={handleInputChange}
+                required
+                className={classNames({
+                  "p-invalid": submitted && !persona.celular,
+                })}
+              />
+              {submitted && !persona.celular && (
+                <small className="p-error">Celular es requerido.</small>
+              )}
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="genero">
+                Género
+              </label>
+              <Dropdown
+                id="genero"
+                value={persona.genero}
+                options={[
+                  { label: "Masculino", value: "M" },
+                  { label: "Femenino", value: "F" },
+                ]}
+                onChange={handleInputChange}
+                placeholder="Seleccione un género"
+              />
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="direccion">
+                Dirección
+              </label>
+              <InputText
+                id="direccion"
+                value={persona.direccion}
+                onChange={handleInputChange}
+                required
+                className={classNames({
+                  "p-invalid": submitted && !persona.direccion,
+                })}
+              />
+              {submitted && !persona.direccion && (
+                <small className="p-error">Dirección es requerido.</small>
+              )}
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="idDepartamento">
+                Departamento
+              </label>
+              <Dropdown
+                id="idDepartamento"
+                value={persona.idDepartamento}
+                options={departamentos.map((dep) => ({
+                  label: dep.nombreDepartamento,
+                  value: dep.idDepartamento,
+                }))}
+                onChange={(e) => {
+                  setPersona((prevPersona) => ({
+                    ...prevPersona,
+                    idDepartamento: e.value,
+                  }));
+                  fetchProvincias(e.value);
+                }}
+                placeholder="Seleccione un departamento"
+              />
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="idProvincia">
+                Provincia
+              </label>
+              <Dropdown
+                id="idProvincia"
+                value={persona.idProvincia}
+                options={provincias.map((prov) => ({
+                  label: prov.nombreProvincia,
+                  value: prov.idProvincia,
+                }))}
+                onChange={(e) => {
+                  setPersona((prevPersona) => ({
+                    ...prevPersona,
+                    idProvincia: e.value,
+                  }));
+                  fetchDistritos(e.value);
+                }}
+                placeholder="Seleccione una provincia"
+                disabled={!persona.idDepartamento}
+              />
+            </div>
+
+            <div className="field">
+              <label className="font-bold" htmlFor="iDistrito">
+                Distrito
+              </label>
+              <Dropdown
+                id="iDistrito"
+                value={persona.idDistrito}
+                options={distritos.map((dist) => ({
+                  label: dist.nombreDistrito,
+                  value: dist.idDistrito,
+                }))}
+                onChange={(e) => {
+                  setPersona((prevPersona) => ({
+                    ...prevPersona,
+                    idDistrito: e.value,
+                  }));
+                }}
+                placeholder="Seleccione un distrito"
+                disabled={!persona.idProvincia}
+              />
+            </div>
+          </Dialog>
+
+          <Dialog
+            visible={deletePersonaDialog}
+            style={{ width: "32rem" }}
+            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+            header="Confirm"
+            modal
+            footer={deletePersonaDialogFooter}
+            onHide={hideDeletePersonaDialog}
+          >
+            <div className="confirmation-content">
+              <i
+                className="pi pi-exclamation-triangle mr-3"
+                style={{ fontSize: "2rem" }}
+              />
+              {persona && (
+                <span>
+                  Are you sure you want to delete <b>{persona.nombrePersona}</b>
+                  ?
+                </span>
+              )}
+            </div>
+          </Dialog>
+
+          <Dialog
+            visible={activatePersonaDialog}
+            style={{ width: "32rem" }}
+            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+            header="Confirm"
+            modal
+            footer={activatePersonaDialogFooter}
+            onHide={activatePersonaDialog}
+          >
+            <div className="confirmation-content">
+              <i
+                className="pi pi-exclamation-triangle mr-3"
+                style={{ fontSize: "2rem" }}
+              />
+              {persona && (
+                <span>
+                  Are you sure you want to activate{" "}
+                  <b>{persona.nombrePersona}</b>?
+                </span>
+              )}
+            </div>
+          </Dialog>
+
+          <Dialog
+            visible={deletePersonasDialog}
+            style={{ width: "32rem" }}
+            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+            header="Confirm"
+            modal
+            footer={deletePersonasDialogFooter}
+            onHide={hideDeletePersonasDialog}
+          >
+            <div className="confirmation-content">
+              <i
+                className="pi pi-exclamation-triangle mr-3"
+                style={{ fontSize: "2rem" }}
+              />
+              {persona && (
+                <span>
+                  Are you sure you want to delete the selected products?
+                </span>
+              )}
+            </div>
+          </Dialog>
+        </div>
+      </div>
+    </div>
+  );
 }

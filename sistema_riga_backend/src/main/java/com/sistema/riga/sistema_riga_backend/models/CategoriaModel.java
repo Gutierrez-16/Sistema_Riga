@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class CategoriaModel {
     private int idCategoria;
-
+    private String nombreCategoria;
+    private String estadoCategoria;
 }

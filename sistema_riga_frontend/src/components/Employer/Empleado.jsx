@@ -245,11 +245,9 @@ export default function ProductsDemo() {
   };
 
   function updateCargo(selectedCargoId) {
-    // Update the state with the selected cargo ID
     setProduct({ ...product, idCargo: selectedCargoId });
   }
   function updatePersona(selectedPersonaId) {
-    // Update the state with the selected cargo ID
     setProduct({ ...product, idPersona: selectedPersonaId });
   }
 
@@ -317,7 +315,7 @@ export default function ProductsDemo() {
 
         <div className="field">
           <label htmlFor="sueldo">Sueldo</label>
-          <InputText id="sueldo" value={product.sueldo} onChange={(e) => onInputChange(e, 'sueldo')} required className={classNames({ 'p-invalid': submitted && !product.sueldo })} />
+          <InputText id="sueldo" value={product.sueldo} keyfilter="int" maxLength="10"onChange={(e) => onInputChange(e, 'sueldo')} required className={classNames({ 'p-invalid': submitted && !product.sueldo })} />
           {submitted && !product.sueldo && <small className="p-error">Sueldo is required.</small>}
         </div>
         <div className="field">
@@ -342,9 +340,9 @@ export default function ProductsDemo() {
           {submitted && !product.turno && <small className="p-error">Turno is required.</small>}
         </div>
         <div className="field">
-          <label htmlFor="estadoEmpleado">Turno</label>
-          <InputText id="estadoEmpleado" value={product.estadoEmpleado} onChange={(e) => onInputChange(e, 'estadoEmpleado')} required className={classNames({ 'p-invalid': submitted && !product.estadoEmpleado })} />
-          {submitted && !product.estadoEmpleado && <small className="p-error">Turno is required.</small>}
+          <label htmlFor="estadoEmpleado">Estado</label>
+          <Dropdown id="estadoEmpleado" value={product.estadoEmpleado} options={[{ label: 'Habilitado', value: '1' }, { label: 'Deshabilitado', value: '0' }]} onChange={(e) => onInputChange(e, 'estadoEmpleado')} placeholder="Seleccione un estado" className={classNames({ 'p-invalid': submitted && !product.estadoEmpleado})} />
+          {submitted && !product.estadoEmpleado && <small className="p-error">Estado is required.</small>}
         </div>
       </Dialog>
 
