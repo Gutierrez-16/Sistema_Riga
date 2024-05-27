@@ -9,6 +9,10 @@ import Empleado from './Components/Employer/Empleado';
 import Empresa from './Components/Empresa/Empresa';
 import Home from './Components/Home/Home';
 import Venta from './Components/Ventas/Venta';
+import Cargo from './Components/Cargo/Cargo';
+import Linea from './Components/Linea/Linea';
+import Categoria from './Components/Categoria/Categoria';
+import MetodoPago from './Components/MetodoPago/MetodoPago';
 import 'primereact/resources/primereact.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import './index.css';
@@ -25,7 +29,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/empresa" element={<Empresa />} />
       <Route path="/home" element={<Home />} />
       <Route path="/venta" element={<Venta />} />
-
+      <Route path="/cargo" element={<Cargo />} />
+      <Route path="/linea" element={<Linea />} />
+      <Route path="/categoria" element={<Categoria/>} />
+      <Route path="/metodopago" element={<MetodoPago/>} />
     </Routes>
   </BrowserRouter>
 );

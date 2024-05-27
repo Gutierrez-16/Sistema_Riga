@@ -101,13 +101,13 @@ export default function ProductsDemo() {
         setSubmitted(true);
         if (typeof product.ruc === 'string') {
             if (product.ruc.length < 11 || product.ruc.length > 11) {
-              console.log('Error: RUC must be 11 characters long');
-              return; // Exit the function if RUC length is invalid
+                console.log('Error: RUC must be 11 characters long');
+                return; // Exit the function if RUC length is invalid
             }
-          } else {
+        } else {
             console.log('Error: RUC is not a string');
             return; // Exit the function if RUC is not a string
-          }
+        }
 
         if (product.razonSocial.trim()) {
             let _products = [...products];
@@ -133,8 +133,8 @@ export default function ProductsDemo() {
             } catch (error) {
                 console.error('Error al guardar la empresa:', error);
             }
-        
-    };
+
+        };
     };
     const handleEdit = async (empresa) => {
         setProduct({ ...empresa });
@@ -199,17 +199,17 @@ export default function ProductsDemo() {
                 setSelectedProducts(null);
                 fetchEmpresas();
                 toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresas Eliminadas', life: 3000 });
-                
-            } catch (error) {
-                    console.error('Error al eliminar las empresas:', error);
-                }
-            } else {
-                console.error('No se puede eliminar la empresa. ID de empresa no encontrado.');
-            }
-    };
-    
 
-    
+            } catch (error) {
+                console.error('Error al eliminar las empresas:', error);
+            }
+        } else {
+            console.error('No se puede eliminar la empresa. ID de empresa no encontrado.');
+        }
+    };
+
+
+
     const openNew = () => {
         setProduct(emptyProduct);
         setSubmitted(false);
@@ -242,8 +242,8 @@ export default function ProductsDemo() {
                     className="p-button-danger"
                     onClick={() => confirmDeleteProduct(selectedProducts)}
                     disabled={!selectedProducts || !selectedProducts.length}
-                />            
-                </div>
+                />
+            </div>
         );
     };
 
@@ -288,24 +288,24 @@ export default function ProductsDemo() {
         };
 
     };
-    
+
     const statusBodyTemplate = (rowData) => {
         const severity = getSeverity(rowData.estadoEmpresa);
         return <Tag value={severity === 'success'} severity={severity}>{severity === 'success' ? 'Habilitado' : 'Deshabilitado'}</Tag>;
-      };
-      
-      const getSeverity = (estadoEmpresa) => {
+    };
+
+    const getSeverity = (estadoEmpresa) => {
         switch (estadoEmpresa) {
-          case '1':
-          case 'Habilitado': 
-            return 'success';
-          case '0':
-            return 'warning';
-          default:
-            return null;
+            case '1':
+            case 'Habilitado':
+                return 'success';
+            case '0':
+                return 'warning';
+            default:
+                return null;
         }
-      };
-      
+    };
+
 
     return (
         <div>
@@ -319,11 +319,11 @@ export default function ProductsDemo() {
                     selection={selectedProducts}
 
                     onSelectionChange={(e) => {
-                        
+
                         console.log('Selected products:', e.value);
                         setSelectedProducts(e.value);
                     }}
-                    
+
                     dataKey="idEmpresa"
                     paginator
                     rows={10}
@@ -415,27 +415,26 @@ export default function ProductsDemo() {
                         />
 
                     </div>
-                    <div className="field">
-                        <label htmlFor="estadoEmpresa" className="font-bold">
-                            Estado Empresa
-                        </label>
-                        <InputText id="estadoEmpresa" value={product.estadoEmpresa} onChange={(e) => onInputChange(e, 'estadoEmpresa')} />
-                    </div>
 
+                    <div className="field">
+                        <label htmlFor="estadoEmpresa">Estado</label>
+                        <Dropdown id="estadoEmpresa" value={product.estadoEmpresa} options={[{ label: 'Habilitado', value: '1' }, { label: 'Deshabilitado', value: '0' }]} onChange={(e) => onInputChange(e, 'estadoEmpresa')} placeholder="Seleccione un estado" className={classNames({ 'p-invalid': submitted && !product.estadoEmpresa })} />
+                        {submitted && !product.estadoEmpresa && <small className="p-error">Estado is required.</small>}
+                    </div>
                 </div>
 
             </Dialog >
 
-        <Dialog visible={deleteProductDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
-            <div className="confirmation-content">
-                <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                {product && (
-                    <span>
-                        Are you sure you want to delete <b>{product.razonSocial}</b>?
-                    </span>
-                )}
-            </div>
-        </Dialog>
+            <Dialog visible={deleteProductDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
+                <div className="confirmation-content">
+                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                    {product && (
+                        <span>
+                            Are you sure you want to delete <b>{product.razonSocial}</b>?
+                        </span>
+                    )}
+                </div>
+            </Dialog>
         </div >
     );
 }
