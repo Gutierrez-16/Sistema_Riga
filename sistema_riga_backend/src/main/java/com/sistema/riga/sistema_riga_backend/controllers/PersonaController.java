@@ -15,8 +15,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/person")
+@CrossOrigin(origins = "http://localhost:5173")
 public class PersonaController {
-
     @Autowired
     private IPersonaService iPersonaService;
 
@@ -61,6 +61,11 @@ public class PersonaController {
         return iPersonaService.getAllPersonas();
     }
 
+    @GetMapping("/buscar/{persona}")
+    public List<PersonaModel> search(@PathVariable String persona) {
+        return iPersonaService.search(persona);
+    }
+
     @GetMapping("/{id}")
     public PersonaModel getPersonaById(@PathVariable int id) {
         return iPersonaService.getPersonaById(id);
@@ -80,5 +85,10 @@ public class PersonaController {
     @DeleteMapping("/{id}")
     public String deletePersona(@PathVariable int id) {
         return iPersonaService.deletePersona(id);
+    }
+
+    @PatchMapping("{id}")
+    public String activatePersona(@PathVariable int id){
+        return iPersonaService.activatePersona(id);
     }
 }

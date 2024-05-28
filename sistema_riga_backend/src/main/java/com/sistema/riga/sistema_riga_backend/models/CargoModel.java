@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class CargoModel {
-    private long idCargo;
+    private int idCargo;
     private String nombreCargo;
+    private String estadoCargo;
 }

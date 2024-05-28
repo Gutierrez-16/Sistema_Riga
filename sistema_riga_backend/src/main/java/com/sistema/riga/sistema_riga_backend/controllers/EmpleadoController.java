@@ -1,6 +1,8 @@
 package com.sistema.riga.sistema_riga_backend.controllers;
 
+import com.sistema.riga.sistema_riga_backend.models.CargoModel;
 import com.sistema.riga.sistema_riga_backend.models.EmpleadoModel;
+import com.sistema.riga.sistema_riga_backend.models.PersonaModel;
 import com.sistema.riga.sistema_riga_backend.services.IEmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/employee")
-@CrossOrigin(origins = "http://localhost:5173")
 public class EmpleadoController {
     @Autowired
     private IEmpleadoService iEmpleadoService;
@@ -17,6 +18,16 @@ public class EmpleadoController {
     @GetMapping
     public List<EmpleadoModel> getAllEmpleados() {
         return iEmpleadoService.getAllEmpleados();
+    }
+
+    @GetMapping("/cargos")
+    public List<CargoModel> getAllCargos() {
+        return iEmpleadoService.getAllCargos();
+    }
+
+    @GetMapping("/person")
+    public List<PersonaModel> getAllPersonas() {
+        return iEmpleadoService.getAllPersonas();
     }
 
     @GetMapping("/{id}")

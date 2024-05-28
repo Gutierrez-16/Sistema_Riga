@@ -4,11 +4,10 @@ import com.sistema.riga.sistema_riga_backend.models.DepartamentoModel;
 import com.sistema.riga.sistema_riga_backend.models.DistritoModel;
 import com.sistema.riga.sistema_riga_backend.models.PersonaModel;
 import com.sistema.riga.sistema_riga_backend.models.ProvinciaModel;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+
 public interface IPersonaService {
     List<PersonaModel> getAllPersonas();
     PersonaModel getPersonaById(int id);
@@ -21,4 +20,7 @@ public interface IPersonaService {
 
     List<ProvinciaModel> getProvinciasByDistrito(int idDistrito);
     List<DepartamentoModel> getDepartamentosByProvincia(String provincia);
+    List<PersonaModel> search(String persona);
+
+    String activatePersona(int id);
 }
