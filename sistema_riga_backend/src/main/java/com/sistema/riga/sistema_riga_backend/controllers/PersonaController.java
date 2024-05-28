@@ -86,4 +86,9 @@ public class PersonaController {
     public String deletePersona(@PathVariable int id) {
         return iPersonaService.deletePersona(id);
     }
+
+    @PatchMapping("{id}")
+    public String activatePersona(@PathVariable int id){
+        return iPersonaService.activatePersona(id);
+    }
 }

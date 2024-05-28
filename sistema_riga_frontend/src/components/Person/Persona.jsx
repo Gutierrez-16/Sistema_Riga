@@ -12,12 +12,14 @@ import { Dropdown } from "primereact/dropdown";
 
 import { Calendar } from "primereact/calendar";
 
+import { Tag } from "primereact/tag";
+
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 
 import "primeicons/primeicons.css";
 
-export default function PersonaR() {
+export default function Persona() {
   let emptyPersona = {
     idPersona: "",
     dni: "",
@@ -25,7 +27,7 @@ export default function PersonaR() {
     apePaterno: "",
     apeMaterno: "",
     genero: "",
-    fechaNac: "",
+    fechaNac: null,
     correo: "",
     celular: "",
     direccion: "",
@@ -71,8 +73,6 @@ export default function PersonaR() {
 
   const [activatePersonaDialog, setActivatePersonaDialog] = useState(false);
 
-  const [activatePersonasDialog, setActivatePersonasDialog] = useState(false);
-
   const toast = useRef(null);
   const dt = useRef(null);
 
@@ -83,18 +83,6 @@ export default function PersonaR() {
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setPersona({ ...persona, [id]: value });
-  };
-
-  const fechaEdit = (rowData) => {
-    const fecha = rowData.fechaNac;
-
-    const partesFecha = rowData.fechaNac.split("-");
-    const fechaJavaScript = new Date(
-      partesFecha[0],
-      partesFecha[1] - 1,
-      partesFecha[2]
-    );
-    return fechaJavaScript;
   };
 
   const comboEdit = async (idDistrito) => {
@@ -261,11 +249,14 @@ export default function PersonaR() {
   };
 
   const editPersona = async (persona) => {
-    fechaEdit(persona);
     setPersona(persona);
     setNewPersonaDialog(true);
     comboEdit(persona.idDistrito);
-    console.log(persona);
+    const fechaNacimiento = new Date(persona.fechaNac);
+    const offset = fechaNacimiento.getTimezoneOffset();
+    fechaNacimiento.setMinutes(fechaNacimiento.getMinutes() + offset);
+
+    setFechaNac(fechaNacimiento);
   };
 
   const activatePersona = async (rowData) => {
@@ -367,15 +358,6 @@ export default function PersonaR() {
 
   const exportCSV = () => {
     dt.current.exportCSV();
-  };
-
-  const handleSetDate = (rowData) => {
-    setPersona({
-      ...persona,
-      fechaNac: rowData.fechaNac,
-    });
-
-    console.log(persona.fechaNac);
   };
 
   const activatePersonaDialogFooter = (
@@ -486,15 +468,12 @@ export default function PersonaR() {
   };
 
   const getSeverity = (persona) => {
-    switch (persona.inventoryStatus) {
-      case "INSTOCK":
+    switch (persona.estadoPersona) {
+      case "1":
         return "success";
 
-      case "LOWSTOCK":
+      case "2":
         return "warning";
-
-      case "OUTOFSTOCK":
-        return "danger";
 
       default:
         return null;
@@ -503,10 +482,9 @@ export default function PersonaR() {
 
   const statusBodyTemplate = (rowData) => {
     return (
-      <Tag
-        value={rowData.inventoryStatus}
-        severity={getSeverity(rowData)}
-      ></Tag>
+      <Tag severity={getSeverity(rowData)}>
+        {rowData.estadoPersona === "1" ? "HABILITADO" : "INHABILITADO"}
+      </Tag>
     );
   };
 
@@ -547,12 +525,6 @@ export default function PersonaR() {
       />
     </React.Fragment>
   );
-  const handleDateChange = (e) => {
-    let _persona = { ...persona };
-    _persona.fechaNac = e.value.toISOString().split("T")[0];  // Guarda la fecha en formato YYYY-MM-DD
-    setPersona(_persona);
-};
-
 
   return (
     <div className="">
@@ -605,11 +577,13 @@ export default function PersonaR() {
               sortable
               style={{ minWidth: "1rem" }}
             ></Column>
+
             <Column
               field="estadoPersona"
               header="ESTADO"
               sortable
-              style={{ minWidth: "1rem" }}
+              body={statusBodyTemplate}
+              style={{ minWidth: "12rem" }}
             ></Column>
             <Column
               field="idDistrito"
@@ -718,17 +692,21 @@ export default function PersonaR() {
               </label>
               <Calendar
                 id="fechaNac"
-                value={new Date(persona.fechaNac)}  // Asegura que la fecha sea un objeto Date
-                onChange={handleDateChange}
-                dateFormat="dd/mm/yy"
-                showIcon
+                value={fechaNac}
+                onChange={(e) => {
+                  setPersona((prevState) => ({
+                    ...prevState,
+                    fechaNac: e.target.value,
+                  }));
+                  setFechaNac(e.target.value);
+                }}
+                dateFormat="yy-mm-dd"
                 required
+                showIcon
                 className={classNames({
                   "p-invalid": submitted && !persona.fechaNac,
                 })}
               />
-
-            
 
               {submitted && !persona.fechaNac && (
                 <small className="p-error">Fecha Nacimiento is required.</small>
