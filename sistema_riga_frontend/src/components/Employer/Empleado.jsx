@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Header from '../Header/Header';
 import { Link } from 'react-router-dom'; 
 import { DataTable } from 'primereact/datatable';
-import './EmpleadoStyle.css';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';

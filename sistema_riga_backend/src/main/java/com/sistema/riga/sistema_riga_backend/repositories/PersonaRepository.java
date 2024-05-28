@@ -166,5 +166,11 @@ public class PersonaRepository implements IPersonaRepositry{
                 });
     }
 
+    @Override
+    public String activatePersona(int id) {
+        jdbcTemplate.update("UPDATE Persona SET estadoPersona = '1' WHERE idPersona = ?;", id);
+        return "personaModel";
+    }
+
 
 }

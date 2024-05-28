@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Header from '../Header/Header';
-import './HomeStyle.css';
 import { Link } from 'react-router-dom'; 
 import { DataTable } from 'primereact/datatable';
 

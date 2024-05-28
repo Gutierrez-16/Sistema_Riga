@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin("http://localhost:5173")
 @RequestMapping("/person")
 public class PersonaController {
 
@@ -80,5 +81,10 @@ public class PersonaController {
     @DeleteMapping("/{id}")
     public String deletePersona(@PathVariable int id) {
         return iPersonaService.deletePersona(id);
+    }
+
+    @PatchMapping("{id}")
+    public String activatePersona(@PathVariable int id){
+        return iPersonaService.activatePersona(id);
     }
 }

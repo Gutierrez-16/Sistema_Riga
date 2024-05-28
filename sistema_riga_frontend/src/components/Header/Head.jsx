@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom'; 
-import './HeadStyle.css';
 import { FiShoppingCart } from "react-icons/fi";
 import { FaCircleUser } from "react-icons/fa6";
 

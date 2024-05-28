@@ -19,7 +19,7 @@ import { InputIcon } from "primereact/inputicon";
 
 import "primeicons/primeicons.css";
 
-export default function Persona() {
+export default function PersonaR() {
   let emptyPersona = {
     idPersona: "",
     dni: "",

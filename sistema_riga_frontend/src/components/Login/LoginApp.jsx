@@ -5,7 +5,6 @@ import { Galleria } from 'primereact/galleria';
 
 import GokuD from '../Imagenes/GokuD.png';
 
-import './AppLogin.css';
 
 
 function LoginApp() {

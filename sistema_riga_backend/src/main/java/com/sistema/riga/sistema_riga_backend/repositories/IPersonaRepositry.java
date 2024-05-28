@@ -19,4 +19,6 @@ public interface IPersonaRepositry {
 
     List<ProvinciaModel> getProvinciasByDistrito(int idDistrito);
     List<DepartamentoModel> getDepartamentosByProvincia(String provincia);
+
+    String activatePersona(int id);
 }
