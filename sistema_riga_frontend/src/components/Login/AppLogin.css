@@ -1,92 +1,47 @@
-/* login.css */
-body{
-  background-color: #ffffff;
-}
-.globallogin{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-.contenedorlogin h1{
-  color: #3BAF4A;
-  margin-right: 50px;
-}
-.login-container {
-    width: 88%;
-    margin: 0 auto;
-    padding: 20px;
-    border-radius: 50px;
-    background-color: #BDF3C4;
-    text-align: left;
-
-  }
-
-  .title{
-    background-color: #37B055;
-    width: 150px;
-    height: 5px;
-    margin: 20px auto;
-    padding: 20px;
-    text-align: center  ;
-    color: white;
-    font-size: larger;
-    font-weight: bold;
-  }
-
-  .login{
-    width: 600px;
-    height: 350px;
-    margin: 0 auto;
-    padding: 20px;
-    border-radius: 5px;
-    text-align: center;
-  }
-
-  .login h2{
-    color: #37B055;
-    margin-right: 20px;
-  }
-
-  .login-container h2 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-  }
-  
-  .login-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-
-  
-  
-  .login-form input {
-    width: 280px;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #A5E8AD;
-    border-radius: 3px;
-    background-color: #A5E8AD;
-    color: #61BC6C;
-  }
-  
-  .login-form button {
-    width: 200px;
-    height: 30px;
-    padding: 10px;
-    background-color: #3BAF4A;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
+.password-toggle {
     cursor: pointer;
-    margin-top: 20px;
-  }
-  
-  .login-form button:hover {
-    background-color: #8a5858;
-  }  
+}
 
-  .imgcontainer{
-    background-color: #84C28C ;
-    padding: 20px;
-    border-radius: 50px;
-  }
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.galleria-container {
+    width: 40%; /* Ajustamos el ancho del carrusel */
+    max-width: 400px; /* Limitamos el ancho máximo del carrusel para evitar que sea demasiado grande */
+    border-radius: 8px;
+    overflow: hidden;
+    float: right; /* Alinea el carrusel a la derecha */
+}
+
+.login-form-container {
+    width: calc(60% - 2rem); /* El ancho es el 60% del contenedor menos el espacio para el margen */
+    margin-right: 2rem; /* Espacio entre el formulario y el carrusel */
+}
+
+.p-galleria-thumbnail-container {
+    display: none;
+}
+
+@media screen and (max-width: 991px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .login-form-container,
+    .galleria-container {
+        width: 100%;
+    }
+
+    .galleria-container {
+        margin-top: 2rem;
+    }
+}
+
+.hidden {
+    display: none;
+}

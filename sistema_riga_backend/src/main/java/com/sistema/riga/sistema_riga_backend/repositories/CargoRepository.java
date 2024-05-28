@@ -33,7 +33,7 @@ public class CargoRepository implements ICargoRepositry{
     @Override
     public String deleteCargo(int idCargo) {
         jdbcTemplate.update("EXEC SP_CRUD_Cargo @IDCargo = ?, @Operation = 'D';", idCargo);
-        return "idCargo";
+        return "cargoModel";
     }
 
     @Override

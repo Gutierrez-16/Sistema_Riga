@@ -6,6 +6,7 @@ import com.sistema.riga.sistema_riga_backend.models.PersonaModel;
 import com.sistema.riga.sistema_riga_backend.models.ProvinciaModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class PersonaRepository implements IPersonaRepositry{
                 personaModel.getCelular(),
                 personaModel.getDireccion(),
                 personaModel.getIdDistrito());
+
         return "personaModel";
     }
 
@@ -84,7 +86,7 @@ public class PersonaRepository implements IPersonaRepositry{
 
     @Override
     public List<PersonaModel> getAllPersonas() {
-        return jdbcTemplate.query("SELECT * FROM Persona",
+        return jdbcTemplate.query("EXEC SP_CRUD_Persona  @Operation = 'R'",
                 (rs, rowNum) -> {
                     PersonaModel personaModel = new PersonaModel();
                     personaModel.setIdPersona(rs.getInt("IDPersona"));
@@ -166,5 +168,33 @@ public class PersonaRepository implements IPersonaRepositry{
                 });
     }
 
+    @Override
+    public List<PersonaModel> search(String persona) {
+        return jdbcTemplate.query("EXEC SP_CRUD_Persona @Nombre=?, @Operation= 'B';",
+                new Object[]{persona},
+                (rs, rowNum) -> {
+                    PersonaModel personaModel = new PersonaModel();
+                    personaModel.setIdPersona(rs.getInt(1));
+                    personaModel.setDni(rs.getString(2));
+                    personaModel.setNombrePersona(rs.getString(3));
+                    personaModel.setApePaterno(rs.getString(4));
+                    personaModel.setApeMaterno(rs.getString(5));
+                    personaModel.setGenero(rs.getString(6));
+                    personaModel.setFechaNac(rs.getDate(7));
+                    personaModel.setCorreo(rs.getString(8));
+                    personaModel.setCelular(rs.getString(9));
+                    personaModel.setDireccion(rs.getString(10));
+                    personaModel.setEstadoPersona(rs.getString(11));
+                    personaModel.setIdDistrito(rs.getInt(12));
+
+                    return personaModel;
+                });
+    }
+
+    @Override
+    public String activatePersona(int id) {
+        jdbcTemplate.update("UPDATE Persona SET estadoPersona = '1' WHERE idPersona = ?;", id);
+        return "personaModel";
+    }
 
 }

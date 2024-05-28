@@ -9,35 +9,19 @@ import java.util.List;
 
 @Repository
 public class ProvinciaRepository implements IProvinciaRepository {
+
+    public static String GET_PROVINCIA_DISTRITO = "SELECT \n" +
+            "\tp.IDProvincia, \n" +
+            "\tp.NombreProv\n" +
+            "FROM \n" +
+            "\tProvincia p \n" +
+            "INNER JOIN \n" +
+            "\tDistrito d\n" +
+            "ON p.IDProvincia = d.IDProvincia\n" +
+            "WHERE d.IDDistrito = ?";
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @Override
-    public String insertProvincia(ProvinciaModel provinciaModel) {
-        jdbcTemplate.update("EXEC SP_CRUD_Provincia @NombreProv = ?, @IDDepartamento = ?, @Operation = 'C'",
-                provinciaModel.getNombreProvincia(),
-                provinciaModel.getIdDepartamento());
-        return "provinciaModel";
-    }
-
-
-    @Override
-    public String updateProvincia(ProvinciaModel provinciaModel) {
-        jdbcTemplate.update("EXEC SP_CRUD_Provincia @IDProvincia = ?,@NombreProv = ?, " +
-                        "@EstadoProvincia = ?, @IDDepartamento = ?, @Operation = 'U';",
-                provinciaModel.getIdProvincia(),
-                provinciaModel.getNombreProvincia(),
-                provinciaModel.getEstadoProvincia(),
-                provinciaModel.getIdDepartamento());
-        return "provinciaModel";
-    }
-
-    @Override
-    public String deleteProvincia(int idProvincia) {
-        jdbcTemplate.update("EXEC SP_CRUD_Provincia @IDProvincia = ?, @Operation = 'D';", idProvincia);
-        // No necesitas pasar los otros parámetros si solo estás eliminando el producto
-        return "provinciaModel";
-    }
 
     @Override
     public List<ProvinciaModel> getProvinciasByDepartamento(int idDepartamento) {
@@ -45,17 +29,17 @@ public class ProvinciaRepository implements IProvinciaRepository {
                 new Object[]{idDepartamento},
                 (rs, rowNum) -> {
                     ProvinciaModel provinciaModel = new ProvinciaModel();
-                    provinciaModel.setIdProvincia(rs.getInt("IDProvincia"));
-                    provinciaModel.setNombreProvincia(rs.getString("NombreProv"));
-                    provinciaModel.setEstadoProvincia(rs.getString("EstadoProvincia"));
-                    provinciaModel.setIdDepartamento(rs.getInt("IDDepartamento")); // Asegúrate de asignar correctamente el ID del departamento
+                    provinciaModel.setIdProvincia(rs.getInt(1));
+                    provinciaModel.setNombreProvincia(rs.getString(2));
+                    provinciaModel.setEstadoProvincia(rs.getString(3));
+                    provinciaModel.setIdDepartamento(rs.getInt(4)); // Asegúrate de asignar correctamente el ID del departamento
                     return provinciaModel;
                 });
     }
 
     @Override
     public ProvinciaModel getProvinciaById(int id) {
-        return jdbcTemplate.queryForObject("EXEC SP_CRUD_Provincia @IDProvincia = ?, @Operation = 'R'",
+        return jdbcTemplate.queryForObject("SELECT * FROM Provincia WHERE IDProvincia = ?",
                 new Object[]{id},
                 (rs, rowNum) -> {
                     ProvinciaModel provinciaModel = new ProvinciaModel();
@@ -76,6 +60,18 @@ public class ProvinciaRepository implements IProvinciaRepository {
                     provinciaModel.setNombreProvincia(rs.getString("NombreProv"));
                     provinciaModel.setEstadoProvincia(rs.getString("EstadoProvincia"));
                     provinciaModel.setIdDepartamento(rs.getInt("IDDepartamento"));// Aquí asigna el nombre del departamento al campo correcto
+                    return provinciaModel;
+                });
+    }
+
+    @Override
+    public ProvinciaModel getProvinciaByDistrito(int idDistrito) {
+        return jdbcTemplate.queryForObject(GET_PROVINCIA_DISTRITO,
+                new Object[]{idDistrito},
+                (rs, rowNum) -> {
+                    ProvinciaModel provinciaModel = new ProvinciaModel();
+                    provinciaModel.setIdProvincia(rs.getInt(1));
+                    provinciaModel.setNombreProvincia(rs.getString(2));
                     return provinciaModel;
                 });
     }
