@@ -1,6 +1,9 @@
 package com.sistema.riga.sistema_riga_backend.services;
 
+import com.sistema.riga.sistema_riga_backend.models.DepartamentoModel;
+import com.sistema.riga.sistema_riga_backend.models.DistritoModel;
 import com.sistema.riga.sistema_riga_backend.models.EmpresaModel;
+import com.sistema.riga.sistema_riga_backend.models.ProvinciaModel;
 import com.sistema.riga.sistema_riga_backend.repositories.IEmpresaRepositry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

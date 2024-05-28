@@ -4,14 +4,19 @@ package com.sistema.riga.sistema_riga_backend.repositories;
 import com.sistema.riga.sistema_riga_backend.models.DepartamentoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Repository
+@Service
 public class DepartamentoRepository implements IDepartamentoRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    public static String GET_DEPARTAMENTO_PROVINCIA = "SELECT d.IDDepartamento, d.NombreDep " +
+                                                    "FROM Departamento d INNER JOIN Provincia p " +
+                                                    "ON d.IDDepartamento = p.IDDepartamento " +
+                                                    "WHERE p.NombreProv = ?";
 
     @Override
     public String insertDepartamento(DepartamentoModel departamentoModel) {
@@ -61,4 +66,15 @@ public class DepartamentoRepository implements IDepartamentoRepository {
                 });
     }
 
+    @Override
+    public DepartamentoModel getDepartamentoByProvincia(String provinciaNombre) {
+        return jdbcTemplate.queryForObject(GET_DEPARTAMENTO_PROVINCIA,
+                new Object[]{provinciaNombre},
+                (rs, rowNum) -> {
+                    DepartamentoModel departamentoModel = new DepartamentoModel();
+                    departamentoModel.setIdDepartamento(rs.getInt(1));
+                    departamentoModel.setNombreDepartamento(rs.getString(2));
+                    return departamentoModel;
+                });
+    }
 }
