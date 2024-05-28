@@ -75,8 +75,5 @@ public class PersonaService implements IPersonaService {
         return iPersonaRepositry.activatePersona(id);
     }
 
-    @Override
-    public String activatePersona(int id) {
-        return personaRepository.activatePersona(id);
-    }
+
 }
