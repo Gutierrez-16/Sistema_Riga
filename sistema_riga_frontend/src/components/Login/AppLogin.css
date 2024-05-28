@@ -1,0 +1,47 @@
+.password-toggle {
+    cursor: pointer;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.galleria-container {
+    width: 40%; /* Ajustamos el ancho del carrusel */
+    max-width: 400px; /* Limitamos el ancho máximo del carrusel para evitar que sea demasiado grande */
+    border-radius: 8px;
+    overflow: hidden;
+    float: right; /* Alinea el carrusel a la derecha */
+}
+
+.login-form-container {
+    width: calc(60% - 2rem); /* El ancho es el 60% del contenedor menos el espacio para el margen */
+    margin-right: 2rem; /* Espacio entre el formulario y el carrusel */
+}
+
+.p-galleria-thumbnail-container {
+    display: none;
+}
+
+@media screen and (max-width: 991px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .login-form-container,
+    .galleria-container {
+        width: 100%;
+    }
+
+    .galleria-container {
+        margin-top: 2rem;
+    }
+}
+
+.hidden {
+    display: none;
+}

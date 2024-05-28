@@ -1,5 +1,5 @@
 {
-  "name": "sistema_riga_frondent",
+  "name": "sistema_riga_frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,12 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.6.8",
     "chart": "^0.1.2",
-    "context": "^3.0.29",
+    "chart.js": "^4.4.3",
     "history": "^5.3.0",
-    "link": "^2.1.1",
-    "lodash": "^4.17.21",
-    "menu": "^0.2.5",
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
     "primereact": "^10.6.5",
