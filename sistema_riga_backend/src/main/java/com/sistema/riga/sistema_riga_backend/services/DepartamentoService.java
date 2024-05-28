@@ -38,4 +38,9 @@ public class DepartamentoService implements IDepartamentoService {
         return iDepartamentoRepository.deleteDepartamento(id);
     }
 
+    @Override
+    public DepartamentoModel getDepartamentoByProvincia(String provinciaNombre) {
+        return iDepartamentoRepository.getDepartamentoByProvincia(provinciaNombre);
+    }
+
 }
