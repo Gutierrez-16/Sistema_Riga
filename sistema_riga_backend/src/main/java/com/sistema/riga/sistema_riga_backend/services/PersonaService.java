@@ -70,4 +70,8 @@ public class PersonaService implements IPersonaService {
     public  List<PersonaModel> search(String persona) {
         return iPersonaRepositry.search(persona);
     }
+    @Override
+    public String activatePersona(int id) {
+        return iPersonaRepositry.activatePersona(id);
+    }
 }
