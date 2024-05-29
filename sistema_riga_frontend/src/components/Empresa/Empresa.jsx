@@ -15,6 +15,7 @@ import 'primeflex/primeflex.css';
 import './EmpresaStyle.css'
 import "primeicons/primeicons.css";
 import { Tag } from 'primereact/tag';
+import Header from '../Header/Header';
 
 export default function ProductsDemo() {
     let emptyProduct = {
@@ -367,6 +368,7 @@ export default function ProductsDemo() {
 
     return (
         <div>
+            <Header/>
             <Toast ref={toast} />
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>

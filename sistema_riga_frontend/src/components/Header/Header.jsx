@@ -1,33 +1,26 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; 
-import './HeaderStyle.css';
-import { FiShoppingCart } from "react-icons/fi";
-import { FaCircleUser } from "react-icons/fa6";
-import { useNavigate } from 'react-router-dom';
-import { GoMoveToStart } from "react-icons/go";
-
+import { Link } from 'react-router-dom';
+import { Avatar } from 'primereact/avatar';
+import { InputText } from 'primereact/inputtext';
 
 const Header = () => {
-
-
     return (
-        <header>
-            <div className='head'>
-            <div className='titleheader'>EMPRESA RIGA</div>
-            <div className='icons'>
-            <Link to="/home" className="icon-link">
-                <GoMoveToStart   size={50} className='icon'/>
-             </Link>  
-             <Link to="/usuario" className="icon-link">
-                <FaCircleUser size={50} className='icon'/>
-             </Link>  
-
+        <div className="layout-topbar">
+            <div className="layout-topbar-logo">
+                <Link to="/home">
+                    <img alt="logo" src="https://primefaces.org/cdn/primereact/images/logo.png" height="40" />
+                </Link>
             </div>
+            <div className="layout-topbar-search">
+                <i className="pi pi-search search-icon"></i>
+                <InputText placeholder="Search" className="w-8rem sm:w-auto" />
             </div>
-            <div className='subhead'> 
-            <nav>
+            <div className="layout-topbar-avatar">
+                <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" />
+            </div>
+            <nav className="layout-topbar-nav">
                 <ul>
-                    <li><Link to="/usuario">USUARIOS</Link></li> 
+                    <li><Link to="/usuario">USUARIOS</Link></li>
                     <li><Link to="/empleado">EMPLEADOS</Link></li>
                     <li><Link to="/persona">PERSONAS</Link></li>
                     <li><Link to="/empresa">EMPRESAS</Link></li>
@@ -35,8 +28,7 @@ const Header = () => {
                     <li><Link to="/producto">PRODUCTOS</Link></li>
                 </ul>
             </nav>
-            </div>
-        </header>
+        </div>
     );
 };
 

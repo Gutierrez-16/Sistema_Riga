@@ -10,11 +10,13 @@ public class UsuarioRepository implements IUsuarioRepository{
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public int validateUser(String logeo, String clave) {
-        String sql = "EXEC SP_LoginUsuario ?, ?";
+    public Long getUserIdIfValid(String logeo, String clave) {
+        String sql = "EXEC SP_LoginUsuario1 ?, ?";
         Object[] params = { logeo, clave };
-        Integer count = jdbcTemplate.queryForObject(sql, params, Integer.class);
-        return count != null ? count.intValue() : 0;
+        try {
+            return jdbcTemplate.queryForObject(sql, params, Long.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
-
 }

@@ -10,8 +10,7 @@ public class UsuarioService implements IUsuarioService{
     private IUsuarioRepository iUsuarioRepository;
 
     @Override
-    public boolean isValidUser(String logeo, String clave) {
-        int result = iUsuarioRepository.validateUser(logeo, clave);
-        return result == 4;
+    public Long getUserIdIfValid(String logeo, String clave) {
+        return iUsuarioRepository.getUserIdIfValid(logeo, clave);
     }
 }
