@@ -201,7 +201,7 @@ export default function ProductsDemo() {
           rounded
           outlined
           className="mr-3"
-          onClick={() => editProduct(rowData)}
+          onClick={() => handleEdit(rowData)}
 
         />
         <Button

@@ -127,14 +127,14 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          fetch(`http://localhost:8080/metodopago/${prod.idEmpresa}`, { method: 'PATCH' })
+          fetch(`http://localhost:8080/metodopago/${prod.idMetodo}`, { method: 'PATCH' })
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);
-        fetchEmpresas();
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresas Activadas', life: 3000 });
+        fetchMetodoPagos();
+        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'metodopago Activadas', life: 3000 });
       } catch (error) {
-        console.error('Error al activar las empresas:', error);
+        console.error('Error al activar las metodopago:', error);
       }
     }
   };
@@ -176,7 +176,7 @@ export default function ProductsDemo() {
                 label="Activate"
                 icon="pi pi-check"
                 className="p-button-success"
-                onClick={activateSelectedEmpresas}
+                onClick={activateSelectedMetodoPagos}
                 disabled={!selectedProducts || !selectedProducts.length}
             />
         </div>
@@ -202,19 +202,19 @@ const actionBodyTemplate = (rowData) => {
                 rounded
                 outlined
                 className="mr-3"
-                onClick={() => editProduct(rowData)}
+                onClick={() => handleEdit(rowData)}
                 
             />
             <Button
-                icon={rowData.estadoEmpresa === "1" ? "pi pi-trash" : "pi pi-check"}
+                icon={rowData.estadoMetodo === "1" ? "pi pi-trash" : "pi pi-check"}
                 rounded
                 outlined
-                severity={rowData.estadoEmpresa === "1" ? "danger" : "success"}
+                severity={rowData.estadoMetodo === "1" ? "danger" : "success"}
                 onClick={() => {
-                    if (rowData.estadoEmpresa === "1") {
+                    if (rowData.estadoMetodo === "1") {
                         confirmDeleteProduct(rowData);
                     } else {
-                        activateEmpresa(rowData.idEmpresa);
+                        activateMetodoPago(rowData.idMetodo);
                     }
                 }}
             />
