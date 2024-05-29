@@ -12,6 +12,6 @@ public class UsuarioService implements IUsuarioService{
     @Override
     public boolean isValidUser(String logeo, String clave) {
         int result = iUsuarioRepository.validateUser(logeo, clave);
-        return result == 4;
+        return result == 1;
     }
 }
