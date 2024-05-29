@@ -19,13 +19,14 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody UsuarioModel usuarioModel) {
-        boolean isValidUser = iUsuarioService.isValidUser(usuarioModel.getUsername(), usuarioModel.getPassword());
+        Long userId = iUsuarioService.getUserIdIfValid(usuarioModel.getUsername(), usuarioModel.getPassword());
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 
-        if (isValidUser) {
+        if (userId != null) {
             response.put("success", true);
             response.put("message", "Inicio de sesión exitoso");
+            response.put("userId", userId);
             httpStatus = HttpStatus.OK;
         } else {
             response.put("success", false);
