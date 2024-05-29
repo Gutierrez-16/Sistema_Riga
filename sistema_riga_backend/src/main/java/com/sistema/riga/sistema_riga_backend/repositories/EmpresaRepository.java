@@ -78,4 +78,11 @@ public class EmpresaRepository implements IEmpresaRepositry{
                     return empresaModel;
                 });
     }
+
+    @Override
+    public String activateEmpresa(int id) {
+        jdbcTemplate.update("UPDATE Empresa SET estadoEmpresa = '1' WHERE idEmpresa = ?;", id);
+        return "empresaModel";
+    }
+
 }

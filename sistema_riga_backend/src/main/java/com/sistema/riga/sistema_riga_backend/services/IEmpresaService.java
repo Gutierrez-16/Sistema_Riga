@@ -15,4 +15,5 @@ public interface IEmpresaService {
     String insertEmpresa(EmpresaModel empresaModel);
     String updateEmpresa(EmpresaModel empresaModel);
     String deleteEmpresa(int id);
+    String activateEmpresa(int id);
 }

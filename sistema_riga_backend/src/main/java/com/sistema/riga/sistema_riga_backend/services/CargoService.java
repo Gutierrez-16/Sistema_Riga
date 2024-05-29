@@ -37,4 +37,9 @@ public class CargoService implements ICargoService {
     public String deleteCargo(int id) {
         return iCargoRepositry.deleteCargo(id);
     }
+
+    @Override
+    public String activateCargo(int id) {
+        return iCargoRepositry.activateCargo(id);
+    }
 }
