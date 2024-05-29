@@ -18,7 +18,6 @@ export default function ProductsDemo() {
   let emptyProduct = {
     idMetodo: '',
     nombreMetodo: '',
-    estadoMetodo: '1'
   };
 
   const [products, setProducts] = useState([]);
@@ -113,6 +112,33 @@ export default function ProductsDemo() {
     }
   };
 
+  const activateMetodoPago = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8080/metodopago/${id}`, { method: 'PATCH' });
+      if (!response.ok) throw new Error('Error al activar la metodopago');
+      fetchMetodoPagos();
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'metodopago Activada', life: 3000 });
+    } catch (error) {
+      console.error('Error al activar la metodopago:', error);
+    }
+  };
+
+  const activateSelectedMetodoPagos = async () => {
+    if (selectedProducts && selectedProducts.length > 0) {
+      try {
+        const activatePromises = selectedProducts.map((prod) =>
+          fetch(`http://localhost:8080/metodopago/${prod.idMetodo}`, { method: 'PATCH' })
+        );
+        await Promise.all(activatePromises);
+        setSelectedProducts(null);
+        fetchMetodoPagos();
+        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'metodopago Activadas', life: 3000 });
+      } catch (error) {
+        console.error('Error al activar las metodopago:', error);
+      }
+    }
+  };
+
   const openNew = () => {
     setProduct(emptyProduct);
     setSubmitted(false);
@@ -137,41 +163,74 @@ export default function ProductsDemo() {
 
   const leftToolbarTemplate = () => {
     return (
-      <div className="flex flex-wrap gap-2">
-        <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
-        <Button
-          label="Delete"
-          icon="pi pi-trash"
-          className="p-button-danger"
-          onClick={() => confirmDeleteProduct(selectedProducts)}
-          disabled={!selectedProducts || !selectedProducts.length}
-        />
-      </div>
+        <div className="flex flex-wrap gap-2">
+            <Button label="New" icon="pi pi-plus" severity="info" onClick={openNew} />
+            <Button
+                label="Delete"
+                icon="pi pi-trash"
+                className="p-button-danger"
+                onClick={() => confirmDeleteProduct(selectedProducts)}
+                disabled={!selectedProducts || !selectedProducts.length}
+            />
+            <Button
+                label="Activate"
+                icon="pi pi-check"
+                className="p-button-success"
+                onClick={activateSelectedMetodoPagos}
+                disabled={!selectedProducts || !selectedProducts.length}
+            />
+        </div>
     );
-  };
+};
 
-  const rightToolbarTemplate = () => {
-    return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={() => dt.current.exportCSV()} />;
-  };
-
-  const actionBodyTemplate = (rowData) => {
+const rightToolbarTemplate = () => {
     return (
-      <React.Fragment>
-        <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => handleEdit(rowData)} />
-        <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
-      </React.Fragment>
+        <Button
+            label="Export"
+            icon="pi pi-upload"
+            className="p-button-help"
+            onClick={() => dt.current.exportCSV()}
+        />
     );
-  };
+};
+
+const actionBodyTemplate = (rowData) => {
+    return (
+        <div className="flex">
+            <Button
+                icon="pi pi-pencil"
+                rounded
+                outlined
+                className="mr-3"
+                onClick={() => handleEdit(rowData)}
+                
+            />
+            <Button
+                icon={rowData.estadoMetodo === "1" ? "pi pi-trash" : "pi pi-check"}
+                rounded
+                outlined
+                severity={rowData.estadoMetodo === "1" ? "danger" : "success"}
+                onClick={() => {
+                    if (rowData.estadoMetodo === "1") {
+                        confirmDeleteProduct(rowData);
+                    } else {
+                        activateMetodoPago(rowData.idMetodo);
+                    }
+                }}
+            />
+        </div>
+    );
+};
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-        <h5 className="m-0 ">Manage Metodo Pago</h5>
-        <IconField iconPosition="left">
-            <InputIcon className="pi pi-search" />
-            <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
-        </IconField>
+      <h5 className="m-0 ">Manage Metodo Pago</h5>
+      <IconField iconPosition="left">
+        <InputIcon className="pi pi-search" />
+        <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
+      </IconField>
     </div>
-);
+  );
 
   const productDialogFooter = (
     <React.Fragment>
@@ -245,11 +304,7 @@ export default function ProductsDemo() {
           <InputText id="nombreMetodo" value={product.nombreMetodo} onChange={(e) => onInputChange(e, 'nombreMetodo')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.nombreMetodo })} />
           {submitted && !product.nombreMetodo && <small className="p-error">Metodo Pago is required.</small>}
         </div>
-        <div className="field">
-          <label htmlFor="estadoMetodo">Estado</label>
-          <Dropdown id="estadoMetodo" value={product.estadoMetodo} options={[{ label: 'Habilitado', value: '1' }, { label: 'Deshabilitado', value: '0' }]} onChange={(e) => onInputChange(e, 'estadoMetodo')} placeholder="Seleccione un estado" className={classNames({ 'p-invalid': submitted && !product.estadoMetodo })} />
-          {submitted && !product.estadoMetodo && <small className="p-error">Estado is required.</small>}
-        </div>
+
       </Dialog>
 
       <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>

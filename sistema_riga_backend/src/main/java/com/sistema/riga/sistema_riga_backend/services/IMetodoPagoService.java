@@ -10,4 +10,5 @@ public interface IMetodoPagoService {
     String insertMetodoPago(MetodoPagoModel metodoPagoModel);
     String updateMetodoPago(MetodoPagoModel metodoPagoModel);
     String deleteMetodoPago(int id);
+    String activateMetodoPago(int id);
 }

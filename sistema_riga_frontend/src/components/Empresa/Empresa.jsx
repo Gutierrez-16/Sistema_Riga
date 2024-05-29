@@ -24,8 +24,7 @@ export default function ProductsDemo() {
         direccion: '',
         idDistrito: '',
         idProvincia: '',
-        idDepartamento: '',
-        estadoEmpresa: '1'
+        idDepartamento: ''
     };
 
     const [departamentos, setDepartamentos] = useState([]);
@@ -208,6 +207,32 @@ export default function ProductsDemo() {
         }
     };
 
+    const activateEmpresa = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:8080/empresa/${id}`, { method: 'PATCH' });
+            if (!response.ok) throw new Error('Error al activar la empresa');
+            fetchEmpresas();
+            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Activada', life: 3000 });
+        } catch (error) {
+            console.error('Error al activar la empresa:', error);
+        }
+    };
+
+    const activateSelectedEmpresas = async () => {
+        if (selectedProducts && selectedProducts.length > 0) {
+            try {
+                const activatePromises = selectedProducts.map((prod) =>
+                    fetch(`http://localhost:8080/empresa/${prod.idEmpresa}`, { method: 'PATCH' })
+                );
+                await Promise.all(activatePromises);
+                setSelectedProducts(null);
+                fetchEmpresas();
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresas Activadas', life: 3000 });
+            } catch (error) {
+                console.error('Error al activar las empresas:', error);
+            }
+        }
+    };
 
 
     const openNew = () => {
@@ -235,7 +260,7 @@ export default function ProductsDemo() {
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
+                <Button label="New" icon="pi pi-plus" severity="info" onClick={openNew} />
                 <Button
                     label="Delete"
                     icon="pi pi-trash"
@@ -243,20 +268,53 @@ export default function ProductsDemo() {
                     onClick={() => confirmDeleteProduct(selectedProducts)}
                     disabled={!selectedProducts || !selectedProducts.length}
                 />
+                <Button
+                    label="Activate"
+                    icon="pi pi-check"
+                    className="p-button-success"
+                    onClick={activateSelectedEmpresas}
+                    disabled={!selectedProducts || !selectedProducts.length}
+                />
             </div>
         );
     };
-
+    
     const rightToolbarTemplate = () => {
-        return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={() => dt.current.exportCSV()} />;
+        return (
+            <Button
+                label="Export"
+                icon="pi pi-upload"
+                className="p-button-help"
+                onClick={() => dt.current.exportCSV()}
+            />
+        );
     };
-
+    
     const actionBodyTemplate = (rowData) => {
         return (
-            <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editProduct(rowData)} />
-                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
-            </React.Fragment>
+            <div className="flex">
+                <Button
+                    icon="pi pi-pencil"
+                    rounded
+                    outlined
+                    className="mr-3"
+                    onClick={() => editProduct(rowData)}
+                    
+                />
+                <Button
+                    icon={rowData.estadoEmpresa === "1" ? "pi pi-trash" : "pi pi-check"}
+                    rounded
+                    outlined
+                    severity={rowData.estadoEmpresa === "1" ? "danger" : "success"}
+                    onClick={() => {
+                        if (rowData.estadoEmpresa === "1") {
+                            confirmDeleteProduct(rowData);
+                        } else {
+                            activateEmpresa(rowData.idEmpresa);
+                        }
+                    }}
+                />
+            </div>
         );
     };
 
@@ -297,10 +355,10 @@ export default function ProductsDemo() {
     const getSeverity = (estadoEmpresa) => {
         switch (estadoEmpresa) {
             case '1':
-            case 'Habilitado':
+            case 'secondary':
                 return 'success';
             case '0':
-                return 'warning';
+                return 'danger';
             default:
                 return null;
         }
@@ -416,11 +474,6 @@ export default function ProductsDemo() {
 
                     </div>
 
-                    <div className="field">
-                        <label htmlFor="estadoEmpresa">Estado</label>
-                        <Dropdown id="estadoEmpresa" value={product.estadoEmpresa} options={[{ label: 'Habilitado', value: '1' }, { label: 'Deshabilitado', value: '0' }]} onChange={(e) => onInputChange(e, 'estadoEmpresa')} placeholder="Seleccione un estado" className={classNames({ 'p-invalid': submitted && !product.estadoEmpresa })} />
-                        {submitted && !product.estadoEmpresa && <small className="p-error">Estado is required.</small>}
-                    </div>
                 </div>
 
             </Dialog >

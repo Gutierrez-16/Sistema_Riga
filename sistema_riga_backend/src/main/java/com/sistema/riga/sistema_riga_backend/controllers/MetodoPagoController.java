@@ -38,4 +38,9 @@ public class MetodoPagoController {
     public String deleteMetodoPago(@PathVariable int id) {
         return iMetodoPagoService.deleteMetodoPago(id);
     }
+
+    @PatchMapping("{id}")
+    public String activateMetodoPago(@PathVariable int id){
+        return iMetodoPagoService.activateMetodoPago(id);
+    }
 }
