@@ -1,4 +1,3 @@
-
 package com.sistema.riga.sistema_riga_backend.configuration;
 
 import com.sistema.riga.sistema_riga_backend.services.CustomUserDetailsService;
@@ -38,7 +37,6 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
-
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
@@ -58,4 +56,3 @@ public class SecurityConfig {
         return customUserDetailsService;
     }
 }
-

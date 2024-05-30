@@ -20,6 +20,7 @@ public class AuthController {
 
     @Autowired
     private JwtTokenService tokenService;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         String logeo = loginRequest.get("username");
@@ -29,23 +30,31 @@ public class AuthController {
             Map<String, Object> user = userService.authenticateUser(logeo, clave);
             String token = jwtUtil.generateToken(user.get("Logeo").toString(), user.get("NomTipo").toString());
 
+            tokenService.addActiveToken(token); // Agrega el token a la lista de activos
+
             return ResponseEntity.ok(Map.of("token", token));
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
     }
 
-    @PostMapping("/logout/{idusuario}")
-    public ResponseEntity<?> logout(@PathVariable("idusuario") Long idUsuario, HttpServletRequest request) {
-        String token = request.getHeader("Authorization").substring(7);
-        if (tokenService.isValidTokenForUser(token, idUsuario)) {
-            // Invalida el token asociado con este usuario
-            tokenService.invalidateToken(token);
-            return ResponseEntity.ok().build();
+
+    @PostMapping("/logout/{idUsuario}")
+    public ResponseEntity<?> logout(@PathVariable("idUsuario") Long idUsuario, HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+            if (tokenService.isValidTokenForUser(token, idUsuario)) {
+                tokenService.invalidateToken(token);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(401).body("El token proporcionado no es válido para este usuario");
+            }
         } else {
-            // Si el token no es válido para este usuario, devuelve un mensaje de error o un código de estado apropiado
-            return ResponseEntity.status(401).body("El token proporcionado no es válido para este usuario");
+            return ResponseEntity.status(400).body("Falta el token de autorización");
         }
     }
+
+
 
 }
