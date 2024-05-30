@@ -5,21 +5,24 @@ import com.sistema.riga.sistema_riga_backend.services.IUsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/auth")
 public class UsuarioController {
+
     @Autowired
     private IUsuarioService iUsuarioService;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); // Dependency injection
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody UsuarioModel usuarioModel) {
-        Long userId = iUsuarioService.getUserIdIfValid(usuarioModel.getUsername(), usuarioModel.getPassword());
+        Long userId = iUsuarioService.getUserIdIfValid(usuarioModel.getUsername(), usuarioModel.getPassword()); // Use service layer for login logic
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 
@@ -35,5 +38,40 @@ public class UsuarioController {
         }
 
         return ResponseEntity.status(httpStatus).body(response);
+    }
+
+    @GetMapping
+    public List<UsuarioModel> getAllUsuarios() {
+        return iUsuarioService.getAllUsuarios();
+    }
+
+    @GetMapping("/{id}")
+    public UsuarioModel getUsuarioById(@PathVariable int id) {
+        return iUsuarioService.getUsuarioById(id);
+    }
+
+    @PostMapping
+    public String insertUsuario(@RequestBody UsuarioModel usuarioModel) {
+        String encodedPassword = passwordEncoder.encode(usuarioModel.getPassword()); // Encode password before saving
+        usuarioModel.setPassword(encodedPassword);
+        return iUsuarioService.insertUsuario(usuarioModel);
+    }
+
+    @PutMapping("/{id}")
+    public String updateUsuario(@PathVariable int id, @RequestBody UsuarioModel usuarioModel) {
+        usuarioModel.setIDUsuario(id);
+        String encodedPassword = passwordEncoder.encode(usuarioModel.getPassword()); // Encode password before saving
+        usuarioModel.setPassword(encodedPassword);
+        return iUsuarioService.updateUsuario(usuarioModel);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteUsuario(@PathVariable int id) {
+        return iUsuarioService.deleteUsuario(id);
+    }
+
+    @PatchMapping("{id}")
+    public String activateUsuario(@PathVariable int id){
+        return iUsuarioService.activateUsuario(id);
     }
 }
