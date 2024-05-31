@@ -1,47 +1,69 @@
-.password-toggle {
-    cursor: pointer;
+/* Aseguramos que la página esté dividida en dos partes iguales */
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
 }
 
-.container {
+.globallogin {
     display: flex;
-    justify-content: space-between;
+    height: 100vh;
+    /* Ocupa toda la altura de la pantalla */
+}
+
+.globallogin .flex {
+    width: 50%;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    margin: 0 auto;
-    max-width: 1200px;
+    padding: 2rem;
+    box-sizing: border-box;
+    overflow: hidden;
+
+}
+
+.globallogin .surface-card {
+    width: 100%;
+    max-width: 450px;
+    overflow: hidden;
+}
+
+.imgcontainer {
+    width: 50%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .galleria-container {
-    width: 40%; /* Ajustamos el ancho del carrusel */
-    max-width: 400px; /* Limitamos el ancho máximo del carrusel para evitar que sea demasiado grande */
-    border-radius: 8px;
-    overflow: hidden;
-    float: right; /* Alinea el carrusel a la derecha */
-}
-
-.login-form-container {
-    width: calc(60% - 2rem); /* El ancho es el 60% del contenedor menos el espacio para el margen */
-    margin-right: 2rem; /* Espacio entre el formulario y el carrusel */
+    width: 100%;
 }
 
 .p-galleria-thumbnail-container {
     display: none;
 }
 
-@media screen and (max-width: 991px) {
-    .container {
-        flex-direction: column;
-    }
-
-    .login-form-container,
-    .galleria-container {
-        width: 100%;
-    }
-
-    .galleria-container {
-        margin-top: 2rem;
-    }
+.password-toggle {
+    cursor: pointer;
 }
 
 .hidden {
     display: none;
+}
+
+@media screen and (max-width: 991px) {
+
+    .globallogin .flex,
+    .globallogin .imgcontainer {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .globallogin .imgcontainer {
+        display: none;
+    }
 }

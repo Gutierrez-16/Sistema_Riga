@@ -26,7 +26,7 @@ public class UsuarioController {
     @Autowired
     private JwtTokenService tokenService;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); // Dependency injection
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
     @PostMapping("/login")
@@ -38,7 +38,7 @@ public class UsuarioController {
             Map<String, Object> user = iUsuarioService.authenticateUser( logeo,  clave) ;
             String token = jwtUtil.generateToken(user.get("Logeo").toString(), user.get("NomTipo").toString());
 
-            tokenService.addActiveToken(token); // Agrega el token a la lista de activos
+            tokenService.addActiveToken(token);
 
             return ResponseEntity.ok(Map.of("token", token));
         } catch (Exception e) {
@@ -74,7 +74,7 @@ public class UsuarioController {
 
     @PostMapping
     public String insertUsuario(@RequestBody UsuarioModel usuarioModel) {
-        String encodedPassword = passwordEncoder.encode(usuarioModel.getPassword()); // Encode password before saving
+        String encodedPassword = passwordEncoder.encode(usuarioModel.getPassword());
         usuarioModel.setPassword(encodedPassword);
         return iUsuarioService.insertUsuario(usuarioModel);
     }
@@ -82,7 +82,7 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public String updateUsuario(@PathVariable int id, @RequestBody UsuarioModel usuarioModel) {
         usuarioModel.setIDUsuario(id);
-        String encodedPassword = passwordEncoder.encode(usuarioModel.getPassword()); // Encode password before saving
+        String encodedPassword = passwordEncoder.encode(usuarioModel.getPassword());
         usuarioModel.setPassword(encodedPassword);
         return iUsuarioService.updateUsuario(usuarioModel);
     }
