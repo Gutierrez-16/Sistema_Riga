@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUserCircle, FaEye, FaEyeSlash } from "react-icons/fa";
+import { InputText } from 'primereact/inputtext';
+import { Checkbox } from 'primereact/checkbox';
+import { Button } from 'primereact/button';
 import { Galleria } from 'primereact/galleria';
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import './AppLogin.css';
 import imagen1 from '../Imagenes/1.jpeg';
 import imagen3 from '../Imagenes/3.jpeg';
 import imagen4 from '../Imagenes/4.jpeg';
 import imagen5 from '../Imagenes/5.jpeg';
 import imagen6 from '../Imagenes/6.jpeg';
-import imagen7 from '../Imagenes/10.jpg';
 
 function LoginApp() {
   const [username, setUsername] = useState('');
@@ -16,6 +18,7 @@ function LoginApp() {
   const [message, setMessage] = useState('');
   const [images, setImages] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [checked, setChecked] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,10 +28,16 @@ function LoginApp() {
       { itemImageSrc: imagen4, thumbnailImageSrc: imagen4 },
       { itemImageSrc: imagen5, thumbnailImageSrc: imagen5 },
       { itemImageSrc: imagen6, thumbnailImageSrc: imagen6 },
-      { itemImageSrc: imagen7, thumbnailImageSrc: imagen7 },
     ];
     setImages(fetchedImages);
   }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/home');
+    }
+  }, [navigate]);
 
   const responsiveOptions = [
     { breakpoint: '991px', numVisible: 4 },
@@ -50,6 +59,7 @@ function LoginApp() {
       });
       const data = await response.json();
       if (response.ok) {
+        localStorage.setItem('token', data.token); // Guardar el token en el localStorage
         setMessage('Inicio de sesión exitoso');
         navigate('/home');
       } else {
@@ -62,41 +72,33 @@ function LoginApp() {
 
   return (
     <div className='globallogin'>
-      <div className='contenedorlogin'>
-        <h1 className='titulo'>RIGA</h1>
-        <div className="login-container">
-          <div className='title'>LOGIN</div>
-          <div className='login'>
-            <FaUserCircle size={80} color="#43A34F" className="iconimg" />
-            <h2>Iniciar Sesión</h2>
-            <form className="login-form" onSubmit={handleSubmit}>
-              <div>
-                <input
-                  type="text"
-                  id="username"
-                  placeholder='Ingrese su usuario'
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-              <div className='password-container'>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  placeholder='Ingrese su contraseña'
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <span onClick={() => setShowPassword(!showPassword)} className='password-toggle'>
+      <div className="flex">
+        <div className="surface-card p-4 shadow-2 border-round w-full">
+          <div className="text-center mb-5">
+          <div className="text-1800 text-5xl font-medium mb-3 text-blue-700">Welcome an  RIGA</div>
+            <img src="https://img.icons8.com/?size=100&id=F5uIWrgQa4Zh&format=png&color=000000" alt="hyper" height={50} className="mb-3" />
+            <div className="text-900 text-3xl font-medium mb-3">Login</div>
+            <span className="text-600 font-medium line-height-3">System POS</span>
+
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="username" className="block text-900 font-medium mb-2">Username</label>
+              <InputText id="username" type="text" placeholder="Username" className="w-full mb-3" value={username} onChange={(e) => setUsername(e.target.value)} />
+
+              <label htmlFor="password" className="block text-900 font-medium mb-2">Password</label>
+              <div className="p-inputgroup mb-3">
+                <InputText id="password" type={showPassword ? "text" : "password"} placeholder="Password" className="w-full" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <span className="p-inputgroup-addon" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </div>
-              <button type="submit">Iniciar Sesión</button>
-            </form>
-            {message && <p>{message}</p>}
-          </div>
+
+              <Button type="submit" label="Sign In" icon="pi pi-user" className="w-full" />
+              {message && <div className="mt-3">{message}</div>}
+            </div>
+          </form>
         </div>
       </div>
       <div className='imgcontainer'>
