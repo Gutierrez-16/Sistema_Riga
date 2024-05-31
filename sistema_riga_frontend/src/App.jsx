@@ -25,7 +25,7 @@ function App() {
         <Route path="/empresa" element={<Empresa />} />
         <Route path="/home" element={<Home />} />
         <Route path="/venta" element={<Venta />} />
-      </Routes>z
+      </Routes>
     </BrowserRouter>
   );
 }

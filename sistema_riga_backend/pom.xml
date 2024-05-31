@@ -42,10 +42,7 @@
 			<version>10.2.0.jre11</version>
 		</dependency>
 		<!-- Spring Boot Starter Web -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+
 
 		<!-- Spring Boot Starter Security -->
 		<dependency>

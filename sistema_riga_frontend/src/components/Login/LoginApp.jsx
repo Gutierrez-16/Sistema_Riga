@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Importa el hook useNavigate
 import LogoutButton from './LogoutButton'; // Importa el componente LogoutButton
 
 function LoginApp() {
+  const navigate = useNavigate(); // Obtiene la función de navegación
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [userId, setUserId] = useState(null); // Estado para almacenar el ID de usuario
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Aquí puedes hacer una solicitud para validar el token y obtener el userId
+      // setUserId(userIdObtenido);
+      // Si ya hay un token en localStorage, redirige al usuario al "home"
+      navigate('/home');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -19,6 +31,9 @@ function LoginApp() {
       if (response.ok) {
         setMessage('Inicio de sesión exitoso');
         setUserId(data.userId); // Establecer el ID de usuario al iniciar sesión
+        localStorage.setItem('token', data.token); // Almacena el token en el localStorage
+        // Redirige al usuario al "home"
+        navigate('/home');
       } else {
         setMessage('Usuario y/o contraseña incorrectos');
       }
@@ -36,6 +51,9 @@ function LoginApp() {
       if (response.ok) {
         setMessage('Sesión cerrada exitosamente');
         setUserId(null); // Limpiar el ID de usuario al cerrar sesión
+        localStorage.removeItem('token'); // Remover el token del localStorage al cerrar sesión
+        // Redirige al usuario al "home"
+        navigate('/home');
       } else {
         setMessage('Error al cerrar sesión');
       }
@@ -48,10 +66,19 @@ function LoginApp() {
     <div>
       <form onSubmit={handleSubmit}>
         <div>
-          <button onClick={handleLogout}>Cerrar sesión</button>
-          {message && <p>{message}</p>}
+          <label>Usuario:</label>
+          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
         </div>
+        <div>
+          <label>Contraseña:</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
+        <button type="submit">Iniciar sesión</button>
       </form>
+      <div>
+        <button onClick={handleLogout}>Cerrar sesión</button>
+        {message && <p>{message}</p>}
+      </div>
       {/* Pasa el ID de usuario al componente LogoutButton */}
       {userId && <LogoutButton idUsuario={userId} />}
     </div>
