@@ -1,7 +1,10 @@
 package com.sistema.riga.sistema_riga_backend.controllers;
 
 import com.sistema.riga.sistema_riga_backend.models.UsuarioModel;
+import com.sistema.riga.sistema_riga_backend.security.JwtUtil;
+import com.sistema.riga.sistema_riga_backend.security.JwtTokenService;
 import com.sistema.riga.sistema_riga_backend.services.IUsuarioService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,13 @@ public class UsuarioController {
 
     @Autowired
     private IUsuarioService iUsuarioService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private JwtTokenService tokenService;
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); // Dependency injection
 
     @PostMapping("/login")
@@ -27,9 +37,12 @@ public class UsuarioController {
         HttpStatus httpStatus;
 
         if (userId != null) {
+            String token = jwtUtil.generateToken(userId.toString(), "USER"); // Assuming the role is USER
+            tokenService.addActiveToken(token);
+
             response.put("success", true);
             response.put("message", "Inicio de sesión exitoso");
-            response.put("userId", userId);
+            response.put("token", token);
             httpStatus = HttpStatus.OK;
         } else {
             response.put("success", false);
@@ -38,6 +51,21 @@ public class UsuarioController {
         }
 
         return ResponseEntity.status(httpStatus).body(response);
+    }
+
+    @PostMapping("/logout/{idUsuario}")
+    public ResponseEntity<?> logout(@PathVariable("idUsuario") Long idUsuario, HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+            if (tokenService.isValidTokenForUser(token, idUsuario)) {
+                tokenService.invalidateToken(token);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(401).body("El token proporcionado no es válido para este usuario.");
+            }
+        }
+        return ResponseEntity.status(400).body("No se proporcionó un token válido.");
     }
 
     @GetMapping
@@ -71,7 +99,7 @@ public class UsuarioController {
     }
 
     @PatchMapping("{id}")
-    public String activateUsuario(@PathVariable int id){
+    public String activateUsuario(@PathVariable int id) {
         return iUsuarioService.activateUsuario(id);
     }
 }

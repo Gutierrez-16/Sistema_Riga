@@ -50,6 +50,7 @@ function LoginApp() {
       });
       const data = await response.json();
       if (response.ok) {
+        localStorage.setItem('token', data.token); // Guardar el token en el localStorage
         setMessage('Inicio de sesión exitoso');
         navigate('/home');
       } else {

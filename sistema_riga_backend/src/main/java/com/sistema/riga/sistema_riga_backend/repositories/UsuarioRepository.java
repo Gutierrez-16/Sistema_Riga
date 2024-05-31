@@ -7,9 +7,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
-public class UsuarioRepository implements IUsuarioRepository{
+public class UsuarioRepository implements IUsuarioRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -17,22 +18,21 @@ public class UsuarioRepository implements IUsuarioRepository{
 
     @Override
     public Long getUserIdIfValid(String logeo, String clave) {
-        String sql = "EXEC SP_LoginUsuario1 ?, ?";
-        Object[] params = { logeo, clave };
         try {
-            return jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> {
-                Long userId = rs.getLong("IDUsuario");
-                String storedPassword = rs.getString("Clave");
-                if (passwordEncoder.matches(clave, storedPassword)) {
-                    return userId;
-                } else {
-                    return null;
-                }
-            });
+            String sql = "EXEC sp_LoginUsuario ?, ?";
+            Map<String, Object> user = jdbcTemplate.queryForMap(sql, logeo, clave);
+
+            if (user == null || !passwordEncoder.matches(clave, user.get("Clave").toString())) {
+                throw new RuntimeException("Credenciales inválidas");
+            }
+
+            return (Long) user.get("IDUsuario");
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException("Error al validar el usuario", e);
         }
     }
+
+
 
     @Override
     public String insertUsuario(UsuarioModel usuarioModel) {
@@ -45,11 +45,10 @@ public class UsuarioRepository implements IUsuarioRepository{
         return "UsuarioModel";
     }
 
-
     @Override
     public String updateUsuario(UsuarioModel usuarioModel) {
-        jdbcTemplate.update("EXEC SP_CRUD_Usuario @IDUsuario=?, @Logeo = ?, @Clave = ?,@EstadoUsuario=?," +
-                        " @IDEmpleado = ?,@IDTipoUsuario = ?,  @Operation = 'U",
+        jdbcTemplate.update("EXEC SP_CRUD_Usuario @IDUsuario=?, @Logeo = ?, @Clave = ?, @EstadoUsuario=?, " +
+                        "@IDEmpleado = ?, @IDTipoUsuario = ?, @Operation = 'U'",
                 usuarioModel.getIDUsuario(),
                 usuarioModel.getUsername(),
                 usuarioModel.getPassword(),
@@ -58,6 +57,7 @@ public class UsuarioRepository implements IUsuarioRepository{
                 usuarioModel.getIdTipoUsuario());
         return "usuarioModel";
     }
+
 
     @Override
     public String deleteUsuario(int idUsuario) {
