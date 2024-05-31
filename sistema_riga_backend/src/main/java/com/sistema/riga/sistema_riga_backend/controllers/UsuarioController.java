@@ -6,12 +6,10 @@ import com.sistema.riga.sistema_riga_backend.security.JwtTokenService;
 import com.sistema.riga.sistema_riga_backend.services.IUsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,28 +28,24 @@ public class UsuarioController {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); // Dependency injection
 
+
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody UsuarioModel usuarioModel) {
-        Long userId = iUsuarioService.getUserIdIfValid(usuarioModel.getUsername(), usuarioModel.getPassword()); // Use service layer for login logic
-        Map<String, Object> response = new HashMap<>();
-        HttpStatus httpStatus;
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
+        String logeo = loginRequest.get("username");
+        String clave = loginRequest.get("password");
 
-        if (userId != null) {
-            String token = jwtUtil.generateToken(userId.toString(), "USER"); // Assuming the role is USER
-            tokenService.addActiveToken(token);
+        try {
+            Map<String, Object> user = iUsuarioService.authenticateUser( logeo,  clave) ;
+            String token = jwtUtil.generateToken(user.get("Logeo").toString(), user.get("NomTipo").toString());
 
-            response.put("success", true);
-            response.put("message", "Inicio de sesión exitoso");
-            response.put("token", token);
-            httpStatus = HttpStatus.OK;
-        } else {
-            response.put("success", false);
-            response.put("message", "Usuario y/o contraseña incorrectos");
-            httpStatus = HttpStatus.UNAUTHORIZED;
+            tokenService.addActiveToken(token); // Agrega el token a la lista de activos
+
+            return ResponseEntity.ok(Map.of("token", token));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid credentials");
         }
-
-        return ResponseEntity.status(httpStatus).body(response);
     }
+
 
     @PostMapping("/logout/{idUsuario}")
     public ResponseEntity<?> logout(@PathVariable("idUsuario") Long idUsuario, HttpServletRequest request) {

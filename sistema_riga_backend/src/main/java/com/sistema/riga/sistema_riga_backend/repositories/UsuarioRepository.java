@@ -17,20 +17,17 @@ public class UsuarioRepository implements IUsuarioRepository {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public Long getUserIdIfValid(String logeo, String clave) {
-        try {
-            String sql = "EXEC sp_LoginUsuario ?, ?";
-            Map<String, Object> user = jdbcTemplate.queryForMap(sql, logeo, clave);
+    public Map<String, Object> authenticateUser(String logeo, String clave) throws Exception {
+        String sql = "EXEC sp_LoginUsuario ?, ?";
+        Map<String, Object> user = jdbcTemplate.queryForMap(sql, logeo, clave);
 
-            if (user == null || !passwordEncoder.matches(clave, user.get("Clave").toString())) {
-                throw new RuntimeException("Credenciales inválidas");
-            }
-
-            return (Long) user.get("IDUsuario");
-        } catch (Exception e) {
-            throw new RuntimeException("Error al validar el usuario", e);
+        if (user == null || !passwordEncoder.matches(clave, user.get("Clave").toString())) {
+            throw new Exception("Invalid credentials");
         }
+
+        return user;
     }
+
 
 
 
@@ -80,6 +77,9 @@ public class UsuarioRepository implements IUsuarioRepository {
                     return usuarioModel;
                 });
     }
+
+
+
 
     @Override
     public List<UsuarioModel> getAllUsuarios() {
