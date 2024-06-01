@@ -1,26 +1,29 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client'; // Cambia esta línea
-import { BrowserRouter, Routes, Route } from 'react-router-dom'; // Aquí usamos Routes en lugar de Route
-import LoginApp from './Components/Login/LoginApp';
-import Usuario from './Components/Usuario/Usuario';
-import Persona from './Components/Person/Persona';
-import Producto from './Components/Product/Producto';
-import Empleado from './Components/Employer/Empleado';
-import Empresa from './Components/Empresa/Empresa';
-import Home from './Components/Home/Home';
-import Venta from './Components/Ventas/Venta';
-import Cargo from './Components/Cargo/Cargo';
-import Linea from './Components/Linea/Linea';
-import Categoria from './Components/Categoria/Categoria';
-import MetodoPago from './Components/MetodoPago/MetodoPago';
-import 'primereact/resources/primereact.css';
-import 'primereact/resources/themes/lara-light-indigo/theme.css';
-import './index.css';
+import React from "react";
+import ReactDOM from "react-dom/client"; // Cambia esta línea
+import { BrowserRouter, Routes, Route } from "react-router-dom"; // Aquí usamos Routes en lugar de Route
+import LoginApp from "./Components/Login/LoginApp";
+import Usuario from "./Components/Usuario/Usuario";
+import Persona from "./Components/Person/Persona";
+import Producto from "./Components/Product/Producto";
+import Empleado from "./Components/Employer/Empleado";
+import Empresa from "./Components/Empresa/Empresa";
+import Home from "./Components/Home/Home";
+import Venta from "./Components/Ventas/Venta";
+import Cargo from "./Components/Cargo/Cargo";
+import Linea from "./Components/Linea/Linea";
+import Categoria from "./Components/Categoria/Categoria";
+import MetodoPago from "./Components/MetodoPago/MetodoPago";
+import ProductoChafa from "./Components/Product/ProductoChafa";
+import "primereact/resources/primereact.css";
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+import "./index.css";
+import MostrarImagenesApp from "./Components/Product/MostrarProducto";
 
-
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <Routes> {/* Utilizamos Routes en lugar de Route */}
+    <Routes>
+      {" "}
+      {/* Utilizamos Routes en lugar de Route */}
       <Route path="/login" element={<LoginApp />} />
       <Route path="/usuario" element={<Usuario />} />
       <Route path="/persona" element={<Persona />} />
@@ -31,8 +34,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/venta" element={<Venta />} />
       <Route path="/cargo" element={<Cargo />} />
       <Route path="/linea" element={<Linea />} />
-      <Route path="/categoria" element={<Categoria/>} />
-      <Route path="/metodopago" element={<MetodoPago/>} />
+      <Route path="/categoria" element={<Categoria />} />
+      <Route path="/metodopago" element={<MetodoPago />} />
+      <Route path="/mostrar" element={<MostrarImagenesApp />} />
+      <Route path="/chafa" element={<ProductoChafa />} />
     </Routes>
   </BrowserRouter>
 );
