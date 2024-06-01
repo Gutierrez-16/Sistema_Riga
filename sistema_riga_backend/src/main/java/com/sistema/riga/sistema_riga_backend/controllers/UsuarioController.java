@@ -31,6 +31,7 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
+
         String logeo = loginRequest.get("username");
         String clave = loginRequest.get("password");
 
@@ -39,6 +40,7 @@ public class UsuarioController {
             String token = jwtUtil.generateToken(user.get("Logeo").toString(), user.get("NomTipo").toString());
 
             tokenService.addActiveToken(token);
+            System.out.println(token);
 
             return ResponseEntity.ok(Map.of("token", token));
         } catch (Exception e) {
@@ -47,20 +49,26 @@ public class UsuarioController {
     }
 
 
-    @PostMapping("/logout/{idUsuario}")
-    public ResponseEntity<?> logout(@PathVariable("idUsuario") Long idUsuario, HttpServletRequest request) {
+    @PostMapping("/logout/{user}")
+    public ResponseEntity<?> logout(@PathVariable("user") String user, HttpServletRequest request) {
+
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
-            if (tokenService.isValidTokenForUser(token, idUsuario)) {
+            System.out.println("Token recibido: " + token);
+
+            if (tokenService.isValidTokenForUser(token, user)) {
                 tokenService.invalidateToken(token);
-                return ResponseEntity.ok().build();
+                System.out.println("Token invalidado: " + token);
+
+                return ResponseEntity.ok("El usuario se ha deslogueado correctamente.");
             } else {
                 return ResponseEntity.status(401).body("El token proporcionado no es válido para este usuario.");
             }
         }
         return ResponseEntity.status(400).body("No se proporcionó un token válido.");
     }
+
 
     @GetMapping
     public List<UsuarioModel> getAllUsuarios() {
