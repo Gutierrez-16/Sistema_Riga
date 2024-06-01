@@ -1,34 +1,53 @@
-import React, { useState } from 'react';
-import { Menu } from 'primereact/menu';
-import { Avatar } from 'primereact/avatar';
-import { Button } from 'primereact/button';
+import React from 'react';
+import { Card } from 'primereact/card';
+import { Tag } from 'primereact/tag';
 
-export default function HeaderMenu() {
-    const [menuOpen, setMenuOpen] = useState(false);
-
-    const toggleMenu = () => {
-        setMenuOpen(!menuOpen);
-    };
-
-    const itemRenderer = (item) => (
-        <div className='p-menuitem-content'>
-            <a className="flex align-items-center p-menuitem-link">
-                <span className={item.icon} />
-                <span className="mx-2">{item.label}</span>
-                {item.badge && <span className="ml-auto">{item.badge}</span>}
-                {item.shortcut && <span className="ml-auto border-1 surface-border border-round surface-100 text-xs p-1">{item.shortcut}</span>}
-            </a>
-        </div>
-    );
-
-    let items = [
-        // Items configuration...
+const DataCards = () => {
+    const cardData = [
+        {
+            title: 'Orders',
+            value: '152',
+            subtitle: '24 new since last visit',
+            icon: 'pi pi-shopping-cart',
+            iconColor: 'blue',
+        },
+        {
+            title: 'Revenue',
+            value: '$2,100',
+            subtitle: '52% since last week',
+            icon: 'pi pi-dollar',
+            iconColor: 'green',
+        },
+        {
+            title: 'Customers',
+            value: '28,441',
+            subtitle: '520 newly registered',
+            icon: 'pi pi-users',
+            iconColor: 'orange',
+        },
+        {
+            title: 'Comments',
+            value: '152 Unread',
+            subtitle: '85 responded',
+            icon: 'pi pi-comments',
+            iconColor: 'purple',
+        }
     ];
 
     return (
-        <div>
-            <Button icon="pi pi-bars" onClick={toggleMenu} />
-            <Menu model={items} popup={true} onHide={() => setMenuOpen(false)} visible={menuOpen} />
+        <div className="p-grid">
+            {cardData.map((card, index) => (
+                <div key={index} className="p-col-12 p-md-3">
+                    <Card title={card.title} subTitle={card.subtitle}>
+                        <div className="p-d-flex p-jc-between">
+                            <span className={`pi ${card.icon}`} style={{ fontSize: '2em', color: card.iconColor }}></span>
+                            <h2>{card.value}</h2>
+                        </div>
+                    </Card>
+                </div>
+            ))}
         </div>
     );
 }
+
+export default DataCards;

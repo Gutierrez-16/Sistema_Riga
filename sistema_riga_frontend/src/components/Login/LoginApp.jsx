@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { InputText } from 'primereact/inputtext';
-import { Checkbox } from 'primereact/checkbox';
 import { Button } from 'primereact/button';
 import { Galleria } from 'primereact/galleria';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -12,13 +11,12 @@ import imagen4 from '../Imagenes/4.jpeg';
 import imagen5 from '../Imagenes/5.jpeg';
 import imagen6 from '../Imagenes/6.jpeg';
 
-function LoginApp() {
+function LoginApp({ setUser }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [images, setImages] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [checked, setChecked] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,9 +33,10 @@ function LoginApp() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
+      setUser(username);
       navigate('/home');
     }
-  }, [navigate]);
+  }, [navigate, setUser, username]);
 
   const responsiveOptions = [
     { breakpoint: '991px', numVisible: 4 },
@@ -60,6 +59,7 @@ function LoginApp() {
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem('token', data.token); // Guardar el token en el localStorage
+        setUser(username); // Set the user state
         setMessage('Inicio de sesión exitoso');
         navigate('/home');
       } else {
@@ -75,11 +75,10 @@ function LoginApp() {
       <div className="flex">
         <div className="surface-card p-4 shadow-2 border-round w-full">
           <div className="text-center mb-5">
-          <div className="text-1800 text-5xl font-medium mb-3 text-blue-700">Welcome an  RIGA</div>
+            <div className="text-1800 text-5xl font-medium mb-3 text-blue-700">Welcome to RIGA</div>
             <img src="https://img.icons8.com/?size=100&id=F5uIWrgQa4Zh&format=png&color=000000" alt="hyper" height={50} className="mb-3" />
             <div className="text-900 text-3xl font-medium mb-3">Login</div>
             <span className="text-600 font-medium line-height-3">System POS</span>
-
           </div>
 
           <form onSubmit={handleSubmit}>

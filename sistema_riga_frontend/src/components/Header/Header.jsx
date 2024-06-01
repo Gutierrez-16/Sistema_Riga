@@ -1,35 +1,28 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Avatar } from 'primereact/avatar';
-import { InputText } from 'primereact/inputtext';
+import { Menubar } from 'primereact/menubar';
+import { Menu } from 'primereact/menu';
 
-const Header = () => {
+const SidebarMenu = () => {
+    const items = [
+        { label: 'Form Layout', icon: 'pi pi-fw pi-id-card' },
+        { label: 'Input', icon: 'pi pi-fw pi-check-square' },
+        { label: 'Float Label', icon: 'pi pi-fw pi-bookmark' },
+        { label: 'Invalid State', icon: 'pi pi-fw pi-exclamation-triangle' },
+        { label: 'Button', icon: 'pi pi-fw pi-mobile' },
+        { label: 'Table', icon: 'pi pi-fw pi-table' },
+        { label: 'List', icon: 'pi pi-fw pi-list' },
+        { label: 'Tree', icon: 'pi pi-fw pi-sitemap' },
+        { label: 'Panel', icon: 'pi pi-fw pi-tablet' },
+        { label: 'Overlay', icon: 'pi pi-fw pi-clone' },
+        { label: 'Media', icon: 'pi pi-fw pi-image' },
+        { label: 'Menu', icon: 'pi pi-fw pi-bars' }
+    ];
+
     return (
-        <div className="layout-topbar">
-            <div className="layout-topbar-logo">
-                <Link to="/home">
-                    <img alt="logo" src="https://primefaces.org/cdn/primereact/images/logo.png" height="40" />
-                </Link>
-            </div>
-            <div className="layout-topbar-search">
-                <i className="pi pi-search search-icon"></i>
-                <InputText placeholder="Search" className="w-8rem sm:w-auto" />
-            </div>
-            <div className="layout-topbar-avatar">
-                <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" />
-            </div>
-            <nav className="layout-topbar-nav">
-                <ul>
-                    <li><Link to="/usuario">USUARIOS</Link></li>
-                    <li><Link to="/empleado">EMPLEADOS</Link></li>
-                    <li><Link to="/persona">PERSONAS</Link></li>
-                    <li><Link to="/empresa">EMPRESAS</Link></li>
-                    <li><Link to="/venta">VENTAS</Link></li>
-                    <li><Link to="/producto">PRODUCTOS</Link></li>
-                </ul>
-            </nav>
+        <div className="card">
+            <Menu model={items} />
         </div>
     );
-};
+}
 
-export default Header;
+export default SidebarMenu;

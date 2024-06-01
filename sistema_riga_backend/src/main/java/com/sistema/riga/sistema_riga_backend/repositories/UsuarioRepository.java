@@ -29,8 +29,6 @@ public class UsuarioRepository implements IUsuarioRepository {
     }
 
 
-
-
     @Override
     public String insertUsuario(UsuarioModel usuarioModel) {
         jdbcTemplate.update("EXEC [SP_CRUD_Usuario] @Logeo = ?, @Clave = ?, @IDEmpleado = ?, " +
