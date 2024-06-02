@@ -299,8 +299,13 @@ export default function ProductsDemo() {
       <Dialog visible={productDialog} style={{ width: '450px' }} header="Cargo Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
         <div className="field">
           <label htmlFor="nombreCargo">Nombre Cargo</label>
-          <InputText id="nombreCargo" value={product.nombreCargo} onChange={(e) => onInputChange(e, 'nombreCargo')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.nombreCargo })} />
-          {submitted && !product.nombreCargo && <small className="p-error">Nombre Cargo is required.</small>}
+          <InputText id="nombreCargo" 
+          value={product.nombreCargo} 
+          onChange={(e) => onInputChange(e, 'nombreCargo')} 
+          required autoFocus 
+          className={classNames({ 'p-invalid': submitted && !product.nombreCargo })} />
+          {submitted && !product.nombreCargo &&(
+          <small className="p-error">Nombre Cargo is required.</small>)}
         </div>
 
       </Dialog>

@@ -13,7 +13,8 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 
 import { Tag } from "primereact/tag";
-
+import Header from '../Header/Header';
+import Dashboard from '../Header/Head';
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 
@@ -126,7 +127,19 @@ export default function Persona() {
 
   const fetchPersonas = async () => {
     try {
-      const response = await fetch("http://localhost:8080/person");
+      const token = localStorage.getItem('token');
+      console.log(token)
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+    
+      // Opciones de la solicitud, incluyendo el método y los headers
+      const options = {
+        method: 'GET', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
+        headers: headers
+      };
+      const response = await fetch("http://localhost:8080/person",options);
       if (!response.ok) throw new Error("Error al obtener personas");
       const data = await response.json();
       setPersonas(data);
@@ -137,7 +150,19 @@ export default function Persona() {
 
   const fetchDepartamentos = async () => {
     try {
-      const response = await fetch("http://localhost:8080/departamento");
+      const token = localStorage.getItem('token');
+      console.log(token)
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+    
+      // Opciones de la solicitud, incluyendo el método y los headers
+      const options = {
+        method: 'GET', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
+        headers: headers
+      };
+      const response = await fetch("http://localhost:8080/departamento", options);
       if (!response.ok) throw new Error("Error al obtener departamentos");
       const data = await response.json();
       setDepartamentos(data);
@@ -148,9 +173,23 @@ export default function Persona() {
 
   const fetchProvincias = async (idDepartamento) => {
     try {
+      const token = localStorage.getItem('token');
+      console.log(token)
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+    
+      // Opciones de la solicitud, incluyendo el método y los headers
+      const options = {
+        method: 'GET', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
+        headers: headers
+      };
       setDepartamento(idDepartamento);
       const response = await fetch(
-        `http://localhost:8080/provincia/departamento/${idDepartamento}`
+        `http://localhost:8080/provincia/departamento/${idDepartamento}`,options
+      
+      
       );
       if (!response.ok) throw new Error("Error al obtener provincias");
       const data = await response.json();
@@ -162,10 +201,22 @@ export default function Persona() {
 
   const fetchDistritos = async (idProvincia) => {
     try {
+      const token = localStorage.getItem('token');
+      console.log(token)
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+    
+      // Opciones de la solicitud, incluyendo el método y los headers
+      const options = {
+        method: 'GET', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
+        headers: headers
+      };
       setProvincia(idProvincia);
 
       const response = await fetch(
-        `http://localhost:8080/distrito/provincia/${idProvincia}`
+        `http://localhost:8080/distrito/provincia/${idProvincia}`,options
       );
       if (!response.ok) throw new Error("Error al obtener distritos");
       const data = await response.json();
@@ -262,10 +313,23 @@ export default function Persona() {
   const activatePersona = async (rowData) => {
     if (rowData.idPersona) {
       try {
+        const token = localStorage.getItem('token');
+      console.log(token)
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+    
+      // Opciones de la solicitud, incluyendo el método y los headers
+      const options = {
+        method: 'PATCH', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
+        headers: headers
+      };
         const response = await fetch(
           `http://localhost:8080/person/${rowData.idPersona}`,
           {
             method: "PATCH",
+            header:headers
           }
         );
         if (!response.ok) throw new Error("Error al actualizar la persona");
@@ -527,9 +591,21 @@ export default function Persona() {
   );
 
   return (
-    <div className="">
+    <div>
+      <div className="layout-sidebar">
+        <Dashboard />
+        </div>
+        <div className="flex">
+          
+            <div className="w-1/4">
+            
+                <Header />
+            </div>
+            
+    <div className="col-12 xl:col-10">
       <div className="col-12">
         <div className="card">
+        <div className="w-3/4 p-4">
           <Toast ref={toast} />
           <Toolbar
             className="mb-4"
@@ -596,7 +672,7 @@ export default function Persona() {
               style={{ minWidth: "12rem" }}
             ></Column>
           </DataTable>
-
+          </div>
           <Dialog
             visible={newPersonaDialog}
             style={{ width: "32rem" }}
@@ -922,6 +998,8 @@ export default function Persona() {
           </Dialog>
         </div>
       </div>
+    </div>
+    </div>
     </div>
   );
 }
