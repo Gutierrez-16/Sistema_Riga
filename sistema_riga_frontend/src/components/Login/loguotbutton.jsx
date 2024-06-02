@@ -1,19 +1,36 @@
 import React from 'react';
 import { Button } from 'primereact/button';
 import { useNavigate } from 'react-router-dom';
+import {jwtDecode} from 'jwt-decode';
 
 function Logout({ user}) {
+  const token = localStorage.getItem('token');
+      console.log(token)
+      console.log("LOGOUTTTT")
     const navigate = useNavigate();
-  
-    const handleLogout = async () => {
-      if (!user) {
-        console.error('Usuario no disponible para cerrar sesión');
-        return;
-      }
-  
-      const token = localStorage.getItem('token');
+
+    function obtenerUsuarioDelToken(token) {
       try {
-        const response = await fetch(`http://localhost:8080/auth/logout/${user}`, {
+        // Decodificar el token para obtener el payload
+        const decodedToken = jwtDecode(token);
+    
+        // Extraer y retornar la información del usuario (suponiendo que está bajo la clave 'usuario')
+        return decodedToken.sub;
+      } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        return null;
+      }
+    }
+
+    
+    const usuario = obtenerUsuarioDelToken(token);
+    console.log(usuario)
+    const handleLogout = async () => {
+  
+      
+      try {
+
+        const response = await fetch(`http://localhost:8080/auth/logout/${usuario}`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -31,11 +48,7 @@ function Logout({ user}) {
         console.error('Error al enviar la solicitud:', error);
       }
     };
-  
-    if (!user) {
-      return null; // O cualquier otro mensaje o componente que desees mostrar si el usuario no está disponible
-    }
-  
+    
     return (
       <Button label="Logout" icon="pi pi-sign-out" className="w-full" onClick={handleLogout} />
     );

@@ -40,7 +40,6 @@ public class UsuarioController {
             String token = jwtUtil.generateToken(user.get("Logeo").toString(), user.get("NomTipo").toString());
 
             tokenService.addActiveToken(token);
-            System.out.println(token);
 
             return ResponseEntity.ok(Map.of("token", token));
         } catch (Exception e) {
@@ -55,11 +54,9 @@ public class UsuarioController {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
-            System.out.println("Token recibido: " + token);
 
             if (tokenService.isValidTokenForUser(token, user)) {
                 tokenService.invalidateToken(token);
-                System.out.println("Token invalidado: " + token);
 
                 return ResponseEntity.ok("El usuario se ha deslogueado correctamente.");
             } else {

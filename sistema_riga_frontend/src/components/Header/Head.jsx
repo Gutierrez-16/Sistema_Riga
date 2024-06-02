@@ -1,53 +1,96 @@
 import React from 'react';
-import { Card } from 'primereact/card';
-import { Tag } from 'primereact/tag';
+import { Menubar } from 'primereact/menubar';
+import { InputText } from 'primereact/inputtext';
+import { Badge } from 'primereact/badge';
+import { Avatar } from 'primereact/avatar'; 
+import Logout from '../Login/loguotbutton';
 
-const DataCards = () => {
-    const cardData = [
+export default function TemplateDemo() {
+
+    const itemRenderer = (item) => (
+        <a className="flex align-items-center p-menuitem-link">
+            <span className={item.icon} />
+            <span className="mx-2">{item.label}</span>
+            {item.badge && <Badge className="ml-auto" value={item.badge} />}
+            {item.shortcut && <span className="ml-auto border-1 surface-border border-round surface-100 text-xs p-1">{item.shortcut}</span>}
+        </a>
+    );
+
+    const items = [
         {
-            title: 'Orders',
-            value: '152',
-            subtitle: '24 new since last visit',
-            icon: 'pi pi-shopping-cart',
-            iconColor: 'blue',
+            label: 'Home',
+            icon: 'pi pi-home'
         },
         {
-            title: 'Revenue',
-            value: '$2,100',
-            subtitle: '52% since last week',
-            icon: 'pi pi-dollar',
-            iconColor: 'green',
+            label: 'Features',
+            icon: 'pi pi-star'
         },
         {
-            title: 'Customers',
-            value: '28,441',
-            subtitle: '520 newly registered',
-            icon: 'pi pi-users',
-            iconColor: 'orange',
+            label: 'Projects',
+            icon: 'pi pi-search',
+            items: [
+                {
+                    label: 'Core',
+                    icon: 'pi pi-bolt',
+                    shortcut: '⌘+S',
+                    template: itemRenderer
+                },
+                {
+                    label: 'Blocks',
+                    icon: 'pi pi-server',
+                    shortcut: '⌘+B',
+                    template: itemRenderer
+                },
+                {
+                    label: 'UI Kit',
+                    icon: 'pi pi-pencil',
+                    shortcut: '⌘+U',
+                    template: itemRenderer
+                },
+                {
+                    separator: true
+                },
+                {
+                    label: 'Templates',
+                    icon: 'pi pi-palette',
+                    items: [
+                        {
+                            label: 'Apollo',
+                            icon: 'pi pi-palette',
+                            badge: 2,
+                            template: itemRenderer
+                        },
+                        {
+                            label: 'Ultima',
+                            icon: 'pi pi-palette',
+                            badge: 3,
+                            template: itemRenderer
+                        }
+                    ]
+                }
+            ]
         },
         {
-            title: 'Comments',
-            value: '152 Unread',
-            subtitle: '85 responded',
-            icon: 'pi pi-comments',
-            iconColor: 'purple',
+            label: 'Contact',
+            icon: 'pi pi-envelope',
+            badge: 3,
+            template: itemRenderer
         }
     ];
 
-    return (
-        <div className="p-grid">
-            {cardData.map((card, index) => (
-                <div key={index} className="p-col-12 p-md-3">
-                    <Card title={card.title} subTitle={card.subtitle}>
-                        <div className="p-d-flex p-jc-between">
-                            <span className={`pi ${card.icon}`} style={{ fontSize: '2em', color: card.iconColor }}></span>
-                            <h2>{card.value}</h2>
-                        </div>
-                    </Card>
-                </div>
-            ))}
+    const start = <img alt="logo" src="https://primefaces.org/cdn/primereact/images/logo.png" height="40" className="mr-2"></img>;
+
+    const end = (
+        <div className="flex align-items-center gap-2">
+            <InputText placeholder="Search" type="text" className="w-8rem sm:w-auto" />
+            <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" />
+            <Logout  /> 
         </div>
     );
-}
 
-export default DataCards;
+    return (
+        <div className="card">
+            <Menubar model={items} start={start} end={end} />
+        </div>
+    )
+}

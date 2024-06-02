@@ -16,7 +16,7 @@ import './EmpresaStyle.css'
 import "primeicons/primeicons.css";
 import { Tag } from 'primereact/tag';
 import Header from '../Header/Header';
-
+import Dashboard from '../Header/Head';
 export default function ProductsDemo() {
     let emptyProduct = {
         idEmpresa: '',
@@ -368,8 +368,18 @@ export default function ProductsDemo() {
 
     return (
         <div>
-            <Header/>
-            <Toast ref={toast} />
+        <Dashboard />
+        <div className="flex">
+            <div className="w-1/4">
+            
+                <Header />
+            </div>
+            <div className="col-12 xl:col-10">
+
+          
+            <div className="w-3/4 p-4">
+                <Toast ref={toast} />
+      
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
@@ -393,6 +403,7 @@ export default function ProductsDemo() {
                     globalFilter={globalFilter}
                     header={header}
                     rowClassName={rowClassName}
+                    responsiveLayout="scroll"
                 >
                     <Column selectionMode="multiple" exportable={false} />
                     <Column field="idEmpresa" header="ID" sortable style={{ minWidth: '6rem' }} />
@@ -490,6 +501,10 @@ export default function ProductsDemo() {
                     )}
                 </div>
             </Dialog>
-        </div >
+            
+            </div>
+        </div>
+        </div>
+        </div>
     );
 }
