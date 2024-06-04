@@ -83,8 +83,10 @@ public class CajaRepository implements ICajaRepository {
     @Override
     public String cerrarCaja(int id) {
         jdbcTemplate.update("EXEC SP_caja @IDCaja = ?", id);
-        return "Caja cerrada exitosamente";
+        CajaModel caja = getCajaById(id);
+        return "Caja cerrada exitosamente con monto final: " + caja.getMontoFinal();
     }
+
 
     @Override
     public List<CajaModel> searchCajas(String descripcion) {
