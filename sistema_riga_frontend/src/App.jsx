@@ -13,27 +13,117 @@ import Cargo from './Components/Cargo/Cargo';
 import Linea from './Components/Linea/Linea';
 import Categoria from './Components/Categoria/Categoria';
 import MetodoPago from './Components/MetodoPago/MetodoPago';
-
+import ProtectedRoute from './Components/Login/ProtectedRoute';
 
 function App() {
-  const [user, setUser] = useState(null);
 
   return (
     <Routes>
-      
-      <Route path="/login" element={<LoginApp setUser={setUser} />} />
-      <Route path="/logout" element={<Logout user={user} />} />
-      <Route path="/usuario" element={<Usuario />} />
-      <Route path="/persona" element={<Persona />} />
-      <Route path="/producto" element={<Producto />} />
-      <Route path="/empleado" element={<Empleado />} />
-      <Route path="/empresa" element={<Empresa />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/venta" element={<Venta />} />
-      <Route path="/cargo" element={<Cargo />} />
-      <Route path="/linea" element={<Linea />} />
-      <Route path="/categoria" element={<Categoria />} />
-      <Route path="/metodopago" element={<MetodoPago />} />
+      <Route path="/login" element={<LoginApp />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Usuario />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/usuario"
+        element={
+          <ProtectedRoute>
+            <Usuario />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/logout"
+        element={
+          <ProtectedRoute>
+            <Usuario />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/persona"
+        element={
+          <ProtectedRoute >
+            <Persona />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/producto"
+        element={
+          <ProtectedRoute>
+            <Producto />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/empleado"
+        element={
+          <ProtectedRoute >
+            <Empleado />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/empresa"
+        element={
+          <ProtectedRoute >
+            <Empresa />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/home"
+        element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/venta"
+        element={
+          <ProtectedRoute>
+            <Venta />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/cargo"
+        element={
+          <ProtectedRoute>
+            <Cargo />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/linea"
+        element={
+          <ProtectedRoute >
+            <Linea />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/categoria"
+        element={
+          <ProtectedRoute >
+            <Categoria />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/metodopago"
+        element={
+          <ProtectedRoute >
+            <MetodoPago />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
