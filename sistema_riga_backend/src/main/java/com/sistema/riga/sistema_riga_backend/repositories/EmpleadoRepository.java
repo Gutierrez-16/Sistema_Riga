@@ -62,8 +62,8 @@ public class EmpleadoRepository implements IEmpleadoRepositry{
                     empleadoModel.setIdEmpleado(rs.getInt("IDEmpleado"));
                     empleadoModel.setSueldo(rs.getDouble("Sueldo"));
                     empleadoModel.setFechaIng(rs.getDate("FechaIng"));
-                    empleadoModel.setHoraEntrada(rs.getTimestamp("HoraEntrada"));
-                    empleadoModel.setHoraSalida(rs.getTimestamp("HoraSalida"));
+                    empleadoModel.setHoraEntrada(rs.getTime("HoraEntrada"));
+                    empleadoModel.setHoraSalida(rs.getTime("HoraSalida"));
                     empleadoModel.setTurno(rs.getString("Turno"));
                     empleadoModel.setEstadoEmpleado(rs.getString("EstadoEmpleado"));
                     empleadoModel.setIdCargo(rs.getInt("IDCargo"));
@@ -80,8 +80,8 @@ public class EmpleadoRepository implements IEmpleadoRepositry{
                     empleadoModel.setIdEmpleado(rs.getInt("IDEmpleado"));
                     empleadoModel.setSueldo(rs.getDouble("Sueldo"));
                     empleadoModel.setFechaIng(rs.getDate("FechaIng"));
-                    empleadoModel.setHoraEntrada(rs.getTimestamp("HoraEntrada"));
-                    empleadoModel.setHoraSalida(rs.getTimestamp("HoraSalida"));
+                    empleadoModel.setHoraEntrada(rs.getTime("HoraEntrada"));
+                    empleadoModel.setHoraSalida(rs.getTime("HoraSalida"));
                     empleadoModel.setTurno(rs.getString("Turno"));
                     empleadoModel.setEstadoEmpleado(rs.getString("EstadoEmpleado"));
                     empleadoModel.setIdCargo(rs.getInt("IDCargo"));

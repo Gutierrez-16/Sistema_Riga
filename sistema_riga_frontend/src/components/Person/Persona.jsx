@@ -17,8 +17,10 @@ import Header from '../Header/Header';
 import Dashboard from '../Header/Head';
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
+import apiCliente from "../Security/apiClient";
 
 import "primeicons/primeicons.css";
+import apiClient from "../Security/apiClient";
 
 export default function Persona() {
   let emptyPersona = {
@@ -88,30 +90,18 @@ export default function Persona() {
 
   const comboEdit = async (idDistrito) => {
     try {
-      const provinciaResponse = await fetch(
-        `http://localhost:8080/provincia/distrito/${idDistrito}`
-      );
-      if (!provinciaResponse.ok) {
-        throw new Error("Error al obtener la provincia");
-      }
-      const provinciaData = await provinciaResponse.json();
+      const provinciaData = await apiCliente.get(`http://localhost:8080/provincia/distrito/${idDistrito}`);
       const provinciaNombre = provinciaData.nombreProvincia;
-
-      const departamentoResponse = await fetch(
-        `http://localhost:8080/departamento/provincia/${provinciaNombre}`
-      );
-      if (!departamentoResponse.ok)
-        throw new Error("Error al obtener departamentos");
-
-      const departamentoData = await departamentoResponse.json();
-
+  
+      const departamentoData = await apiCliente.get(`http://localhost:8080/departamento/provincia/${provinciaNombre}`);
+  
       setPersona((prevPersona) => ({
         ...prevPersona,
         idDistrito: idDistrito,
         idProvincia: provinciaData.idProvincia,
         idDepartamento: departamentoData.idDepartamento,
       }));
-
+  
       await fetchProvincias(departamentoData.idDepartamento);
       await fetchDistritos(provinciaData.idProvincia);
       setDistrito(idDistrito);
@@ -127,72 +117,28 @@ export default function Persona() {
 
   const fetchPersonas = async () => {
     try {
-      const token = localStorage.getItem('token');
-      console.log(token)
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      };
-    
-      // Opciones de la solicitud, incluyendo el método y los headers
-      const options = {
-        method: 'GET', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
-        headers: headers
-      };
-      const response = await fetch("http://localhost:8080/person",options);
-      if (!response.ok) throw new Error("Error al obtener personas");
-      const data = await response.json();
+      const data = await apiCliente.get("http://localhost:8080/person");
       setPersonas(data);
     } catch (error) {
       console.error(error);
     }
   };
-
+  
   const fetchDepartamentos = async () => {
     try {
-      const token = localStorage.getItem('token');
-      console.log(token)
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      };
-    
-      // Opciones de la solicitud, incluyendo el método y los headers
-      const options = {
-        method: 'GET', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
-        headers: headers
-      };
-      const response = await fetch("http://localhost:8080/departamento", options);
-      if (!response.ok) throw new Error("Error al obtener departamentos");
-      const data = await response.json();
+      const data = await apiCliente.get("http://localhost:8080/departamento");
       setDepartamentos(data);
     } catch (error) {
       console.error(error);
     }
   };
+  
 
   const fetchProvincias = async (idDepartamento) => {
     try {
-      const token = localStorage.getItem('token');
-      console.log(token)
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      };
-    
-      // Opciones de la solicitud, incluyendo el método y los headers
-      const options = {
-        method: 'GET', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
-        headers: headers
-      };
       setDepartamento(idDepartamento);
-      const response = await fetch(
-        `http://localhost:8080/provincia/departamento/${idDepartamento}`,options
       
-      
-      );
-      if (!response.ok) throw new Error("Error al obtener provincias");
-      const data = await response.json();
+      const data = await apiCliente.get(`http://localhost:8080/provincia/departamento/${idDepartamento}`);
       setProvincias(data);
     } catch (error) {
       console.error(error);
@@ -201,25 +147,9 @@ export default function Persona() {
 
   const fetchDistritos = async (idProvincia) => {
     try {
-      const token = localStorage.getItem('token');
-      console.log(token)
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      };
-    
-      // Opciones de la solicitud, incluyendo el método y los headers
-      const options = {
-        method: 'GET', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
-        headers: headers
-      };
       setProvincia(idProvincia);
-
-      const response = await fetch(
-        `http://localhost:8080/distrito/provincia/${idProvincia}`,options
-      );
-      if (!response.ok) throw new Error("Error al obtener distritos");
-      const data = await response.json();
+      
+      const data = await apiCliente.get(`http://localhost:8080/distrito/provincia/${idProvincia}`);
       setDistritos(data);
     } catch (error) {
       console.error(error);
@@ -250,23 +180,32 @@ export default function Persona() {
   };
 
   const savePersona = async () => {
-    console.log(persona);
     setSubmitted(true);
-
+  
     if (persona.nombrePersona.trim()) {
       const method = persona.idPersona ? "PUT" : "POST";
       const url = persona.idPersona
         ? `http://localhost:8080/person/${persona.idPersona}`
         : "http://localhost:8080/person";
-
+  
       try {
-        const response = await fetch(url, {
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(persona),
+        let responseMessage;
+        if (method === "POST") {
+          responseMessage = await apiCliente.post(url, persona);
+        } else {
+          responseMessage = await apiCliente.put(url, persona);
+        }
+  
+        const successMessage = persona.idPersona ? "Persona Updated" : "Persona Created";
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: successMessage,
+          life: 3000,
         });
-
-        if (!response.ok) throw new Error("Error al guardar la persona");
+  
+        setNewPersonaDialog(false);
+        fetchPersonas();
       } catch (error) {
         console.error(error);
         toast.current.show({
@@ -275,29 +214,10 @@ export default function Persona() {
           detail: "Error al guardar la persona",
           life: 3000,
         });
-        return;
       }
-
-      if (persona.idPersona) {
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Persona Updated",
-          life: 3000,
-        });
-      } else {
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Persona Created",
-          life: 3000,
-        });
-      }
-
-      setNewPersonaDialog(false);
-      fetchPersonas();
     }
   };
+  
 
   const editPersona = async (persona) => {
     setPersona(persona);
@@ -313,28 +233,11 @@ export default function Persona() {
   const activatePersona = async (rowData) => {
     if (rowData.idPersona) {
       try {
-        const token = localStorage.getItem('token');
-      console.log(token)
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      };
-    
-      // Opciones de la solicitud, incluyendo el método y los headers
-      const options = {
-        method: 'PATCH', // O 'POST', 'PUT', 'DELETE', etc., dependiendo de lo que necesites
-        headers: headers
-      };
-        const response = await fetch(
-          `http://localhost:8080/person/${rowData.idPersona}`,
-          {
-            method: "PATCH",
-            header:headers
-          }
-        );
-        if (!response.ok) throw new Error("Error al actualizar la persona");
+        await apiClient.patch(`http://localhost:8080/person/${rowData.idPersona}`);
+        
         setPersona(emptyPersona);
         fetchPersonas();
+        
         toast.current.show({
           severity: "success",
           summary: "Successful",
@@ -346,15 +249,14 @@ export default function Persona() {
       }
     } else if (selectedPersonas && selectedPersonas.length > 0) {
       try {
-        console.log(selectedPersonas);
         const activatePromises = selectedPersonas.map((persona) =>
-          fetch(`http://localhost:8080/person/${persona.idPersona}`, {
-            method: "PATCH",
-          })
+          apiClient.patch(`http://localhost:8080/person/${persona.idPersona}`)
         );
         await Promise.all(activatePromises);
+        
         setSelectedPersonas(null);
         fetchPersonas();
+        
         toast.current.show({
           severity: "success",
           summary: "Successful",
@@ -375,14 +277,12 @@ export default function Persona() {
   const deletePersona = async () => {
     if (persona.idPersona) {
       try {
-        const response = await fetch(
-          `http://localhost:8080/person/${persona.idPersona}`,
-          { method: "DELETE" }
-        );
-        if (!response.ok) throw new Error("Error al eliminar el empleado");
+        await apiClient.del(`http://localhost:8080/person/${persona.idPersona}`);
+  
         setDeletePersonaDialog(false);
         setPersona(emptyPersona);
         fetchPersonas();
+  
         toast.current.show({
           severity: "success",
           summary: "Successful",
@@ -394,16 +294,15 @@ export default function Persona() {
       }
     } else if (selectedPersonas && selectedPersonas.length > 0) {
       try {
-        console.log(selectedPersonas);
         const deletePromises = selectedPersonas.map((persona) =>
-          fetch(`http://localhost:8080/person/${persona.idPersona}`, {
-            method: "DELETE",
-          })
+          apiClient.del(`http://localhost:8080/person/${persona.idPersona}`)
         );
         await Promise.all(deletePromises);
+  
         setDeletePersonaDialog(false);
         setSelectedPersonas(null);
         fetchPersonas();
+  
         toast.current.show({
           severity: "success",
           summary: "Successful",
@@ -414,9 +313,7 @@ export default function Persona() {
         console.error("Error al eliminar las personas:", error);
       }
     } else {
-      console.error(
-        "No se puede eliminar la persona. ID de persona no encontrado."
-      );
+      console.error("No se puede eliminar la persona. ID de persona no encontrado.");
     }
   };
 

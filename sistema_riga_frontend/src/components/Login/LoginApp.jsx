@@ -11,15 +11,20 @@ import imagen4 from '../Imagenes/4.jpeg';
 import imagen5 from '../Imagenes/5.jpeg';
 import imagen6 from '../Imagenes/6.jpeg';
 
-function LoginApp({ setUser }) {
+function LoginApp() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [images, setImages] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/home');
+    }
     const fetchedImages = [
       { itemImageSrc: imagen1, thumbnailImageSrc: imagen1 },
       { itemImageSrc: imagen3, thumbnailImageSrc: imagen3 },
@@ -28,15 +33,7 @@ function LoginApp({ setUser }) {
       { itemImageSrc: imagen6, thumbnailImageSrc: imagen6 },
     ];
     setImages(fetchedImages);
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setUser(username);
-      navigate('/home');
-    }
-  }, [navigate, setUser, username]);
+  }, [navigate]);
 
   const responsiveOptions = [
     { breakpoint: '991px', numVisible: 4 },
@@ -50,6 +47,8 @@ function LoginApp({ setUser }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
+    setMessage('');
     try {
       const response = await fetch('http://localhost:8080/auth/login', {
         method: 'POST',
@@ -58,15 +57,17 @@ function LoginApp({ setUser }) {
       });
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem('token', data.token); // Guardar el token en el localStorage
-        setUser(username); // Set the user state
+        localStorage.setItem('token', data.token);
         setMessage('Inicio de sesión exitoso');
         navigate('/home');
       } else {
         setMessage('Usuario y/o contraseña incorrectos');
       }
     } catch (error) {
+      setMessage('Error al enviar la solicitud. Inténtalo de nuevo más tarde.');
       console.error('Error al enviar la solicitud:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,7 +95,7 @@ function LoginApp({ setUser }) {
                 </span>
               </div>
 
-              <Button type="submit" label="Sign In" icon="pi pi-user" className="w-full" />
+              <Button type="submit" label="Sign In" icon="pi pi-user" className="w-full" disabled={loading} />
               {message && <div className="mt-3">{message}</div>}
             </div>
           </form>
