@@ -13,6 +13,9 @@ import { Dropdown } from 'primereact/dropdown';
 import 'primeflex/primeflex.css';
 import "primeicons/primeicons.css";
 import { Tag } from 'primereact/tag';
+import apiClient from '../Security/apiClient';
+import Header from '../Header/Header';
+import Dashboard from '../Header/Head';
 
 export default function ProductsDemo() {
   let emptyProduct = {
@@ -36,9 +39,7 @@ export default function ProductsDemo() {
 
   const fetchCargos = async () => {
     try {
-      const response = await fetch('http://localhost:8080/cargo');
-      if (!response.ok) throw new Error('Error al obtener cargos');
-      const data = await response.json();
+      const data = await apiClient.get('http://localhost:8080/cargo');
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -48,19 +49,17 @@ export default function ProductsDemo() {
   const saveProduct = async () => {
     setSubmitted(true);
     if (product.nombreCargo.trim()) {
-      const method = product.idCargo ? 'PUT' : 'POST';
+      const method = product.idCargo ? 'put' : 'post';
       const url = product.idCargo
         ? `http://localhost:8080/cargo/${product.idCargo}`
         : 'http://localhost:8080/cargo';
 
       try {
-        const response = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(product)
-        });
-
-        if (!response.ok) throw new Error('Error al guardar el cargo');
+        if (method === 'put') {
+          await apiClient.put(url, product);
+        } else {
+          await apiClient.post(url, product);
+        }
 
         fetchCargos();
         setProductDialog(false);
@@ -85,8 +84,7 @@ export default function ProductsDemo() {
   const deleteProduct = async () => {
     if (product.idCargo) {
       try {
-        const response = await fetch(`http://localhost:8080/cargo/${product.idCargo}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Error al eliminar el cargo');
+        await apiClient.del(`http://localhost:8080/cargo/${product.idCargo}`);
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         fetchCargos();
@@ -97,7 +95,7 @@ export default function ProductsDemo() {
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          fetch(`http://localhost:8080/cargo/${prod.idCargo}`, { method: 'DELETE' })
+          apiClient.del(`http://localhost:8080/cargo/${prod.idCargo}`)
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -114,12 +112,11 @@ export default function ProductsDemo() {
 
   const activateCargo = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8080/cargo/${id}`, { method: 'PATCH' });
-      if (!response.ok) throw new Error('Error al activar la cargo');
+      await apiClient.patch(`http://localhost:8080/cargo/${id}`);
       fetchCargos();
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'cargo Activada', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Cargo Activado', life: 3000 });
     } catch (error) {
-      console.error('Error al activar la cargo:', error);
+      console.error('Error al activar el cargo:', error);
     }
   };
 
@@ -127,17 +124,18 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          fetch(`http://localhost:8080/cargo/${prod.idCargo}`, { method: 'PATCH' })
+          apiClient.patch(`http://localhost:8080/cargo/${prod.idCargo}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);
         fetchCargos();
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresas Activadas', life: 3000 });
+        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Cargos Activados', life: 3000 });
       } catch (error) {
-        console.error('Error al activar las cargos:', error);
+        console.error('Error al activar los cargos:', error);
       }
     }
   };
+
   const openNew = () => {
     setProduct(emptyProduct);
     setSubmitted(false);
@@ -220,6 +218,7 @@ export default function ProductsDemo() {
       </div>
     );
   };
+  
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
       <h5 className="m-0 ">Manage Companies</h5>
@@ -269,57 +268,70 @@ export default function ProductsDemo() {
 
   return (
     <div>
-      <Toast ref={toast} />
-      <div className="card">
-        <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
-        <DataTable
-          ref={dt}
-          value={products}
-          selection={selectedProducts}
-          onSelectionChange={(e) => setSelectedProducts(e.value)}
-          dataKey="idCargo"
-          paginator
-          rows={10}
-          rowsPerPageOptions={[5, 10, 25]}
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} cargos"
-          globalFilter={globalFilter}
-          header={header}
-          emptyMessage="No cargos found."
-          rowClassName={rowClassName}
-        >
-          <Column selectionMode="multiple" exportable={false}></Column>
-          <Column field="idCargo" header="ID" sortable></Column>
-          <Column field="nombreCargo" header="Nombre Cargo" sortable></Column>
-          <Column field="estadoCargo" header="Estado" body={statusBodyTemplate} sortable></Column>
-          <Column body={actionBodyTemplate} exportable={false}></Column>
-        </DataTable>
+      <Dashboard />
+      <div className="flex">
+        <div className="w-1/4">
+
+          <Header />
+        </div>
+        <div className="col-12 xl:col-10">
+
+
+          <div className="w-3/4 p-4">
+            <Toast ref={toast} />
+            <div className="card">
+              <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
+              <DataTable
+                ref={dt}
+                value={products}
+                selection={selectedProducts}
+                onSelectionChange={(e) => setSelectedProducts(e.value)}
+                dataKey="idCargo"
+                paginator
+                rows={10}
+                rowsPerPageOptions={[5, 10, 25]}
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} cargos"
+                globalFilter={globalFilter}
+                header={header}
+                emptyMessage="No cargos found."
+                rowClassName={rowClassName}
+              >
+                <Column selectionMode="multiple" exportable={false}></Column>
+                <Column field="idCargo" header="ID" sortable></Column>
+                <Column field="nombreCargo" header="Nombre Cargo" sortable></Column>
+                <Column field="estadoCargo" header="Estado" body={statusBodyTemplate} sortable></Column>
+                <Column body={actionBodyTemplate} exportable={false}></Column>
+              </DataTable>
+            </div>
+
+            <Dialog visible={productDialog} style={{ width: '450px' }} header="Cargo Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
+              <div className="field">
+                <label htmlFor="nombreCargo">Nombre Cargo</label>
+                <InputText id="nombreCargo"
+                  value={product.nombreCargo}
+                  onChange={(e) => onInputChange(e, 'nombreCargo')}
+                  required autoFocus
+                  className={classNames({ 'p-invalid': submitted && !product.nombreCargo })} />
+                {submitted && !product.nombreCargo && (
+                  <small className="p-error">Nombre Cargo is required.</small>)}
+              </div>
+
+            </Dialog>
+
+            <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
+              <div className="flex align-items-center justify-content-center">
+                <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                {product && (
+                  <span>
+                    Are you sure you want to delete the cargo <b>{product.nombreCargo}</b>?
+                  </span>
+                )}
+              </div>
+            </Dialog>
+          </div>
+        </div>
       </div>
-
-      <Dialog visible={productDialog} style={{ width: '450px' }} header="Cargo Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
-        <div className="field">
-          <label htmlFor="nombreCargo">Nombre Cargo</label>
-          <InputText id="nombreCargo" 
-          value={product.nombreCargo} 
-          onChange={(e) => onInputChange(e, 'nombreCargo')} 
-          required autoFocus 
-          className={classNames({ 'p-invalid': submitted && !product.nombreCargo })} />
-          {submitted && !product.nombreCargo &&(
-          <small className="p-error">Nombre Cargo is required.</small>)}
-        </div>
-
-      </Dialog>
-
-      <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
-        <div className="flex align-items-center justify-content-center">
-          <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-          {product && (
-            <span>
-              Are you sure you want to delete the cargo <b>{product.nombreCargo}</b>?
-            </span>
-          )}
-        </div>
-      </Dialog>
     </div>
   );
 }

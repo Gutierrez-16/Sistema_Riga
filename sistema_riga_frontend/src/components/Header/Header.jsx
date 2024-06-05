@@ -65,6 +65,7 @@ const Header = () => {
                     icon: 'pi pi-id-card',
                     template: itemRenderer,
                     command: () => navigate('/empleado')
+                    
                 },
                 {
                     label: 'Personas',

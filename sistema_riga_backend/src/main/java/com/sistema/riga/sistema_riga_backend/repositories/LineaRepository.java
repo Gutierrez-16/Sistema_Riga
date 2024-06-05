@@ -60,4 +60,11 @@ public class LineaRepository implements ILineaRepositry{
                     return lineaModel;
                 });
     }
+
+    @Override
+    public String activateLinea(int id) {
+        jdbcTemplate.update("UPDATE Linea SET EstadoEmpleado = '1' WHERE IDLinea = ?;", id);
+        return "lineaModel";
+    }
+
 }
