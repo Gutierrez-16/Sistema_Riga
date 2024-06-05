@@ -122,4 +122,10 @@ public class EmpleadoRepository implements IEmpleadoRepositry{
                     return personaModel;
                 });
     }
+
+    @Override
+    public String activateEmpleado(int id) {
+        jdbcTemplate.update("UPDATE Empleado SET EstadoEmpleado = '1' WHERE IDEmpleado = ?;", id);
+        return "empleadoModel";
+    }
 }

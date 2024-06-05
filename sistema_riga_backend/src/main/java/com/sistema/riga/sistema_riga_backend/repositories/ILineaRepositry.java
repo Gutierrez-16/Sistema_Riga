@@ -10,4 +10,5 @@ public interface ILineaRepositry {
     String insertLinea(LineaModel lineaModel);
     String updateLinea(LineaModel lineaModel);
     String deleteLinea(int id);
+    String activateLinea(int id);
 }

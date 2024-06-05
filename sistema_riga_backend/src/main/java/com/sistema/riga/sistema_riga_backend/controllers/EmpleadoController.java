@@ -50,4 +50,9 @@ public class EmpleadoController {
     public String deleteEmpleado(@PathVariable int id) {
         return iEmpleadoService.deleteEmpleado(id);
     }
+
+    @PatchMapping("/{id}")
+    public String activateEmpleado(@PathVariable int id) {
+        return iEmpleadoService.activateEmpleado(id);
+    }
 }
