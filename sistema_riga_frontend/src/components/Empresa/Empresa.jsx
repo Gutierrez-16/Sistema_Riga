@@ -158,7 +158,7 @@ export default function ProductsDemo() {
                 setDeleteProductDialog(false);
                 setProduct(emptyProduct);
                 fetchEmpresas();
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresa Eliminada', life: 3000 });
+                toast.current.show({ severity: 'error', summary: 'Successful', detail: 'Empresa Eliminada', life: 3000 });
             } catch (error) {
                 console.error('Error al eliminar la empresa:', error);
             }
@@ -171,7 +171,7 @@ export default function ProductsDemo() {
                 setDeleteProductDialog(false);
                 setSelectedProducts(null);
                 fetchEmpresas();
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Empresas Eliminadas', life: 3000 });
+                toast.current.show({ severity: 'error', summary: 'Successful', detail: 'Empresas Eliminadas', life: 3000 });
             } catch (error) {
                 console.error('Error al eliminar las empresas:', error);
             }

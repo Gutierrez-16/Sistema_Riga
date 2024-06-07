@@ -31,8 +31,8 @@ export default function Persona() {
     apeMaterno: "",
     genero: "",
     fechaNac: null,
-    correo: "",
-    celular: "",
+    correo: null,
+    celular: null,
     direccion: "",
     departamento: "",
     provincia: "",
@@ -92,16 +92,16 @@ export default function Persona() {
     try {
       const provinciaData = await apiCliente.get(`http://localhost:8080/provincia/distrito/${idDistrito}`);
       const provinciaNombre = provinciaData.nombreProvincia;
-  
+
       const departamentoData = await apiCliente.get(`http://localhost:8080/departamento/provincia/${provinciaNombre}`);
-  
+
       setPersona((prevPersona) => ({
         ...prevPersona,
         idDistrito: idDistrito,
         idProvincia: provinciaData.idProvincia,
         idDepartamento: departamentoData.idDepartamento,
       }));
-  
+
       await fetchProvincias(departamentoData.idDepartamento);
       await fetchDistritos(provinciaData.idProvincia);
       setDistrito(idDistrito);
@@ -123,7 +123,7 @@ export default function Persona() {
       console.error(error);
     }
   };
-  
+
   const fetchDepartamentos = async () => {
     try {
       const data = await apiCliente.get("http://localhost:8080/departamento");
@@ -132,12 +132,12 @@ export default function Persona() {
       console.error(error);
     }
   };
-  
+
 
   const fetchProvincias = async (idDepartamento) => {
     try {
       setDepartamento(idDepartamento);
-      
+
       const data = await apiCliente.get(`http://localhost:8080/provincia/departamento/${idDepartamento}`);
       setProvincias(data);
     } catch (error) {
@@ -148,7 +148,7 @@ export default function Persona() {
   const fetchDistritos = async (idProvincia) => {
     try {
       setProvincia(idProvincia);
-      
+
       const data = await apiCliente.get(`http://localhost:8080/distrito/provincia/${idProvincia}`);
       setDistritos(data);
     } catch (error) {
@@ -160,6 +160,7 @@ export default function Persona() {
     setPersona(emptyPersona);
     setSubmitted(false);
     setNewPersonaDialog(true);
+    setFechaNac(null)
   };
 
   const hideDialog = () => {
@@ -180,14 +181,15 @@ export default function Persona() {
   };
 
   const savePersona = async () => {
+    console.log(persona)
     setSubmitted(true);
-  
+
     if (persona.nombrePersona.trim()) {
       const method = persona.idPersona ? "PUT" : "POST";
       const url = persona.idPersona
         ? `http://localhost:8080/person/${persona.idPersona}`
         : "http://localhost:8080/person";
-  
+
       try {
         let responseMessage;
         if (method === "POST") {
@@ -195,7 +197,7 @@ export default function Persona() {
         } else {
           responseMessage = await apiCliente.put(url, persona);
         }
-  
+
         const successMessage = persona.idPersona ? "Persona Updated" : "Persona Created";
         toast.current.show({
           severity: "success",
@@ -203,7 +205,7 @@ export default function Persona() {
           detail: successMessage,
           life: 3000,
         });
-  
+
         setNewPersonaDialog(false);
         fetchPersonas();
       } catch (error) {
@@ -217,7 +219,7 @@ export default function Persona() {
       }
     }
   };
-  
+
 
   const editPersona = async (persona) => {
     setPersona(persona);
@@ -234,10 +236,10 @@ export default function Persona() {
     if (rowData.idPersona) {
       try {
         await apiClient.patch(`http://localhost:8080/person/${rowData.idPersona}`);
-        
+
         setPersona(emptyPersona);
         fetchPersonas();
-        
+
         toast.current.show({
           severity: "success",
           summary: "Successful",
@@ -253,10 +255,10 @@ export default function Persona() {
           apiClient.patch(`http://localhost:8080/person/${persona.idPersona}`)
         );
         await Promise.all(activatePromises);
-        
+
         setSelectedPersonas(null);
         fetchPersonas();
-        
+
         toast.current.show({
           severity: "success",
           summary: "Successful",
@@ -278,13 +280,13 @@ export default function Persona() {
     if (persona.idPersona) {
       try {
         await apiClient.del(`http://localhost:8080/person/${persona.idPersona}`);
-  
+
         setDeletePersonaDialog(false);
         setPersona(emptyPersona);
         fetchPersonas();
-  
+
         toast.current.show({
-          severity: "success",
+          severity: "error",
           summary: "Successful",
           detail: "Persona Eliminada",
           life: 3000,
@@ -298,13 +300,13 @@ export default function Persona() {
           apiClient.del(`http://localhost:8080/person/${persona.idPersona}`)
         );
         await Promise.all(deletePromises);
-  
+
         setDeletePersonaDialog(false);
         setSelectedPersonas(null);
         fetchPersonas();
-  
+
         toast.current.show({
-          severity: "success",
+          severity: "error",
           summary: "Successful",
           detail: "Personas Eliminadas",
           life: 3000,
@@ -491,412 +493,394 @@ export default function Persona() {
     <div>
       <div className="layout-sidebar">
         <Dashboard />
+      </div>
+      <div className="flex">
+
+        <div className="w-1/4">
+
+          <Header />
         </div>
-        <div className="flex">
-          
-            <div className="w-1/4">
-            
-                <Header />
+
+        <div className="col-12 xl:col-10">
+          <div className="col-12">
+            <div className="card">
+              <div className="w-3/4 p-4">
+                <Toast ref={toast} />
+                <Toolbar
+                  className="mb-4"
+                  left={leftToolbarTemplate}
+                  right={rightToolbarTemplate}
+                ></Toolbar>
+
+                <DataTable
+                  ref={dt}
+                  value={personas}
+                  selection={selectedPersonas}
+                  onSelectionChange={(e) => setSelectedPersonas(e.value)}
+                  dataKey="idPersona"
+                  paginator
+                  rows={10}
+                  rowsPerPageOptions={[5, 10, 25]}
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} personas"
+                  header={header}
+                  responsiveLayout="scroll"
+                >
+                  <Column selectionMode="multiple" exportable={false}></Column>
+                  <Column field="idPersona" header="ID" sortable></Column>
+                  <Column field="dni" header="DNI" sortable></Column>
+                  <Column field="nombrePersona" header="Nombre" sortable></Column>
+                  <Column field="apePaterno" header="Ape. Paterno" sortable></Column>
+                  <Column field="apeMaterno" header="Ape. Materno" sortable></Column>
+                  <Column
+                    field="fechaNac"
+                    header="Fecha"
+                    sortable
+                    style={{ minWidth: "10rem" }}
+                  ></Column>
+                  <Column field="correo" header="Correo" sortable>
+                    style={{ minWidth: "1rem" }}
+                  </Column>
+                  <Column
+                    field="celular"
+                    header="Celular"
+                    sortable
+                    style={{ minWidth: "10rem" }}
+                  ></Column>
+                  <Column
+                    field="direccion"
+                    header="Direccion"
+                    sortable
+                    style={{ minWidth: "1rem" }}
+                  ></Column>
+
+                  <Column
+                    field="estadoPersona"
+                    header="ESTADO"
+                    sortable
+                    body={statusBodyTemplate}
+                    style={{ minWidth: "12rem" }}
+                  ></Column>
+                  <Column
+                    field="idDistrito"
+                    header="Distrito"
+                    sortable
+                    style={{ minWidth: "1rem" }}
+                  ></Column>
+                  <Column
+                    body={actionBodyTemplate}
+                    style={{ minWidth: "12rem" }}
+                  ></Column>
+                </DataTable>
+              </div>
+              <Dialog
+                visible={newPersonaDialog}
+                style={{ width: "32rem" }}
+                breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+                header="Registro Persona"
+                modal
+                className="p-fluid"
+                footer={personaDialogFooter}
+                onHide={hideDialog}
+              >
+                <div className="field">
+                  <label className="font-bold" htmlFor="dni">
+                    DNI
+                  </label>
+                  <InputText
+                    id="dni"
+                    keyfilter="int"
+                    maxLength="8"
+                    value={persona.dni}
+                    onChange={handleInputChange}
+                    required
+                    autoFocus
+                    className={classNames({
+                      "p-invalid": submitted && !persona.dni,
+                    })}
+                  />
+                  {submitted && !persona.dni && (
+                    <small className="p-error">DNI es requerido.</small>
+                  )}
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="nombrePersona">
+                    Nombre
+                  </label>
+                  <InputText
+                    id="nombrePersona"
+                    value={persona.nombrePersona}
+                    onChange={handleInputChange}
+                    required
+                    className={classNames({
+                      "p-invalid": submitted && !persona.nombrePersona,
+                    })}
+                  />
+                  {submitted && !persona.nombrePersona && (
+                    <small className="p-error">Nombre es requerido.</small>
+                  )}
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="apePaterno">
+                    Apellido Paterno
+                  </label>
+                  <InputText
+                    id="apePaterno"
+                    value={persona.apePaterno}
+                    onChange={handleInputChange}
+                    required
+                    className={classNames({
+                      "p-invalid": submitted && !persona.apePaterno,
+                    })}
+                  />
+                  {submitted && !persona.apePaterno && (
+                    <small className="p-error">
+                      Apellido Paterno es requerido.
+                    </small>
+                  )}
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="apeMaterno">
+                    Apellido Materno
+                  </label>
+                  <InputText
+                    id="apeMaterno"
+                    value={persona.apeMaterno}
+                    onChange={handleInputChange}
+                    required
+                    className={classNames({
+                      "p-invalid": submitted && !persona.apeMaterno,
+                    })}
+                  />
+                  {submitted && !persona.apeMaterno && (
+                    <small className="p-error">
+                      Apellido Materno es requerido.
+                    </small>
+                  )}
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="fechaNac">
+                    Fecha de Nacimiento
+                  </label>
+                  <Calendar
+                    id="fechaNac"
+                    value={fechaNac}
+                    onChange={(e) => {
+                      setPersona((prevState) => ({
+                        ...prevState,
+                        fechaNac: e.target.value,
+                      }));
+                      setFechaNac(e.target.value);
+                    }}
+                    dateFormat="yy-mm-dd"
+                    showIcon
+                  />
+
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="correo">
+                    Correo
+                  </label>
+                  <InputText
+                    id="correo"
+                    value={persona.correo || ''} 
+                    onChange={handleInputChange}
+                  />
+
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="celular">
+                    Celular
+                  </label>
+                  <InputText
+                    id="celular"
+                    keyfilter="int"
+                    maxLength="9"
+                    value={persona.celular || ''} 
+                    onChange={handleInputChange}
+                  />
+
+
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="genero">
+                    Género
+                  </label>
+                  <Dropdown
+                    id="genero"
+                    value={persona.genero}
+                    options={[
+                      { label: "Masculino", value: "M" },
+                      { label: "Femenino", value: "F" },
+                    ]}
+                    onChange={handleInputChange}
+                    placeholder="Seleccione un género"
+                  />
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="direccion">
+                    Dirección
+                  </label>
+                  <InputText
+                    id="direccion"
+                    value={persona.direccion}
+                    onChange={handleInputChange}
+                    required
+                    className={classNames({
+                      "p-invalid": submitted && !persona.direccion,
+                    })}
+                  />
+                  {submitted && !persona.direccion && (
+                    <small className="p-error">Dirección es requerido.</small>
+                  )}
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="idDepartamento">
+                    Departamento
+                  </label>
+                  <Dropdown
+                    id="idDepartamento"
+                    value={persona.idDepartamento}
+                    options={departamentos.map((dep) => ({
+                      label: dep.nombreDepartamento,
+                      value: dep.idDepartamento,
+                    }))}
+                    onChange={(e) => {
+                      setPersona((prevPersona) => ({
+                        ...prevPersona,
+                        idDepartamento: e.value,
+                      }));
+                      fetchProvincias(e.value);
+                    }}
+                    placeholder="Seleccione un departamento"
+                  />
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="idProvincia">
+                    Provincia
+                  </label>
+                  <Dropdown
+                    id="idProvincia"
+                    value={persona.idProvincia}
+                    options={provincias.map((prov) => ({
+                      label: prov.nombreProvincia,
+                      value: prov.idProvincia,
+                    }))}
+                    onChange={(e) => {
+                      setPersona((prevPersona) => ({
+                        ...prevPersona,
+                        idProvincia: e.value,
+                      }));
+                      fetchDistritos(e.value);
+                    }}
+                    placeholder="Seleccione una provincia"
+                    disabled={!persona.idDepartamento}
+                  />
+                </div>
+
+                <div className="field">
+                  <label className="font-bold" htmlFor="iDistrito">
+                    Distrito
+                  </label>
+                  <Dropdown
+                    id="iDistrito"
+                    value={persona.idDistrito}
+                    options={distritos.map((dist) => ({
+                      label: dist.nombreDistrito,
+                      value: dist.idDistrito,
+                    }))}
+                    onChange={(e) => {
+                      setPersona((prevPersona) => ({
+                        ...prevPersona,
+                        idDistrito: e.value,
+                      }));
+                    }}
+                    placeholder="Seleccione un distrito"
+                    disabled={!persona.idProvincia}
+                  />
+                </div>
+              </Dialog>
+
+              <Dialog
+                visible={deletePersonaDialog}
+                style={{ width: "32rem" }}
+                breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+                header="Confirm"
+                modal
+                footer={deletePersonaDialogFooter}
+                onHide={hideDeletePersonaDialog}
+              >
+                <div className="confirmation-content">
+                  <i
+                    className="pi pi-exclamation-triangle mr-3"
+                    style={{ fontSize: "2rem" }}
+                  />
+                  {persona && (
+                    <span>
+                      Are you sure you want to delete <b>{persona.nombrePersona}</b>
+                      ?
+                    </span>
+                  )}
+                </div>
+              </Dialog>
+
+              <Dialog
+                visible={activatePersonaDialog}
+                style={{ width: "32rem" }}
+                breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+                header="Confirm"
+                modal
+                footer={activatePersonaDialogFooter}
+                onHide={activatePersonaDialog}
+              >
+                <div className="confirmation-content">
+                  <i
+                    className="pi pi-exclamation-triangle mr-3"
+                    style={{ fontSize: "2rem" }}
+                  />
+                  {persona && (
+                    <span>
+                      Are you sure you want to activate{" "}
+                      <b>{persona.nombrePersona}</b>?
+                    </span>
+                  )}
+                </div>
+              </Dialog>
+
+              <Dialog
+                visible={deletePersonasDialog}
+                style={{ width: "32rem" }}
+                breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+                header="Confirm"
+                modal
+                footer={deletePersonasDialogFooter}
+                onHide={hideDeletePersonasDialog}
+              >
+                <div className="confirmation-content">
+                  <i
+                    className="pi pi-exclamation-triangle mr-3"
+                    style={{ fontSize: "2rem" }}
+                  />
+                  {persona && (
+                    <span>
+                      Are you sure you want to delete the selected products?
+                    </span>
+                  )}
+                </div>
+              </Dialog>
             </div>
-            
-    <div className="col-12 xl:col-10">
-      <div className="col-12">
-        <div className="card">
-        <div className="w-3/4 p-4">
-          <Toast ref={toast} />
-          <Toolbar
-            className="mb-4"
-            left={leftToolbarTemplate}
-            right={rightToolbarTemplate}
-          ></Toolbar>
-
-          <DataTable
-            ref={dt}
-            value={personas}
-            selection={selectedPersonas}
-            onSelectionChange={(e) => setSelectedPersonas(e.value)}
-            dataKey="idPersona"
-            paginator
-            rows={10}
-            rowsPerPageOptions={[5, 10, 25]}
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} personas"
-            header={header}
-            responsiveLayout="scroll"
-          >
-            <Column selectionMode="multiple" exportable={false}></Column>
-            <Column field="idPersona" header="ID" sortable></Column>
-            <Column field="dni" header="DNI" sortable></Column>
-            <Column field="nombrePersona" header="Nombre" sortable></Column>
-            <Column field="apePaterno" header="Ape. Paterno" sortable></Column>
-            <Column field="apeMaterno" header="Ape. Materno" sortable></Column>
-            <Column
-              field="fechaNac"
-              header="Fecha"
-              sortable
-              style={{ minWidth: "10rem" }}
-            ></Column>
-            <Column field="correo" header="Correo" sortable>
-              style={{ minWidth: "1rem" }}
-            </Column>
-            <Column
-              field="celular"
-              header="Celular"
-              sortable
-              style={{ minWidth: "10rem" }}
-            ></Column>
-            <Column
-              field="direccion"
-              header="Direccion"
-              sortable
-              style={{ minWidth: "1rem" }}
-            ></Column>
-
-            <Column
-              field="estadoPersona"
-              header="ESTADO"
-              sortable
-              body={statusBodyTemplate}
-              style={{ minWidth: "12rem" }}
-            ></Column>
-            <Column
-              field="idDistrito"
-              header="Distrito"
-              sortable
-              style={{ minWidth: "1rem" }}
-            ></Column>
-            <Column
-              body={actionBodyTemplate}
-              style={{ minWidth: "12rem" }}
-            ></Column>
-          </DataTable>
           </div>
-          <Dialog
-            visible={newPersonaDialog}
-            style={{ width: "32rem" }}
-            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-            header="Registro Persona"
-            modal
-            className="p-fluid"
-            footer={personaDialogFooter}
-            onHide={hideDialog}
-          >
-            <div className="field">
-              <label className="font-bold" htmlFor="dni">
-                DNI
-              </label>
-              <InputText
-                id="dni"
-                keyfilter="int"
-                maxLength="8"
-                value={persona.dni}
-                onChange={handleInputChange}
-                required
-                autoFocus
-                className={classNames({
-                  "p-invalid": submitted && !persona.dni,
-                })}
-              />
-              {submitted && !persona.dni && (
-                <small className="p-error">DNI es requerido.</small>
-              )}
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="nombrePersona">
-                Nombre
-              </label>
-              <InputText
-                id="nombrePersona"
-                value={persona.nombrePersona}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !persona.nombrePersona,
-                })}
-              />
-              {submitted && !persona.nombrePersona && (
-                <small className="p-error">Nombre es requerido.</small>
-              )}
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="apePaterno">
-                Apellido Paterno
-              </label>
-              <InputText
-                id="apePaterno"
-                value={persona.apePaterno}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !persona.apePaterno,
-                })}
-              />
-              {submitted && !persona.apePaterno && (
-                <small className="p-error">
-                  Apellido Paterno es requerido.
-                </small>
-              )}
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="apeMaterno">
-                Apellido Materno
-              </label>
-              <InputText
-                id="apeMaterno"
-                value={persona.apeMaterno}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !persona.apeMaterno,
-                })}
-              />
-              {submitted && !persona.apeMaterno && (
-                <small className="p-error">
-                  Apellido Materno es requerido.
-                </small>
-              )}
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="fechaNac">
-                Fecha de Nacimiento
-              </label>
-              <Calendar
-                id="fechaNac"
-                value={fechaNac}
-                onChange={(e) => {
-                  setPersona((prevState) => ({
-                    ...prevState,
-                    fechaNac: e.target.value,
-                  }));
-                  setFechaNac(e.target.value);
-                }}
-                dateFormat="yy-mm-dd"
-                required
-                showIcon
-                className={classNames({
-                  "p-invalid": submitted && !persona.fechaNac,
-                })}
-              />
-
-              {submitted && !persona.fechaNac && (
-                <small className="p-error">Fecha Nacimiento is required.</small>
-              )}
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="correo">
-                Correo
-              </label>
-              <InputText
-                id="correo"
-                value={persona.correo}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !persona.correo,
-                })}
-              />
-              {submitted && !persona.correo && (
-                <small className="p-error">Correo es requerido.</small>
-              )}
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="celular">
-                Celular
-              </label>
-              <InputText
-                id="celular"
-                keyfilter="int"
-                maxLength="9"
-                value={persona.celular}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !persona.celular,
-                })}
-              />
-              {submitted && !persona.celular && (
-                <small className="p-error">Celular es requerido.</small>
-              )}
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="genero">
-                Género
-              </label>
-              <Dropdown
-                id="genero"
-                value={persona.genero}
-                options={[
-                  { label: "Masculino", value: "M" },
-                  { label: "Femenino", value: "F" },
-                ]}
-                onChange={handleInputChange}
-                placeholder="Seleccione un género"
-              />
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="direccion">
-                Dirección
-              </label>
-              <InputText
-                id="direccion"
-                value={persona.direccion}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !persona.direccion,
-                })}
-              />
-              {submitted && !persona.direccion && (
-                <small className="p-error">Dirección es requerido.</small>
-              )}
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="idDepartamento">
-                Departamento
-              </label>
-              <Dropdown
-                id="idDepartamento"
-                value={persona.idDepartamento}
-                options={departamentos.map((dep) => ({
-                  label: dep.nombreDepartamento,
-                  value: dep.idDepartamento,
-                }))}
-                onChange={(e) => {
-                  setPersona((prevPersona) => ({
-                    ...prevPersona,
-                    idDepartamento: e.value,
-                  }));
-                  fetchProvincias(e.value);
-                }}
-                placeholder="Seleccione un departamento"
-              />
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="idProvincia">
-                Provincia
-              </label>
-              <Dropdown
-                id="idProvincia"
-                value={persona.idProvincia}
-                options={provincias.map((prov) => ({
-                  label: prov.nombreProvincia,
-                  value: prov.idProvincia,
-                }))}
-                onChange={(e) => {
-                  setPersona((prevPersona) => ({
-                    ...prevPersona,
-                    idProvincia: e.value,
-                  }));
-                  fetchDistritos(e.value);
-                }}
-                placeholder="Seleccione una provincia"
-                disabled={!persona.idDepartamento}
-              />
-            </div>
-
-            <div className="field">
-              <label className="font-bold" htmlFor="iDistrito">
-                Distrito
-              </label>
-              <Dropdown
-                id="iDistrito"
-                value={persona.idDistrito}
-                options={distritos.map((dist) => ({
-                  label: dist.nombreDistrito,
-                  value: dist.idDistrito,
-                }))}
-                onChange={(e) => {
-                  setPersona((prevPersona) => ({
-                    ...prevPersona,
-                    idDistrito: e.value,
-                  }));
-                }}
-                placeholder="Seleccione un distrito"
-                disabled={!persona.idProvincia}
-              />
-            </div>
-          </Dialog>
-
-          <Dialog
-            visible={deletePersonaDialog}
-            style={{ width: "32rem" }}
-            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-            header="Confirm"
-            modal
-            footer={deletePersonaDialogFooter}
-            onHide={hideDeletePersonaDialog}
-          >
-            <div className="confirmation-content">
-              <i
-                className="pi pi-exclamation-triangle mr-3"
-                style={{ fontSize: "2rem" }}
-              />
-              {persona && (
-                <span>
-                  Are you sure you want to delete <b>{persona.nombrePersona}</b>
-                  ?
-                </span>
-              )}
-            </div>
-          </Dialog>
-
-          <Dialog
-            visible={activatePersonaDialog}
-            style={{ width: "32rem" }}
-            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-            header="Confirm"
-            modal
-            footer={activatePersonaDialogFooter}
-            onHide={activatePersonaDialog}
-          >
-            <div className="confirmation-content">
-              <i
-                className="pi pi-exclamation-triangle mr-3"
-                style={{ fontSize: "2rem" }}
-              />
-              {persona && (
-                <span>
-                  Are you sure you want to activate{" "}
-                  <b>{persona.nombrePersona}</b>?
-                </span>
-              )}
-            </div>
-          </Dialog>
-
-          <Dialog
-            visible={deletePersonasDialog}
-            style={{ width: "32rem" }}
-            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-            header="Confirm"
-            modal
-            footer={deletePersonasDialogFooter}
-            onHide={hideDeletePersonasDialog}
-          >
-            <div className="confirmation-content">
-              <i
-                className="pi pi-exclamation-triangle mr-3"
-                style={{ fontSize: "2rem" }}
-              />
-              {persona && (
-                <span>
-                  Are you sure you want to delete the selected products?
-                </span>
-              )}
-            </div>
-          </Dialog>
         </div>
       </div>
-    </div>
-    </div>
     </div>
   );
 }

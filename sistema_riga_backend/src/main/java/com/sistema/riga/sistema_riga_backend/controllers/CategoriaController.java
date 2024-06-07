@@ -38,4 +38,9 @@ public class CategoriaController {
     public String deleteCategoria(@PathVariable int id) {
         return iCategoriaService.deleteCategoria(id);
     }
+
+    @PatchMapping("{id}")
+    public String activateCategoria(@PathVariable int id){
+        return iCategoriaService.activateCategoria(id);
+    }
 }

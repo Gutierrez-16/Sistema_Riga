@@ -37,4 +37,9 @@ public class MarcaService implements IMarcaService {
     public String deleteMarca(int id) {
         return iMarcaRepositry.deleteMarca(id);
     }
+
+    @Override
+    public String activateMarca(int id) {
+        return iMarcaRepositry.activateMarca(id);
+    }
 }

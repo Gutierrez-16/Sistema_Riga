@@ -10,4 +10,5 @@ public interface ICategoriaRepositry {
     String insertCategoria(CategoriaModel categoriaModel);
     String updateCategoria(CategoriaModel categoriaModel);
     String deleteCategoria(int id);
+    String activateCategoria(int id);
 }

@@ -97,7 +97,7 @@ public class UsuarioController {
         return iUsuarioService.deleteUsuario(id);
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public String activateUsuario(@PathVariable int id) {
         return iUsuarioService.activateUsuario(id);
     }
