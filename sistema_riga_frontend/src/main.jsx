@@ -13,11 +13,9 @@ import Cargo from "./Components/Cargo/Cargo";
 import Linea from "./Components/Linea/Linea";
 import Categoria from "./Components/Categoria/Categoria";
 import MetodoPago from "./Components/MetodoPago/MetodoPago";
-import ProductoChafa from "./Components/Product/ProductoChafa";
 import "primereact/resources/primereact.css";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "./index.css";
-import MostrarImagenesApp from "./Components/Product/MostrarProducto";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -36,8 +34,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/linea" element={<Linea />} />
       <Route path="/categoria" element={<Categoria />} />
       <Route path="/metodopago" element={<MetodoPago />} />
-      <Route path="/mostrar" element={<MostrarImagenesApp />} />
-      <Route path="/chafa" element={<ProductoChafa />} />
     </Routes>
   </BrowserRouter>
 );

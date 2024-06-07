@@ -16,6 +16,8 @@ import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { TbArrowZigZag } from "react-icons/tb";
 
+import { Stomp } from "@stomp/stompjs";
+
 import { FileUpload } from "primereact/fileupload";
 
 import { IconField } from "primereact/iconfield";
@@ -66,6 +68,18 @@ export default function Producto() {
 
   const [imagen, setImagen] = useState(null);
 
+  const [categorias, setCategorias] = useState([]);
+  const [categoria, setCategoria] = useState([]);
+
+  const [unidadmedidas, setUnidadmedidas] = useState([]);
+  const [unidadmedida, setUnidadmedida] = useState([]);
+
+  const [lineas, setLineas] = useState([]);
+  const [linea, setLinea] = useState([]);
+
+  const [marcas, setMarcas] = useState([]);
+  const [marca, setMarca] = useState([]);
+
   const toast = useRef(null);
   const dt = useRef(null);
 
@@ -93,7 +107,55 @@ export default function Producto() {
 
   useEffect(() => {
     fetchProductos();
+    fetchCategorias();
+    fetchUnidadMedidas();
+    fetchLineas();
+    fetchMarcas();
   }, []);
+
+  const fetchCategorias = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/categoria");
+      if (!response.ok) throw new Error("Error al obtener categorias");
+      const data = await response.json();
+      setCategorias(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchUnidadMedidas = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/unidadmedida");
+      if (!response.ok) throw new Error("Error al obtener unidades de medida");
+      const data = await response.json();
+      setUnidadmedidas(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchLineas = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/linea");
+      if (!response.ok) throw new Error("Error al obtener lineas");
+      const data = await response.json();
+      setLineas(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchMarcas = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/marca");
+      if (!response.ok) throw new Error("Error al obtener marcas");
+      const data = await response.json();
+      setMarcas(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const fetchProductos = async () => {
     try {
@@ -221,12 +283,21 @@ export default function Producto() {
 
   const editProducto = async (producto) => {
     const imagen64 = `data:image/jpeg;base64,${producto.imagen}`;
-
     setImagen(imagen64);
-
     setProducto(producto);
-
     setNewProductoDialog(true);
+
+    // Fetch the data for the dropdowns to make sure they are populated
+    await fetchCategorias();
+    await fetchUnidadMedidas();
+    await fetchLineas();
+    await fetchMarcas();
+
+    // Set the selected values for each dropdown
+    setCategoria(producto.idCategoria);
+    setUnidadmedida(producto.idUnidadMedida);
+    setLinea(producto.idLinea);
+    setMarca(producto.idMarca);
   };
 
   const imageBodyTemplate = (rowData) => {
@@ -497,6 +568,28 @@ export default function Producto() {
     </React.Fragment>
   );
 
+  const getCategoriaName = (idCategoria) => {
+    const categoria = categorias.find((cat) => cat.idCategoria === idCategoria);
+    return categoria ? categoria.nombreCategoria : "";
+  };
+
+  const getUnidadMedidaName = (idUnidadMedida) => {
+    const unidadMedida = unidadmedidas.find(
+      (um) => um.idUnidadMedida === idUnidadMedida
+    );
+    return unidadMedida ? unidadMedida.nombreUnidadMedida : "";
+  };
+
+  const getLineaName = (idLinea) => {
+    const linea = lineas.find((l) => l.idLinea === idLinea);
+    return linea ? linea.nombreLinea : "";
+  };
+
+  const getMarcaName = (idMarca) => {
+    const marca = marcas.find((m) => m.idMarca === idMarca);
+    return marca ? marca.nombreMarca : "";
+  };
+
   return (
     <div className="">
       <div className="col-12">
@@ -543,24 +636,28 @@ export default function Producto() {
               field="idCategoria"
               header="CATEGORIA"
               sortable
+              body={(rowData) => getCategoriaName(rowData.idCategoria)}
               style={{ minWidth: "1rem" }}
             ></Column>
             <Column
               field="idUnidadMedida"
               header="UNIDAD MEDIDA"
               sortable
+              body={(rowData) => getUnidadMedidaName(rowData.idUnidadMedida)}
               style={{ minWidth: "1rem" }}
             ></Column>
             <Column
               field="idLinea"
               header="LINEA"
               sortable
+              body={(rowData) => getLineaName(rowData.idLinea)}
               style={{ minWidth: "1rem" }}
             ></Column>
             <Column
               field="idMarca"
               header="MARCA"
               sortable
+              body={(rowData) => getMarcaName(rowData.idMarca)}
               style={{ minWidth: "1rem" }}
             ></Column>
             <Column
@@ -657,14 +754,20 @@ export default function Producto() {
               <label className="font-bold" htmlFor="idCategoria">
                 Categoria
               </label>
-              <InputText
+              <Dropdown
                 id="idCategoria"
                 value={producto.idCategoria}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !producto.idCategoria,
-                })}
+                options={categorias.map((cat) => ({
+                  label: cat.nombreCategoria,
+                  value: cat.idCategoria,
+                }))}
+                onChange={(e) => {
+                  setProducto((prevProducto) => ({
+                    ...prevProducto,
+                    idCategoria: e.value,
+                  }));
+                }}
+                placeholder="Seleccione una categoria"
               />
               {submitted && !producto.idCategoria && (
                 <small className="p-error">Categoria es requerido.</small>
@@ -675,33 +778,44 @@ export default function Producto() {
               <label className="font-bold" htmlFor="idUnidadMedida">
                 Unidad Medida
               </label>
-              <InputText
+              <Dropdown
                 id="idUnidadMedida"
-                keyfilter="int"
                 value={producto.idUnidadMedida}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !producto.idUnidadMedida,
-                })}
+                options={unidadmedidas.map((unid) => ({
+                  label: unid.nombreUnidadMedida,
+                  value: unid.idUnidadMedida,
+                }))}
+                onChange={(e) => {
+                  setProducto((prevProducto) => ({
+                    ...prevProducto,
+                    idUnidadMedida: e.value,
+                  }));
+                }}
+                placeholder="Seleccione una unidad de medida"
               />
               {submitted && !producto.idUnidadMedida && (
                 <small className="p-error">Unidad Medida es requerido.</small>
               )}
             </div>
+
             <div className="field">
               <label className="font-bold" htmlFor="idLinea">
                 Linea
               </label>
-              <InputText
+              <Dropdown
                 id="idLinea"
-                keyfilter="int"
                 value={producto.idLinea}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !producto.idLinea,
-                })}
+                options={lineas.map((lin) => ({
+                  label: lin.nombreLinea,
+                  value: lin.idLinea,
+                }))}
+                onChange={(e) => {
+                  setProducto((prevProducto) => ({
+                    ...prevProducto,
+                    idLinea: e.value,
+                  }));
+                }}
+                placeholder="Seleccione una linea"
               />
               {submitted && !producto.idLinea && (
                 <small className="p-error">Linea es requerido.</small>
@@ -711,15 +825,20 @@ export default function Producto() {
               <label className="font-bold" htmlFor="idMarca">
                 Marca
               </label>
-              <InputText
+              <Dropdown
                 id="idMarca"
-                keyfilter="int"
                 value={producto.idMarca}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !producto.idMarca,
-                })}
+                options={marcas.map((marc) => ({
+                  label: marc.nombreMarca,
+                  value: marc.idMarca,
+                }))}
+                onChange={(e) => {
+                  setProducto((prevProducto) => ({
+                    ...prevProducto,
+                    idMarca: e.value,
+                  }));
+                }}
+                placeholder="Seleccione una marca"
               />
               {submitted && !producto.idMarca && (
                 <small className="p-error">Marca es requerido.</small>
