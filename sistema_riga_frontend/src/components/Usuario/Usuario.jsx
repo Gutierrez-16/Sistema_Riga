@@ -1,81 +1,527 @@
-import React, { Component } from 'react';
-import Header from '../Header/Header';
-import './UsuarioStyle.css';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
-import { TbArrowZigZag } from 'react-icons/tb';
+import React, { useState, useEffect, useRef } from "react";
+import { classNames } from "primereact/utils";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Toast } from "primereact/toast";
+import { Button } from "primereact/button";
+import { Toolbar } from "primereact/toolbar";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+import { InputText } from "primereact/inputtext";
+import { Dialog } from "primereact/dialog";
+import { Dropdown } from "primereact/dropdown";
+import "primeflex/primeflex.css";
+import "primeicons/primeicons.css";
+import { Tag } from "primereact/tag";
+import apiClient from "../Security/apiClient";
+import Header from "../Header/Header";
+import Dashboard from "../Header/Head";
+import { Password } from 'primereact/password';
 
-class Usuario extends Component {
-  render() {
+
+export default function ProductsDemo() {
+  let emptyProduct = {
+    idusuario: "",
+    username: "",
+    password: "",
+    idEmpleado: "",
+    idTipoUsuario: ""
+  };
+
+  const [empleado, setEmpleados] = useState([]);
+  const [tipousuario, setTipoUsuario] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  const [productDialog, setProductDialog] = useState(false);
+  const [deleteProductDialog, setDeleteProductDialog] = useState(false);
+  const [product, setProduct] = useState(emptyProduct);
+  const [selectedProducts, setSelectedProducts] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [globalFilter, setGlobalFilter] = useState(null);
+  const toast = useRef(null);
+  const dt = useRef(null);
+
+  useEffect(() => {
+    fetchUsuarios();
+    fetchEmployees();
+    fetchTipoUsuario();
+
+  }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      const data = await apiClient.get("http://localhost:8080/employee");
+      setEmpleados(data);
+    } catch (error) {
+      console.error("Error al obtener empleados:", error);
+    }
+  };
+
+  const fetchTipoUsuario = async () => {
+    try {
+      const data = await apiClient.get("http://localhost:8080/tipousuario");
+      setTipoUsuario(data);
+    } catch (error) {
+      console.error("Error al obtener tipo usuario", error);
+    }
+  };
+
+  const fetchUsuarios = async () => {
+    try {
+      const data = await apiClient.get("http://localhost:8080/auth");
+      console.log("Fetched Users:", data);
+      setProducts(data);
+    } catch (error) {
+      console.error("Error al obtener usuarios:", error);
+    }
+  };
+
+
+  const saveProduct = async () => {
+    setSubmitted(true);
+
+    if (
+      product.username &&
+      product.password
+    ) {
+      const method = product.idusuario ? "PUT" : "POST";
+      const url = product.idusuario
+        ? `http://localhost:8080/auth/${product.idusuario}`
+        : "http://localhost:8080/auth";
+
+      try {
+        await apiClient[method.toLowerCase()](url, product);
+        fetchUsuarios();
+        setProductDialog(false);
+        setProduct(emptyProduct);
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "usuario guardado",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al guardar el usuario:", error);
+
+        const errorMsg = error.response ? error.response.data : error.message;
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: errorMsg,
+          life: 3000,
+        });
+      }
+    } else {
+      console.error("Campos obligatorios faltantes");
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Campos obligatorios faltantes",
+        life: 3000,
+      });
+    }
+  };
+
+  const handleEdit = async (usuario) => {
+    setProduct({ ...usuario });
+    setProductDialog(true);
+  };
+
+  const confirmDeleteProduct = (product) => {
+    setProduct(product);
+    setDeleteProductDialog(true);
+  };
+
+  const deleteProduct = async () => {
+    if (product.idusuario) {
+      try {
+        await apiClient.del(
+          `http://localhost:8080/auth/${product.idusuario}`
+        );
+        setDeleteProductDialog(false);
+        setProduct(emptyProduct);
+        fetchUsuarios();
+        toast.current.show({
+          severity: "error",
+          summary: "Successful",
+          detail: "Usuario Eliminado",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al eliminar el Usuario:", error);
+      }
+    } else if (selectedProducts && selectedProducts.length > 0) {
+      try {
+        const deletePromises = selectedProducts.map((prod) =>
+          apiClient.del(`http://localhost:8080/auth/${prod.idusuario}`)
+        );
+        await Promise.all(deletePromises);
+        setDeleteProductDialog(false);
+        setSelectedProducts(null);
+        fetchUsuarios();
+        toast.current.show({
+          severity: "error",
+          summary: "Successful",
+          detail: "Usuario Eliminados",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al eliminar los Usuarios:", error);
+      }
+    } else {
+      console.error(
+        "No se puede eliminar el empleado. ID de Usuario no encontrado."
+      );
+    }
+  };
+
+  const openNew = () => {
+    setProduct(emptyProduct);
+    setSubmitted(false);
+    setProductDialog(true);
+  };
+
+  const hideDialog = () => {
+    setSubmitted(false);
+    setProductDialog(false);
+  };
+
+  const hideDeleteProductDialog = () => {
+    setDeleteProductDialog(false);
+  };
+
+  const onInputChange = (e, name) => {
+    const val = (e.target && e.target.value) || "";
+    let _product = { ...product };
+    _product[`${name}`] = val;
+    setProduct(_product);
+  };
+
+  const activateUsuario = async (id) => {
+    try {
+      await apiClient.patch(`http://localhost:8080/auth/${id}`);
+      fetchUsuarios();
+      toast.current.show({
+        severity: "success",
+        summary: "Successful",
+        detail: "Usuario Activada",
+        life: 3000,
+      });
+    } catch (error) {
+      console.error("Error al activar la Usuario:", error);
+    }
+  };
+
+  const activateSelectedUsuarios = async () => {
+    if (selectedProducts && selectedProducts.length > 0) {
+      try {
+        const activatePromises = selectedProducts.map((prod) =>
+          apiClient.patch(`http://localhost:8080/auth/${prod.idusuario}`)
+        );
+        await Promise.all(activatePromises);
+        setSelectedProducts(null);
+        fetchUsuarios();
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Usuario Activadas",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al activar las Usuario:", error);
+      }
+    }
+  };
+
+  const leftToolbarTemplate = () => {
     return (
-      <article>
-        <div>
-          <Header/>
-          <section>
-            <div className='usuario'>
-            <h1>USUARIOS</h1>
-            </div>
-            <div className='global'>
-            <div className='tabla'>
-            <DataTable  tableStyle={{ minWidth: '50rem' }}>
-                <Column field="usuario" header="USUARIO" align="center"></Column>
-                <Column field="password" header="CONTRASEÑA" align="center"></Column>
-                <Column field="tipousuario" header="TIPO USUARIO" align="center"></Column>
-                <Column field="dni" header="DNI" align="center"></Column>
-                <Column field="nombre" header="NOMBRES" align="center"></Column>
-                <Column field="apepat" header="APELLIDO PATERNO" align="center"></Column>
-                <Column field="apemat" header="APELLIDO MATERNO" align="center"></Column>
-                <Column field="estado" header="ESTADO" align="center"></Column>
-            </DataTable>
-            </div>
-            <div className='contenedorbot'>
-            <div className='buscar'>
-            <Button label="BUSCAR" className='boton'/>
-            </div>
-            <div className='botones'>
-              <Button label="GUARDAR" className='boton1'/>
-              <Button label="ACTUALIZAR" className='boton2'/>
-              <Button label="ELIMINAR" className='boton3'/>
-              <Button label="NUEVO" className='boton4'/>
-            </div>
-            </div>
-            </div>
-            <div className='global2'>
-              <div className='contenedor'>
-                <div className='subcontenedor'>
-                <span className="p-inputgroup-addon">USUARIO</span>
-                <InputText className='input' placeholder="" size={45}/>
-                </div>
-                <div className='subcontenedor'>
-                <span className="p-inputgroup-addon">TIPO USUARIO</span>
-                <InputText className='input' placeholder="" size={45}/>
-                </div>
-                <div className='subcontenedor'>
-                <span className="p-inputgroup-addon">ESTADO</span>
-                <InputText className='input' placeholder="" size={45} maxLength={1} onKeyPress={(e) => (e.charCode < 48 || e.charCode > 57) && e.preventDefault()}/>
-                </div>
-              </div>
-              <div className='contenedor2'>
-              <div className='subcontenedor'>
-              <span className="p-inputgroup-addon">CONTRASEÑA</span>
-                <InputText className='input' placeholder="" size={45}/>
-              </div>
-              <div className='subcontenedor'>
-              <span className="p-inputgroup-addon">DNI</span>
-                <InputText className='input' placeholder="" size={45} maxLength={8}  />
-              </div>
-              <div className='subcontenedor'></div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </article>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          severity="info"
+          onClick={openNew}
+        />
+        <Button
+          label="Delete"
+          icon="pi pi-trash"
+          className="p-button-danger"
+          onClick={() => confirmDeleteProduct(selectedProducts)}
+          disabled={!selectedProducts || !selectedProducts.length}
+        />
+        <Button
+          label="Activate"
+          icon="pi pi-check"
+          className="p-button-success"
+          onClick={activateSelectedUsuarios}
+          disabled={!selectedProducts || !selectedProducts.length}
+        />
+      </div>
     );
+  };
+
+  const rightToolbarTemplate = () => {
+    return (
+      <Button
+        label="Export"
+        icon="pi pi-upload"
+        className="p-button-help"
+        onClick={() => dt.current.exportCSV()}
+      />
+    );
+  };
+
+  const actionBodyTemplate = (rowData) => {
+    return (
+      <div className="flex">
+        <Button
+          icon="pi pi-pencil"
+          rounded
+          outlined
+          className="mr-3"
+          onClick={() => handleEdit(rowData)}
+        />
+        <Button
+          icon={rowData.estadoUsuario === "1" ? "pi pi-trash" : "pi pi-check"}
+          rounded
+          outlined
+          severity={rowData.estadoUsuario === "1" ? "danger" : "success"}
+          onClick={() => {
+            if (rowData.estadoUsuario === "1") {
+              confirmDeleteProduct(rowData);
+            } else {
+              activateUsuario(rowData.idusuario);
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
+  const header = (
+    <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+      <h4 className="m-0">Manage Usuarios</h4>
+      <IconField iconPosition="left">
+        <InputIcon className="pi pi-search" />
+        <InputText
+          type="search"
+          onInput={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Search..."
+        />
+      </IconField>
+    </div>
+  );
+
+  const productDialogFooter = (
+    <React.Fragment>
+      <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
+      <Button label="Save" icon="pi pi-check" onClick={saveProduct} />
+    </React.Fragment>
+  );
+
+  const deleteProductDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        outlined
+        onClick={hideDeleteProductDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        severity="danger"
+        onClick={deleteProduct}
+      />
+    </React.Fragment>
+  );
+
+  const rowClassName = (rowData) => {
+    return {
+      "eliminated-row": rowData.estadoUsuario === "0",
+    };
+  };
+
+  const statusBodyTemplate = (rowData) => {
+    const severity = getSeverity(rowData.estadoUsuario);
+    return (
+      <Tag value={severity === "success"} severity={severity}>
+        {severity === "success" ? "Habilitado" : "Deshabilitado"}
+      </Tag>
+    );
+  };
+
+  const getSeverity = (estadoUsuario) => {
+    switch (estadoUsuario) {
+      case "1":
+      case "secondary":
+        return "success";
+      case "0":
+        return "danger";
+      default:
+        return null;
+    }
+  };
+  function updateEmpleado(selectedEmpleadoId) {
+    setProduct({ ...product, idEmpleado: selectedEmpleadoId });
   }
+  function updateTipoUsuario(selectedTipoUsuarioId) {
+    setProduct({ ...product, idTipoUsuario: selectedTipoUsuarioId });
+  }
+
+  return (
+    <div>
+      <Dashboard />
+      <div className="flex">
+        <div className="w-1/4">
+          <Header />
+        </div>
+        <div className="col-12 xl:col-10">
+          <div className="w-3/4 p-4">
+            <div className="card">
+              <Toast ref={toast} />
+              <Toolbar
+                className="mb-4"
+                left={leftToolbarTemplate}
+                right={rightToolbarTemplate}
+              ></Toolbar>
+              <DataTable
+                ref={dt}
+                value={products}
+                selection={selectedProducts}
+                onSelectionChange={(e) => setSelectedProducts(e.value)}
+                dataKey="idusuario"
+                paginator
+                rows={10}
+                rowsPerPageOptions={[5, 10, 25]}
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} empleados"
+                globalFilter={globalFilter}
+                header={header}
+                emptyMessage="No Usuarios found."
+                rowClassName={rowClassName}
+              >
+                <Column selectionMode="multiple" exportable={false}></Column>
+                <Column field="idusuario" header="ID" sortable></Column>
+                <Column field="username" header="Username" sortable></Column>
+                <Column
+                  field="idEmpleado"
+                  header="Empleado"
+                  sortable
+                ></Column>
+                <Column
+                  field="idTipoUsuario"
+                  header="Tipo Usuario"
+                  body={(rowData) => {
+                    const tipoUsuario = tipousuario.find((tipo) => tipo.idTipoUsuario === rowData.idTipoUsuario);
+                    return tipoUsuario ? tipoUsuario.nombreTipoUsuario : '';
+                  }}
+                  sortable
+                ></Column>
+
+                <Column
+                  field="estadoUsuario"
+                  header="Estado"
+                  body={statusBodyTemplate}
+                  sortable
+                ></Column>
+                <Column body={actionBodyTemplate} exportable={false}></Column>
+              </DataTable>
+            </div>
+
+            <Dialog
+              visible={productDialog}
+              style={{ width: "450px" }}
+              header="Usuario Details"
+              modal
+              className="p-fluid"
+              footer={productDialogFooter}
+              onHide={hideDialog}
+            >
+
+              <div className="field">
+                <label htmlFor="username">USERNAME</label>
+                <InputText
+                  id="username"
+                  value={product.username}
+                  onChange={(e) => onInputChange(e, "username")}
+                  required
+                  className={classNames({
+                    "p-invalid": submitted && !product.username,
+                  })}
+                />
+                {submitted && !product.username && (
+                  <small className="p-error">Username is required.</small>
+                )}
+              </div>
+              <div className="field">
+                <label htmlFor="password">PASSWORD</label>
+                <Password
+                  id="password"
+                  value={product.password}
+                  onChange={(e) => onInputChange(e, "password")}
+                  required
+                  toggleMask
+                  className={classNames({
+                    "p-invalid": submitted && !product.password,
+                  })}
+                />
+                {submitted && !product.password && (
+                  <small className="p-error">Password is required.</small>
+                )}
+              </div>
+
+              <div className="field">
+                <label htmlFor="idEmpleado">Empleado</label>
+                <Dropdown
+                  id="empleadoDropdown"
+                  value={product.idEmpleado}
+                  options={empleado}
+                  onChange={(e) => updateEmpleado(e.value)}
+                  optionLabel="idEmpleado"
+                  optionValue="idEmpleado"
+                  placeholder="Seleccione a empleado"
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="idTipoUsuario">Tipo Usuario</label>
+                <Dropdown
+                  id="idTipoUsuario"
+                  value={product.idTipoUsuario}
+                  options={tipousuario}
+                  onChange={(e) => updateTipoUsuario(e.value)}
+                  optionLabel="nombreTipoUsuario"
+                  optionValue="idTipoUsuario"
+                  placeholder="Seleccione a tipousuario"
+                />
+              </div>
+            </Dialog>
+
+            <Dialog
+              visible={deleteProductDialog}
+              style={{ width: "450px" }}
+              header="Confirm"
+              modal
+              footer={deleteProductDialogFooter}
+              onHide={hideDeleteProductDialog}
+            >
+              <div className="flex align-items-center justify-content-center">
+                <i
+                  className="pi pi-exclamation-triangle mr-3"
+                  style={{ fontSize: "2rem" }}
+                />
+                {product && (
+                  <span>
+                    Are you sure you want to delete the usuario{" "}
+                    <b>{product.username}</b>?
+                  </span>
+                )}
+              </div>
+            </Dialog>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
-
-export default Usuario;
-

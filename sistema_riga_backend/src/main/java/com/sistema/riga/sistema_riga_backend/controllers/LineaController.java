@@ -38,4 +38,9 @@ public class LineaController {
     public String deleteLinea(@PathVariable int id) {
         return iLineaService.deleteLinea(id);
     }
+
+    @PatchMapping("/{id}")
+    public String activateLinea(@PathVariable int id) {
+        return iLineaService.activateLinea(id);
+    }
 }

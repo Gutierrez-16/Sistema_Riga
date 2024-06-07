@@ -37,4 +37,9 @@ public class UnidadMedidaService implements IUnidadMedidaService {
     public String deleteUnidadMedida(int id) {
         return iUnidadMedidaRepositry.deleteUnidadMedida(id);
     }
+
+    @Override
+    public String activateUnidadMedida(int id) {
+        return iUnidadMedidaRepositry.activateUnidadMedida(id);
+    }
 }

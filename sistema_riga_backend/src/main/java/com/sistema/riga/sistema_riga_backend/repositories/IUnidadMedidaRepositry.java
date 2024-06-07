@@ -10,4 +10,5 @@ public interface IUnidadMedidaRepositry {
     String insertUnidadMedida(UnidadMedidaModel unidadMedidaModel);
     String updateUnidadMedida(UnidadMedidaModel unidadMedidaModel);
     String deleteUnidadMedida(int id);
+    String activateUnidadMedida(int id);
 }
