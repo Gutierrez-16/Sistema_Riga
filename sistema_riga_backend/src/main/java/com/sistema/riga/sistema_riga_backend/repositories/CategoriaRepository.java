@@ -60,4 +60,10 @@ public class CategoriaRepository implements ICategoriaRepositry{
                     return categoriaModel;
                 });
     }
+
+    @Override
+    public String activateCategoria(int id) {
+        jdbcTemplate.update("UPDATE Categoria SET estadoCategoria= '1' WHERE idCategoria = ?;", id);
+        return "categoriaModel";
+    }
 }

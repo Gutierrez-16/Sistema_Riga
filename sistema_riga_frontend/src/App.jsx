@@ -14,6 +14,10 @@ import Linea from './Components/Linea/Linea';
 import Categoria from './Components/Categoria/Categoria';
 import MetodoPago from './Components/MetodoPago/MetodoPago';
 import ProtectedRoute from './Components/Login/ProtectedRoute';
+import UnidadMedidad from './Components/UnidadMedida/UnidadMedida'
+import TipoUsuario from './Components/TipoUsuario/TipoUsuario'
+import Marca from './Components/Marca/Marca'
+import Caja from './Components/Caja/Caja'
 
 function App() {
 
@@ -57,6 +61,38 @@ function App() {
         element={
           <ProtectedRoute>
             <Producto />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/unidadmedidad"
+        element={
+          <ProtectedRoute>
+            <UnidadMedidad />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tipousuario"
+        element={
+          <ProtectedRoute>
+            <TipoUsuario />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/marca"
+        element={
+          <ProtectedRoute>
+            <Marca />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/caja"
+        element={
+          <ProtectedRoute>
+            <Caja />
           </ProtectedRoute>
         }
       />

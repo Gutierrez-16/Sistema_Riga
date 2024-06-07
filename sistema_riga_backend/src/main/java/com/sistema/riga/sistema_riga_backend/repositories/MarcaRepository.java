@@ -60,4 +60,10 @@ public class MarcaRepository implements IMarcaRepositry{
                     return marcaModel;
                 });
     }
+
+    @Override
+    public String activateMarca(int id) {
+        jdbcTemplate.update("UPDATE Marca SET EstadoMarca = '1' WHERE IDMarca = ?;", id);
+        return "marcaModel";
+    }
 }

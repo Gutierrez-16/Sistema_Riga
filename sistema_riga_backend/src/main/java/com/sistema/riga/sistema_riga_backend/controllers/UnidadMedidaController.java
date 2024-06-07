@@ -38,4 +38,9 @@ public class UnidadMedidaController {
     public String deleteUnidadMedida(@PathVariable int id) {
         return iUnidadMedidaService.deleteUnidadMedida(id);
     }
+
+    @PatchMapping("/{id}")
+    public String activateUnidadMedida(@PathVariable int id) {
+        return iUnidadMedidaService.activateUnidadMedida(id);
+    }
 }

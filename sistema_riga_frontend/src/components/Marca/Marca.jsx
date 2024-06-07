@@ -13,14 +13,14 @@ import { Dropdown } from "primereact/dropdown";
 import "primeflex/primeflex.css";
 import "primeicons/primeicons.css";
 import { Tag } from "primereact/tag";
-import apiClient from "../Security/apiClient";
 import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
+import apiClient from "../Security/apiClient";
 
 export default function ProductsDemo() {
   let emptyProduct = {
-    idMetodo: "",
-    nombreMetodo: "",
+    idMarca: "",
+    nombreMarca: "",
   };
 
   const [products, setProducts] = useState([]);
@@ -34,12 +34,12 @@ export default function ProductsDemo() {
   const dt = useRef(null);
 
   useEffect(() => {
-    fetchMetodoPagos();
+    fetchMarcas();
   }, []);
 
-  const fetchMetodoPagos = async () => {
+  const fetchMarcas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/metodopago");
+      const data = await apiClient.get("http://localhost:8080/marca");
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -49,33 +49,25 @@ export default function ProductsDemo() {
   const saveProduct = async () => {
     setSubmitted(true);
 
-    if (product.nombreMetodo.trim()) {
-      let _products = [...products]; // Suponiendo que `products` es el estado que contiene los productos
-      let _product = { ...product };
-      const method = _product.idMetodo ? "PUT" : "POST";
-      const url = _product.idMetodo
-        ? `http://localhost:8080/metodopago/${_product.idMetodo}`
-        : "http://localhost:8080/metodopago";
+    if (product.nombreMarca.trim()) {
+      const method = product.idMarca ? "PUT" : "POST";
+      const url = product.idMarca
+        ? `http://localhost:8080/marca/${product.idMarca}`
+        : "http://localhost:8080/marca";
 
       try {
-        if (method === "PUT") {
-          await apiClient.put(url, _product);
-        } else {
-          await apiClient.post(url, _product);
-        }
-
-        fetchMetodoPagos();
-        setProducts(_products);
+        await apiClient[method.toLowerCase()](url, product);
+        fetchMarcas();
         setProductDialog(false);
         setProduct(emptyProduct);
         toast.current.show({
           severity: "success",
           summary: "Successful",
-          detail: "Método de pago guardado",
+          detail: "marca guardada",
           life: 3000,
         });
       } catch (error) {
-        console.error("Error al guardar el método de pago:", error);
+        console.error("Error al guardar la marca:", error);
       }
     }
   };
@@ -91,81 +83,46 @@ export default function ProductsDemo() {
   };
 
   const deleteProduct = async () => {
-    if (product.idMetodo) {
+    if (product.idMarca) {
       try {
         await apiClient.del(
-          `http://localhost:8080/metodopago/${product.idMetodo}`
+          `http://localhost:8080/marca/${product.idMarca}`,
+          "DELETE"
         );
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
-        fetchMetodoPagos();
+        fetchMarcas();
         toast.current.show({
           severity: "error",
           summary: "Successful",
-          detail: "Método de pago eliminado",
+          detail: "marca Eliminada",
           life: 3000,
         });
       } catch (error) {
-        console.error("Error al eliminar el método de pago:", error);
+        console.error("Error al eliminar la marca:", error);
       }
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/metodopago/${prod.idMetodo}`)
+          apiClient.del(`http://localhost:8080/marca/${prod.idMarca}`, "DELETE")
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
         setSelectedProducts(null);
-        fetchMetodoPagos();
+        fetchMarcas();
         toast.current.show({
           severity: "error",
           summary: "Successful",
-          detail: "Métodos de pago eliminados",
+          detail: "marca Eliminadas",
           life: 3000,
         });
       } catch (error) {
-        console.error("Error al eliminar los métodos de pago:", error);
+        console.error("Error al eliminar las marca:", error);
       }
     } else {
       console.error(
-        "No se puede eliminar el método de pago. ID de método de pago no encontrado."
+        "No se puede eliminar la marca. ID de marca no encontrado."
       );
-    }
-  };
-
-  const activateMetodoPago = async (id) => {
-    try {
-      await apiClient.patch(`http://localhost:8080/metodopago/${id}`);
-      fetchMetodoPagos();
-      toast.current.show({
-        severity: "success",
-        summary: "Successful",
-        detail: "Método de pago activado",
-        life: 3000,
-      });
-    } catch (error) {
-      console.error("Error al activar el método de pago:", error);
-    }
-  };
-
-  const activateSelectedMetodoPagos = async () => {
-    if (selectedProducts && selectedProducts.length > 0) {
-      try {
-        const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/metodopago/${prod.idMetodo}`)
-        );
-        await Promise.all(activatePromises);
-        setSelectedProducts(null);
-        fetchMetodoPagos();
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Métodos de pago activados",
-          life: 3000,
-        });
-      } catch (error) {
-        console.error("Error al activar los métodos de pago:", error);
-      }
     }
   };
 
@@ -191,6 +148,42 @@ export default function ProductsDemo() {
     setProduct(_product);
   };
 
+  const activateMarca = async (id) => {
+    try {
+      await apiClient.patch(`http://localhost:8080/marca/${id}`);
+      fetchMarcas();
+      toast.current.show({
+        severity: "success",
+        summary: "Successful",
+        detail: "Marca Activado",
+        life: 3000,
+      });
+    } catch (error) {
+      console.error("Error al activar el marca:", error);
+    }
+  };
+
+  const activateSelectedMarcas = async () => {
+    if (selectedProducts && selectedProducts.length > 0) {
+      try {
+        const activatePromises = selectedProducts.map((prod) =>
+          apiClient.patch(`http://localhost:8080/marca/${prod.idMarca}`)
+        );
+        await Promise.all(activatePromises);
+        setSelectedProducts(null);
+        fetchMarcas();
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "marca Activados",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al activar los marca:", error);
+      }
+    }
+  };
+
   const leftToolbarTemplate = () => {
     return (
       <div className="flex flex-wrap gap-2">
@@ -211,7 +204,7 @@ export default function ProductsDemo() {
           label="Activate"
           icon="pi pi-check"
           className="p-button-success"
-          onClick={activateSelectedMetodoPagos}
+          onClick={activateSelectedMarcas}
           disabled={!selectedProducts || !selectedProducts.length}
         />
       </div>
@@ -240,15 +233,15 @@ export default function ProductsDemo() {
           onClick={() => handleEdit(rowData)}
         />
         <Button
-          icon={rowData.estadoMetodo === "1" ? "pi pi-trash" : "pi pi-check"}
+          icon={rowData.estadoMarca === "1" ? "pi pi-trash" : "pi pi-check"}
           rounded
           outlined
-          severity={rowData.estadoMetodo === "1" ? "danger" : "success"}
+          severity={rowData.estadoMarca === "1" ? "danger" : "success"}
           onClick={() => {
-            if (rowData.estadoMetodo === "1") {
+            if (rowData.estadoMarca === "1") {
               confirmDeleteProduct(rowData);
             } else {
-              activateMetodoPago(rowData.idMetodo);
+              activateMarca(rowData.idMarca);
             }
           }}
         />
@@ -258,7 +251,7 @@ export default function ProductsDemo() {
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <h5 className="m-0 ">Manage Metodo Pago</h5>
+      <h5 className="m-0 ">Manage Marcas</h5>
       <IconField iconPosition="left">
         <InputIcon className="pi pi-search" />
         <InputText
@@ -296,12 +289,12 @@ export default function ProductsDemo() {
 
   const rowClassName = (rowData) => {
     return {
-      "eliminated-row": rowData.estadoMetodo === "0",
+      "eliminated-row": rowData.estadoMarca === "0",
     };
   };
 
   const statusBodyTemplate = (rowData) => {
-    const severity = getSeverity(rowData.estadoMetodo);
+    const severity = getSeverity(rowData.estadoMarca);
     return (
       <Tag value={severity === "success"} severity={severity}>
         {severity === "success" ? "Habilitado" : "Deshabilitado"}
@@ -309,8 +302,8 @@ export default function ProductsDemo() {
     );
   };
 
-  const getSeverity = (estadoMetodo) => {
-    switch (estadoMetodo) {
+  const getSeverity = (estadoMarca) => {
+    switch (estadoMarca) {
       case "1":
       case "Habilitado":
         return "success";
@@ -342,26 +335,26 @@ export default function ProductsDemo() {
                 value={products}
                 selection={selectedProducts}
                 onSelectionChange={(e) => setSelectedProducts(e.value)}
-                dataKey="idMetodo"
+                dataKey="idMarca"
                 paginator
                 rows={10}
                 rowsPerPageOptions={[5, 10, 25]}
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} cargos"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Marcas"
                 globalFilter={globalFilter}
                 header={header}
-                emptyMessage="No cargos found."
+                emptyMessage="No Marcas found."
                 rowClassName={rowClassName}
               >
                 <Column selectionMode="multiple" exportable={false}></Column>
-                <Column field="idMetodo" header="ID" sortable></Column>
+                <Column field="idMarca" header="ID" sortable></Column>
                 <Column
-                  field="nombreMetodo"
-                  header="Metodo Pago"
+                  field="nombreMarca"
+                  header="Nombre Marca"
                   sortable
                 ></Column>
                 <Column
-                  field="estadoMetodo"
+                  field="estadoMarca"
                   header="Estado"
                   body={statusBodyTemplate}
                   sortable
@@ -373,26 +366,26 @@ export default function ProductsDemo() {
             <Dialog
               visible={productDialog}
               style={{ width: "450px" }}
-              header="Metodo Pagos Details"
+              header="Marcas Details"
               modal
               className="p-fluid"
               footer={productDialogFooter}
               onHide={hideDialog}
             >
               <div className="field">
-                <label htmlFor="nombreMetodo">Metodo Pago</label>
+                <label htmlFor="nombreMarca">Nombre Marcas</label>
                 <InputText
-                  id="nombreMetodo"
-                  value={product.nombreMetodo}
-                  onChange={(e) => onInputChange(e, "nombreMetodo")}
+                  id="nombreMarca"
+                  value={product.nombreMarca}
+                  onChange={(e) => onInputChange(e, "nombreMarca")}
                   required
                   autoFocus
                   className={classNames({
-                    "p-invalid": submitted && !product.nombreMetodo,
+                    "p-invalid": submitted && !product.nombreMarca,
                   })}
                 />
-                {submitted && !product.nombreMetodo && (
-                  <small className="p-error">Metodo Pago is required.</small>
+                {submitted && !product.nombreMarca && (
+                  <small className="p-error">Nombre Marca is required.</small>
                 )}
               </div>
             </Dialog>
@@ -412,8 +405,8 @@ export default function ProductsDemo() {
                 />
                 {product && (
                   <span>
-                    Are you sure you want to delete the cargo{" "}
-                    <b>{product.nombreMetodo}</b>?
+                    Are you sure you want to delete the Marca{" "}
+                    <b>{product.nombreMarca}</b>?
                   </span>
                 )}
               </div>

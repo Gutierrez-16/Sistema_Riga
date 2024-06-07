@@ -63,7 +63,7 @@ public class LineaRepository implements ILineaRepositry{
 
     @Override
     public String activateLinea(int id) {
-        jdbcTemplate.update("UPDATE Linea SET EstadoEmpleado = '1' WHERE IDLinea = ?;", id);
+        jdbcTemplate.update("UPDATE Linea SET EstadoLinea = '1' WHERE IDLinea = ?;", id);
         return "lineaModel";
     }
 

@@ -60,4 +60,9 @@ public class UnidadMedidaRepository implements IUnidadMedidaRepositry{
                     return unidadMedidaModel;
                 });
     }
+    @Override
+    public String activateUnidadMedida(int id) {
+        jdbcTemplate.update("UPDATE UnidadMedida SET EstadoUnidadMedida = '1' WHERE IDUnidadMedida = ?;", id);
+        return "unidadMedidaModel";
+    }
 }
