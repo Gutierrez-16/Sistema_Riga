@@ -51,7 +51,7 @@ public class LineaRepository implements ILineaRepositry{
 
     @Override
     public List<LineaModel> getAllLineas() {
-        return jdbcTemplate.query("EXEC SP_CRUD_Linea @Operation = 'R'",
+        return jdbcTemplate.query("SELECT * FROM Linea;",
                 (rs, rowNum) -> {
                     LineaModel lineaModel = new LineaModel();
                     lineaModel.setIdLinea(rs.getInt(1));

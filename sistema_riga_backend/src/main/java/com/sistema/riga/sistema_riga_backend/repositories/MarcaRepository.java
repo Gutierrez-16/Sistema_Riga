@@ -51,7 +51,7 @@ public class MarcaRepository implements IMarcaRepositry{
 
     @Override
     public List<MarcaModel> getAllMarcas() {
-        return jdbcTemplate.query("EXEC SP_CRUD_Marca @Operation = 'R'",
+        return jdbcTemplate.query("SELECT * FROM Marca",
                 (rs, rowNum) -> {
                     MarcaModel marcaModel = new MarcaModel();
                     marcaModel.setIdMarca(rs.getInt(1));

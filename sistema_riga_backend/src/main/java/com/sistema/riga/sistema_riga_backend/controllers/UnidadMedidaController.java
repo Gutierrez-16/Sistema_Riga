@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/unidadMedida")
+@RequestMapping("/unidadmedida")
 public class UnidadMedidaController {
     @Autowired
     private IUnidadMedidaService iUnidadMedidaService;

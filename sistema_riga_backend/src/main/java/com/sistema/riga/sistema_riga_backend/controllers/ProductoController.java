@@ -16,6 +16,7 @@ public class ProductoController {
     @Autowired
     private IProductoService iProductoService;
 
+
     @GetMapping
     public List<ProductoModel> getAllProductos() {
         return iProductoService.getAllProductos();

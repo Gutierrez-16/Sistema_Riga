@@ -51,7 +51,7 @@ public class CategoriaRepository implements ICategoriaRepositry{
 
     @Override
     public List<CategoriaModel> getAllCategorias() {
-        return jdbcTemplate.query("EXEC [SP_CRUD_Categoria] @Operation = 'R'",
+        return jdbcTemplate.query("SELECT * FROM Categoria;",
                 (rs, rowNum) -> {
                     CategoriaModel categoriaModel = new CategoriaModel();
                     categoriaModel.setIdCategoria(rs.getInt(1));
