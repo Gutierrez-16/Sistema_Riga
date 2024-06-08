@@ -16,7 +16,7 @@ import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { TbArrowZigZag } from "react-icons/tb";
 
-import { Stomp } from "@stomp/stompjs";
+
 
 import { FileUpload } from "primereact/fileupload";
 
@@ -24,8 +24,8 @@ import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 
 import { Image } from "primereact/image";
-
 import "primeicons/primeicons.css";
+import apiClient from "../Security/apiClient";
 
 export default function Producto() {
   let emptyProducto = {
@@ -55,6 +55,11 @@ export default function Producto() {
     idMarca: "",
   });
 
+
+  const getToken = () => {
+    return localStorage.getItem('token');
+  };
+  const token = getToken();
   const [selectedProductos, setSelectedProductos] = useState([]);
 
   const [submitted, setSubmitted] = useState(false);
@@ -115,9 +120,7 @@ export default function Producto() {
 
   const fetchCategorias = async () => {
     try {
-      const response = await fetch("http://localhost:8080/categoria");
-      if (!response.ok) throw new Error("Error al obtener categorias");
-      const data = await response.json();
+      const data = await apiClient.get("http://localhost:8080/categoria");
       setCategorias(data);
     } catch (error) {
       console.error(error);
@@ -126,9 +129,7 @@ export default function Producto() {
 
   const fetchUnidadMedidas = async () => {
     try {
-      const response = await fetch("http://localhost:8080/unidadmedida");
-      if (!response.ok) throw new Error("Error al obtener unidades de medida");
-      const data = await response.json();
+      const data = await apiClient.get("http://localhost:8080/unidadmedida");
       setUnidadmedidas(data);
     } catch (error) {
       console.error(error);
@@ -137,9 +138,7 @@ export default function Producto() {
 
   const fetchLineas = async () => {
     try {
-      const response = await fetch("http://localhost:8080/linea");
-      if (!response.ok) throw new Error("Error al obtener lineas");
-      const data = await response.json();
+      const data = await apiClient.get("http://localhost:8080/linea");
       setLineas(data);
     } catch (error) {
       console.error(error);
@@ -148,9 +147,7 @@ export default function Producto() {
 
   const fetchMarcas = async () => {
     try {
-      const response = await fetch("http://localhost:8080/marca");
-      if (!response.ok) throw new Error("Error al obtener marcas");
-      const data = await response.json();
+      const data = await apiClient.get("http://localhost:8080/marca");
       setMarcas(data);
     } catch (error) {
       console.error(error);
@@ -159,7 +156,11 @@ export default function Producto() {
 
   const fetchProductos = async () => {
     try {
-      const response = await fetch("http://localhost:8080/products");
+      const response = await fetch("http://localhost:8080/products", {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) throw new Error("Error al obtener productos");
       const data = await response.json();
       setProductos(data);
@@ -167,6 +168,7 @@ export default function Producto() {
       console.error(error);
     }
   };
+  
 
   const openNew = () => {
     setProducto(emptyProducto);
@@ -218,9 +220,13 @@ export default function Producto() {
         : "http://localhost:8080/products/prueba";
 
       try {
+        console.log(formData)
         const response = await fetch(url, {
           method,
           body: formData,
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
 
         if (!response.ok) throw new Error("Error al guardar el producto");

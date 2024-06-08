@@ -98,11 +98,7 @@ const SalesComponent = () => {
         await Promise.all(
           salesDetails.map(async (detalle) => {
             // Crear un objeto con los datos del detalle del pedido
-<<<<<<< HEAD
             console.log(detalle);
-=======
-
->>>>>>> refs/remotes/origin/master
             const detallePedidoData = {
               idPedido: pedidoId,
               idProducto: detalle.productId,
@@ -124,10 +120,7 @@ const SalesComponent = () => {
               }
             );
 
-<<<<<<< HEAD
             console.log("detalle");
-=======
->>>>>>> refs/remotes/origin/master
             if (!detallePedidoResponse.ok) {
               throw new Error("Error al insertar los detalles del pedido.");
             }
@@ -148,10 +141,7 @@ const SalesComponent = () => {
         let tipoComprobante;
         if (saleType === "boleta") {
           tipoComprobante = "B";
-<<<<<<< HEAD
           console.log(tipoComprobante);
-=======
->>>>>>> refs/remotes/origin/master
         } else if (saleType === "factura") {
           tipoComprobante = "F";
         } else {
@@ -215,11 +205,7 @@ const SalesComponent = () => {
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
-<<<<<<< HEAD
     console.log(product.idProducto);
-=======
-
->>>>>>> refs/remotes/origin/master
     const newSale = {
       productId: product.idProducto,
       productName: product.nombreProd,

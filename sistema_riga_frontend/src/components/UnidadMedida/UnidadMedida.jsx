@@ -39,7 +39,7 @@ export default function ProductsDemo() {
 
   const fetchUnidadMedidas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/unidadMedida");
+      const data = await apiClient.get("http://localhost:8080/unidadmedida");
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -52,8 +52,8 @@ export default function ProductsDemo() {
     if (product.nombreUnidadMedida.trim()) {
       const method = product.idUnidadMedida ? "PUT" : "POST";
       const url = product.idUnidadMedida
-        ? `http://localhost:8080/unidadMedida/${product.idUnidadMedida}`
-        : "http://localhost:8080/unidadMedida";
+        ? `http://localhost:8080/unidadmedida/${product.idUnidadMedida}`
+        : "http://localhost:8080/unidadmedida";
 
       try {
         await apiClient[method.toLowerCase()](url, product);
@@ -86,7 +86,7 @@ export default function ProductsDemo() {
     if (product.idUnidadMedida) {
       try {
         await apiClient.del(
-          `http://localhost:8080/unidadMedida/${product.idUnidadMedida}`,
+          `http://localhost:8080/unidadmedida/${product.idUnidadMedida}`,
           "DELETE"
         );
         setDeleteProductDialog(false);
@@ -104,7 +104,7 @@ export default function ProductsDemo() {
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/unidadMedida/${prod.idUnidadMedida}`, "DELETE")
+          apiClient.del(`http://localhost:8080/unidadmedida/${prod.idUnidadMedida}`, "DELETE")
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -150,7 +150,7 @@ export default function ProductsDemo() {
 
   const activateUnidadMedida = async (id) => {
     try {
-      await apiClient.patch(`http://localhost:8080/unidadMedida/${id}`);
+      await apiClient.patch(`http://localhost:8080/unidadmedida/${id}`);
       fetchUnidadMedidas();
       toast.current.show({
         severity: "success",
@@ -167,7 +167,7 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/unidadMedida/${prod.idUnidadMedida}`)
+          apiClient.patch(`http://localhost:8080/unidadmedida/${prod.idUnidadMedida}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);
