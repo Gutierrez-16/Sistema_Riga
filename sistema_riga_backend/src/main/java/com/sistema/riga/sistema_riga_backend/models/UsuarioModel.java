@@ -8,4 +8,6 @@ public class UsuarioModel {
     private String username;
     private String password;
     private String estadoUsuario;
+    private int idEmpleado;
+    private int idTipoUsuario;
 }

@@ -14,4 +14,5 @@ public interface IEmpleadoRepositry {
     String deleteEmpleado(int id);
     List<CargoModel> getAllCargos();
     List<PersonaModel> getAllPersonas();
+    String activateEmpleado(int id);
 }

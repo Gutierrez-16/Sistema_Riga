@@ -13,8 +13,11 @@ public class EmpresaRepository implements IEmpresaRepositry{
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Override
     public String insertEmpresa(EmpresaModel empresaModel) {
+        if (empresaModel.getRuc().length() > 11) {
+            throw new IllegalArgumentException("RUC cannot exceed 11 characters");
+        }
+        empresaModel.setRuc(empresaModel.getRuc().substring(0, 11));
         jdbcTemplate.update("EXEC SP_CRUD_Empresa @RUC = ?, @RazonSocial = ?," +
                         " @Direccion = ?, @IDDistrito = ?, @Operation = 'C'",
                 empresaModel.getRuc(),
@@ -23,6 +26,7 @@ public class EmpresaRepository implements IEmpresaRepositry{
                 empresaModel.getIdDistrito());
         return "empresaModel";
     }
+
 
 
     @Override
@@ -62,7 +66,7 @@ public class EmpresaRepository implements IEmpresaRepositry{
 
     @Override
     public List<EmpresaModel> getAllEmpresas() {
-        return jdbcTemplate.query("SELECT * FROM Empresa",
+        return jdbcTemplate.query("EXEC SP_CRUD_Empresa @Operation = 'R'",
                 (rs, rowNum) -> {
                     EmpresaModel empresaModel = new EmpresaModel();
                     empresaModel.setIdEmpresa(rs.getInt("IDEmpresa"));
@@ -75,5 +79,10 @@ public class EmpresaRepository implements IEmpresaRepositry{
                 });
     }
 
+    @Override
+    public String activateEmpresa(int id) {
+        jdbcTemplate.update("UPDATE Empresa SET estadoEmpresa = '1' WHERE idEmpresa = ?;", id);
+        return "empresaModel";
+    }
 
 }

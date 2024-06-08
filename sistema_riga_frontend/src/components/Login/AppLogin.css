@@ -1,0 +1,69 @@
+/* Aseguramos que la página esté dividida en dos partes iguales */
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.globallogin {
+    display: flex;
+    height: 100vh;
+    /* Ocupa toda la altura de la pantalla */
+}
+
+.globallogin .flex {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    box-sizing: border-box;
+    overflow: hidden;
+
+}
+
+.globallogin .surface-card {
+    width: 100%;
+    max-width: 450px;
+    overflow: hidden;
+}
+
+.imgcontainer {
+    width: 50%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.galleria-container {
+    width: 100%;
+}
+
+.p-galleria-thumbnail-container {
+    display: none;
+}
+
+.password-toggle {
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+@media screen and (max-width: 991px) {
+
+    .globallogin .flex,
+    .globallogin .imgcontainer {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .globallogin .imgcontainer {
+        display: none;
+    }
+}

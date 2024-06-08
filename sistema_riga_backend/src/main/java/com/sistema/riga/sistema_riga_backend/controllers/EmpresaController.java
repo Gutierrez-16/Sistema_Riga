@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/empresa")
-@CrossOrigin(origins = "http://localhost:5173")
 public class EmpresaController {
     @Autowired
     private IEmpresaService iEmpresaService;
@@ -17,6 +16,7 @@ public class EmpresaController {
     @GetMapping
     public List<EmpresaModel> getAllEmpresas() {
         return iEmpresaService.getAllEmpresas();
+
     }
 
     @GetMapping("/{id}")
@@ -38,5 +38,10 @@ public class EmpresaController {
     @DeleteMapping("/{id}")
     public String deleteEmpresa(@PathVariable int id) {
         return iEmpresaService.deleteEmpresa(id);
+    }
+
+    @PatchMapping("{id}")
+    public String activateEmpresa(@PathVariable int id){
+        return iEmpresaService.activateEmpresa(id);
     }
 }

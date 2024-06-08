@@ -15,4 +15,5 @@ public interface IEmpleadoService {
     String deleteEmpleado(int id);
     List<CargoModel> getAllCargos();
     List<PersonaModel> getAllPersonas();
+    String activateEmpleado(int id);
 }
