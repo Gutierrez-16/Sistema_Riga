@@ -16,6 +16,7 @@ public class ProductoController {
     @Autowired
     private IProductoService iProductoService;
 
+
     @GetMapping
     public List<ProductoModel> getAllProductos() {
         return iProductoService.getAllProductos();
@@ -44,14 +45,14 @@ public class ProductoController {
 
     @PostMapping("/prueba")
     public String insertProducto1(
-            @RequestParam("nombre") String nombre,
-            @RequestParam("precio") double precio,
+            @RequestParam("nombreProd") String nombre,
+            @RequestParam("precioUnit") double precio,
             @RequestPart("imagen") MultipartFile image,
             @RequestParam("descripcion") String descripcion,
-            @RequestParam("categoria") int categoria,
-            @RequestParam("unidad") int unidad,
-            @RequestParam("linea") int linea,
-            @RequestParam("marca") int marca){
+            @RequestParam("idCategoria") int categoria,
+            @RequestParam("idUnidadMedida") int unidad,
+            @RequestParam("idLinea") int linea,
+            @RequestParam("idMarca") int marca){
 
         try {
             byte[] bytes = image.getBytes();
@@ -75,16 +76,41 @@ public class ProductoController {
         }
     }
 
-
-
-    @PutMapping("/{id}")
-    public String updateProducto(@PathVariable int id, @RequestBody ProductoModel productoModel) {
+    @PutMapping("/prueba/{id}")
+    public String updateProducto(@PathVariable int id,
+                                 @RequestParam("nombreProd") String nombre,
+                                 @RequestParam("precioUnit") double precio,
+                                 @RequestPart("imagen") MultipartFile image,
+                                 @RequestParam("descripcion") String descripcion,
+                                 @RequestParam("idCategoria") int categoria,
+                                 @RequestParam("idUnidadMedida") int unidad,
+                                 @RequestParam("idLinea") int linea,
+                                 @RequestParam("idMarca") int marca) throws IOException {
+        ProductoModel productoModel = new ProductoModel();
         productoModel.setIdProducto(id);
-        return iProductoService.updateProducto(productoModel);
+        byte[] bytes = image.getBytes();
+
+        productoModel.setNombreProd(nombre);
+        productoModel.setPrecioUnit(precio);
+        productoModel.setImagen(bytes);
+        productoModel.setDescripcion(descripcion);
+        productoModel.setIdCategoria(categoria);
+        productoModel.setIdUnidadMedida(unidad);
+        productoModel.setIdLinea(linea);
+        productoModel.setIdMarca(marca);
+
+        iProductoService.updateProducto(productoModel);
+
+        return "ACTUALIZADO";
     }
 
     @DeleteMapping("/{id}")
     public String deleteProducto(@PathVariable int id) {
         return iProductoService.deleteProducto(id);
+    }
+
+    @PatchMapping("{id}")
+    public String activatePersona(@PathVariable int id){
+        return iProductoService.activateProducto(id);
     }
 }

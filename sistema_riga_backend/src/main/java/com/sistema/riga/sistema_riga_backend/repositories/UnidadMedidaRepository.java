@@ -51,7 +51,7 @@ public class UnidadMedidaRepository implements IUnidadMedidaRepositry{
 
     @Override
     public List<UnidadMedidaModel> getAllUnidadMedidas() {
-        return jdbcTemplate.query("EXEC SP_CRUD_UnidadMedida @Operation = 'R'",
+        return jdbcTemplate.query("SELECT * FROM UnidadMedida;",
                 (rs, rowNum) -> {
                     UnidadMedidaModel unidadMedidaModel = new UnidadMedidaModel();
                     unidadMedidaModel.setIdUnidadMedida(rs.getInt(1));
@@ -59,5 +59,10 @@ public class UnidadMedidaRepository implements IUnidadMedidaRepositry{
                     unidadMedidaModel.setEstadoUnidadMedida(rs.getString(3));
                     return unidadMedidaModel;
                 });
+    }
+    @Override
+    public String activateUnidadMedida(int id) {
+        jdbcTemplate.update("UPDATE UnidadMedida SET EstadoUnidadMedida = '1' WHERE IDUnidadMedida = ?;", id);
+        return "unidadMedidaModel";
     }
 }

@@ -37,4 +37,9 @@ public class LineaService implements ILineaService {
     public String deleteLinea(int id) {
         return iLineaRepositry.deleteLinea(id);
     }
+
+    @Override
+    public String activateLinea(int id) {
+        return iLineaRepositry.activateLinea(id);
+    }
 }

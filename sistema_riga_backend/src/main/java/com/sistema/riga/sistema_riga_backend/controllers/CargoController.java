@@ -38,4 +38,9 @@ public class CargoController {
     public String deleteCargo(@PathVariable int id) {
         return iCargoService.deleteCargo(id);
     }
+
+    @PatchMapping("{id}")
+    public String activateCargo(@PathVariable int id){
+        return iCargoService.activateCargo(id);
+    }
 }
