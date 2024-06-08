@@ -35,6 +35,7 @@ const SalesComponent = () => {
   const [serieNumero, setSerieNumero] = useState("000001");
   const [dialogVisible, setDialogVisible] = useState(false);
   const [persons, setPersons] = useState([]); // State para almacenar los clientes
+  const [companies, setCompanies] = useState([]); // State para almacenar las empresas
   const [products, setProducts] = useState([]); // State para almacenar los clientes
   const [productsDialogVisible, setProductsDialogVisible] = useState(false);
   const [selectedPersonName, setSelectedPersonName] = useState(""); // Paso 1: Estado para almacenar el nombre del cliente seleccionado
@@ -45,7 +46,7 @@ const SalesComponent = () => {
   // Función para manejar la selección de cliente
 
   useEffect(() => {
-    fetchPersons(); // Cargar clientes cuando el componente se monta
+    fetchClients(); // Cargar clientes cuando el componente se monta
     generateSerieNumero();
     fetchProducts();
   }, []);
@@ -62,12 +63,15 @@ const SalesComponent = () => {
   const token = getToken();
 
   // Función para cargar los clientes desde la API
-  const fetchPersons = async () => {
+  const fetchClients = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/person");
-      setPersons(data);
+      const personsData = await apiClient.get("http://localhost:8080/person");
+      setPersons(personsData);
+
+      const companiesData = await apiClient.get("http://localhost:8080/empresa");
+      setCompanies(companiesData);
     } catch (error) {
-      console.error("Error fetching persons:", error);
+      console.error("Error fetching clients:", error);
     }
   };
 
@@ -114,6 +118,40 @@ const SalesComponent = () => {
 
             // Obtener el ID del pedido insertado
             const pedidoId = await pedidoResponse.json();
+
+            await Promise.all(
+              salesDetails.map(async (detalle) => {
+                // Crear un objeto con los datos del detalle del pedido
+                console.log(detalle);
+                const detallePedidoData = {
+                  idPedido: pedidoId,
+                  idProducto: detalle.productId,
+                  cantidad: detalle.quantity,
+                  precio: detalle.price,
+                  idUsuario: id,
+                  // Otros campos que puedas necesitar para el detalle del pedido
+                };
+    
+                // Enviar la solicitud para insertar el detalle del pedido
+                const detallePedidoResponse = await fetch(
+                  `http://localhost:8080/detallepedido/${pedidoId}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${token}`
+
+                    },
+                    body: JSON.stringify(detallePedidoData),
+                  }
+                );
+    
+                console.log("detalle");
+                if (!detallePedidoResponse.ok) {
+                  throw new Error("Error al insertar los detalles del pedido.");
+                }
+              })
+            );
 
             // Crear un objeto con los datos de la venta
             const subtotal = salesDetails.reduce((total, sale) => {
@@ -215,6 +253,12 @@ const SalesComponent = () => {
     setDialogVisible(false); // Cerrar el diálogo después de seleccionar un cliente
   };
 
+  const handleCompanySelect = (company) => {
+    setSelectedPerson(company.idEmpresa);
+    setSelectedPersonName(company.razonSocial);
+    setDialogVisible(false); // Cerrar el diálogo después de seleccionar una empresa
+  };
+
   const handleAddSale = (e) => {
     e.preventDefault();
     if (selectedProduct) {
@@ -288,11 +332,13 @@ const SalesComponent = () => {
               onSelectProduct={handleProductSelect}
               products={products} // Pasar los productos generados aleatoriamente
             />
-            <PersonDialog // Diálogo para seleccionar clientes
+            <PersonDialog // Diálogo para seleccionar clientes o empresas
               visible={dialogVisible}
               onHide={() => setDialogVisible(false)}
               onSelectPerson={handlePersonSelect}
-              persons={persons} // Pasar la lista de personas obtenidas de la API
+              onSelectCompany={handleCompanySelect} // Pasar la función de selección de empresas
+              data={saleType === "boleta" ? persons : companies} // Pasar la lista de personas o empresas según el tipo de comprobante
+              isPerson={saleType === "boleta"} // Pasar un flag indicando si se trata de personas o empresas
             />
             <SalesTable
               salesDetails={salesDetails}
@@ -433,22 +479,22 @@ const ProductDialog = ({ visible, onHide, onSelectProduct, products }) => {
   );
 };
 
-const PersonDialog = ({ visible, onHide, onSelectPerson, persons }) => {
+const PersonDialog = ({ visible, onHide, onSelectPerson, onSelectCompany, data, isPerson }) => {
   const [searchText, setSearchText] = useState("");
-  const filteredPersons = persons.filter((person) =>
-    person.nombrePersona.toLowerCase().includes(searchText.toLowerCase())
+  const filteredData = data.filter((item) =>
+    (isPerson ? item.nombrePersona : item.razonSocial).toLowerCase().includes(searchText.toLowerCase())
   );
 
   const [globalFilter, setGlobalFilter] = useState(null);
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <h4 className="m-0">Manage Persons</h4>
+      <h4 className="m-0">{isPerson ? "Seleccionar Cliente" : "Seleccionar Empresa"}</h4>
       <IconField iconPosition="left">
         <InputIcon className="pi pi-search" />
         <InputText
           type="search"
           onInput={(e) => setGlobalFilter(e.target.value)}
-          placeholder="Search..."
+          placeholder="Buscar..."
         />
       </IconField>
     </div>
@@ -456,7 +502,7 @@ const PersonDialog = ({ visible, onHide, onSelectPerson, persons }) => {
 
   return (
     <Dialog
-      header="Seleccionar Cliente"
+      header={isPerson ? "Seleccionar Cliente" : "Seleccionar Empresa"}
       visible={visible}
       style={{ width: "75vw" }}
       maximizable
@@ -464,19 +510,18 @@ const PersonDialog = ({ visible, onHide, onSelectPerson, persons }) => {
       onHide={onHide}
     >
       <DataTable
-        value={filteredPersons}
+        value={filteredData}
         selectionMode="single"
-        onRowSelect={(e) => onSelectPerson(e.data)}
-        dataKey="idPersona"
+        onRowSelect={(e) => isPerson ? onSelectPerson(e.data) : onSelectCompany(e.data)}
+        dataKey={isPerson ? "idPersona" : "idEmpresa"}
         header={header}
         paginator
         rows={10}
-        emptyMessage="No se encontraron personas"
-        globalFilter={globalFilter} // Asegúrate de agregar el filtro global aquí
+        emptyMessage={isPerson ? "No se encontraron clientes" : "No se encontraron empresas"}
+        globalFilter={globalFilter}
       >
-        <Column field="idPersona" header="Nombre" sortable />
-        <Column field="nombrePersona" header="Nombre" sortable />
-        <Column field="email" header="Email" />
+        <Column field={isPerson ? "nombrePersona" : "razonSocial"} header="Nombre" sortable />
+        <Column field={isPerson ? "correo" : "ruc"} header={isPerson ? "correo" : "ruc"} sortable />
       </DataTable>
 
       <Button
