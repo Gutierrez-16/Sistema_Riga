@@ -17,6 +17,10 @@ import { InputIcon } from "primereact/inputicon";
 import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 
+import DataUsuario from "../Usuario/DataUsuario";
+
+import apiClient from "../Security/apiClient";
+
 import { Row } from "primereact/row";
 
 import "./VentaStyle.css";
@@ -35,6 +39,9 @@ const SalesComponent = () => {
   const [productsDialogVisible, setProductsDialogVisible] = useState(false);
   const [selectedPersonName, setSelectedPersonName] = useState(""); // Paso 1: Estado para almacenar el nombre del cliente seleccionado
 
+  const [id, setId] = useState("");
+
+
   // Función para manejar la selección de cliente
 
   useEffect(() => {
@@ -43,11 +50,21 @@ const SalesComponent = () => {
     fetchProducts();
   }, []);
 
+  const handleUserDataReceived = (userData) => {
+    console.log("Datos del usuario recibidos:", userData);
+    console.log("ID: ", userData.idUsuario);
+    setId(userData.idUsuario);
+  };
+
+  const getToken = () => {
+    return localStorage.getItem('token');
+  };
+  const token = getToken();
+
   // Función para cargar los clientes desde la API
   const fetchPersons = async () => {
     try {
-      const response = await fetch("http://localhost:8080/person");
-      const data = await response.json();
+      const data = await apiClient.get("http://localhost:8080/person");
       setPersons(data);
     } catch (error) {
       console.error("Error fetching persons:", error);
@@ -56,8 +73,7 @@ const SalesComponent = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:8080/products");
-      const data = await response.json();
+      const data = await apiClient.get("http://localhost:8080/products");
       setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -78,11 +94,14 @@ const SalesComponent = () => {
           // Otros campos que puedas necesitar para el pedido
         };
 
+        console.log("TU TOKEN:", token)
+
         // Enviar la solicitud para insertar el pedido
         const pedidoResponse = await fetch("http://localhost:8080/pedido", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify(pedidoData),
         });
@@ -104,7 +123,7 @@ const SalesComponent = () => {
               idProducto: detalle.productId,
               cantidad: detalle.quantity,
               precio: detalle.price,
-              idUsuario: 16,
+              idUsuario: id,
               // Otros campos que puedas necesitar para el detalle del pedido
             };
 
@@ -115,6 +134,8 @@ const SalesComponent = () => {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
+                  'Authorization': `Bearer ${token}`
+
                 },
                 body: JSON.stringify(detallePedidoData),
               }
@@ -159,15 +180,19 @@ const SalesComponent = () => {
           tipoComprobante: tipoComprobante, // Asignar el valor correspondiente a tipoComprobante
           idCliente: selectedPerson,
           idPedido: pedidoId,
-          idUsuario: 16,
+          idUsuario: id,
           idMetodoPago: 1,
         };
+
+        console.log(ventaData)
 
         // Enviar la solicitud para insertar la venta
         const ventaResponse = await fetch("http://localhost:8080/venta", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
+
           },
           body: JSON.stringify(ventaData),
         });
@@ -507,6 +532,12 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
   const totalDescuento = subtotal * (descuento / 100); // Descuento total
   const totalPagar = subtotal + igv - totalDescuento; // Total a pagar
 
+  const handleUserDataReceived = (userData) => {
+    console.log("Datos del usuario recibidos:", userData);
+    console.log("ID: ", userData.idUsuario);
+    setId(userData.idUsuario);
+  };
+
   const footerGroup = (
     <ColumnGroup>
       <Row>
@@ -562,6 +593,11 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
 
   return (
     <div className="">
+      <div>
+                {/* Otro contenido */}
+                <DataUsuario onUserDataReceived={handleUserDataReceived} />
+                {/* Otro contenido */}
+              </div>
       <DataTable
         value={salesDetails}
         footerColumnGroup={footerGroup}

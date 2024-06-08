@@ -61,7 +61,7 @@ export default function Producto() {
   };
   const token = getToken();
   const [selectedProductos, setSelectedProductos] = useState([]);
-
+  const [globalFilter, setGlobalFilter] = useState(null);
   const [submitted, setSubmitted] = useState(false);
 
   const [newProductoDialog, setNewProductoDialog] = useState(false);
@@ -168,7 +168,7 @@ export default function Producto() {
       console.error(error);
     }
   };
-  
+
 
   const openNew = () => {
     setProducto(emptyProducto);
@@ -324,6 +324,9 @@ export default function Producto() {
           `http://localhost:8080/products/${rowData.idProducto}`,
           {
             method: "PATCH",
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
           }
         );
         if (!response.ok) throw new Error("Error al actualizar el producto");
@@ -343,6 +346,9 @@ export default function Producto() {
         const activatePromises = selectedProductos.map((producto) =>
           fetch(`http://localhost:8080/products/${producto.idProducto}`, {
             method: "PATCH",
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
           })
         );
         await Promise.all(activatePromises);
@@ -370,14 +376,19 @@ export default function Producto() {
       try {
         const response = await fetch(
           `http://localhost:8080/products/${producto.idProducto}`,
-          { method: "DELETE" }
+          {
+            method: "DELETE",
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
         );
         if (!response.ok) throw new Error("Error al eliminar el producto");
         setDeleteProductoDialog(false);
         setProducto(emptyProducto);
         fetchProductos();
         toast.current.show({
-          severity: "success",
+          severity: "error",
           summary: "Successful",
           detail: "Producto Eliminado",
           life: 3000,
@@ -390,6 +401,9 @@ export default function Producto() {
         const deletePromises = selectedProductos.map((producto) =>
           fetch(`http://localhost:8080/products/${producto.idProducto}`, {
             method: "DELETE",
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
           })
         );
         await Promise.all(deletePromises);
@@ -397,7 +411,7 @@ export default function Producto() {
         setSelectedProductos(null);
         fetchProductos();
         toast.current.show({
-          severity: "success",
+          severity: "error",
           summary: "Successful",
           detail: "Productos Eliminados",
           life: 3000,
@@ -547,6 +561,14 @@ export default function Producto() {
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
       <h4 className="m-0">Manage Productos</h4>
+      <IconField iconPosition="left">
+        <InputIcon className="pi pi-search" />
+        <InputText
+          type="search"
+          onInput={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Search..."
+        />
+      </IconField>
     </div>
   );
 
@@ -619,6 +641,8 @@ export default function Producto() {
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} productos"
             header={header}
             responsiveLayout="scroll"
+            globalFilter={globalFilter}
+            emptyMessage="No productos found."
           >
             <Column selectionMode="multiple" exportable={false}></Column>
             <Column field="idProducto" header="ID" sortable></Column>
