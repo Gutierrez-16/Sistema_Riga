@@ -197,7 +197,7 @@ export default function Producto() {
   const saveProducto = async () => {
     setSubmitted(true);
     if (producto.nombreProd.trim() && imagen) {
-      // Asegúrate de que haya una imagen seleccionada
+      // AsegÃºrate de que haya una imagen seleccionada
       const method = producto.idProducto ? "PUT" : "POST";
       const formData = new FormData();
       formData.append("nombreProd", producto.nombreProd);
@@ -630,7 +630,7 @@ export default function Producto() {
               header="IMAGEN"
               sortable
             ></Column>
-            <Column field="descripcion" header="DESCRIPCIÓN" sortable></Column>
+            <Column field="descripcion" header="DESCRIPCIÃ“N" sortable></Column>
             <Column
               field="estadoProducto"
               header="ESTADO"
@@ -740,7 +740,7 @@ export default function Producto() {
 
             <div className="field">
               <label className="font-bold" htmlFor="descripcion">
-                Descripción
+                DescripciÃ³n
               </label>
               <InputText
                 id="descripcion"
@@ -752,7 +752,7 @@ export default function Producto() {
                 })}
               />
               {submitted && !producto.descripcion && (
-                <small className="p-error">Descripción es requerido.</small>
+                <small className="p-error">DescripciÃ³n es requerido.</small>
               )}
             </div>
 
