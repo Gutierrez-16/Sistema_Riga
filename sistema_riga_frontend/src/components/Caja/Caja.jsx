@@ -124,7 +124,7 @@ export default function ProductsDemo() {
                 });
             }
         }
-    };z
+    };
     
     
 
