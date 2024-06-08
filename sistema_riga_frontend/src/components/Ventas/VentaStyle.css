@@ -1,0 +1,31 @@
+.sales-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    grid-template-rows: auto 1fr; /* Agrega una fila automática para el primer panel y una fila flexible para los otros dos */
+
+    gap: 1rem;
+  }
+  
+  
+  .sales-grid > .p-panel {
+      border-radius: 15px;
+  }
+  
+  .sales-grid > .p-panel:nth-child(1) {
+      grid-column: span 2;
+  }
+  
+  @media screen and (max-width: 768px) {
+      .sales-grid {
+        display: flex;
+        flex-direction: column;
+      }
+    
+      .p-panel {
+        margin-top: 20px; /* Espacio entre los paneles */
+      }
+    }
+
+      .p-panel {
+        margin-top: 20px; 
+    }

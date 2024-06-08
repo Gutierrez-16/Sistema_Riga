@@ -10,4 +10,6 @@ public interface ICargoRepositry {
     String insertCargo(CargoModel cargoModel);
     String updateCargo(CargoModel cargoModel);
     String deleteCargo(int id);
+
+    String activateCargo(int id);
 }

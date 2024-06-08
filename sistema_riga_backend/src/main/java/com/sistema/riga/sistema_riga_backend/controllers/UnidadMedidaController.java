@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/unidadMedida")
+@RequestMapping("/unidadmedida")
 public class UnidadMedidaController {
     @Autowired
     private IUnidadMedidaService iUnidadMedidaService;
@@ -37,5 +37,10 @@ public class UnidadMedidaController {
     @DeleteMapping("/{id}")
     public String deleteUnidadMedida(@PathVariable int id) {
         return iUnidadMedidaService.deleteUnidadMedida(id);
+    }
+
+    @PatchMapping("/{id}")
+    public String activateUnidadMedida(@PathVariable int id) {
+        return iUnidadMedidaService.activateUnidadMedida(id);
     }
 }
