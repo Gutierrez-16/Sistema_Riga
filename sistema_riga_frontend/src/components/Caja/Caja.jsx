@@ -52,6 +52,8 @@ export default function ProductsDemo() {
     setId(userData.idUsuario);
   };
 
+  console.log("IDDDDD: ", id);
+
   console.log("TU ID: ");
   let emptyCaja = {
     idCaja: "",

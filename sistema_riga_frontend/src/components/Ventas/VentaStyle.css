@@ -1,11 +1,8 @@
 .sales-grid {
     display: grid;
     grid-template-columns: 3fr 2fr;
-<<<<<<< HEAD
     grid-template-rows: auto 1fr; /* Agrega una fila automática para el primer panel y una fila flexible para los otros dos */
-=======
-    grid-template-rows: auto 1fr;
->>>>>>> refs/remotes/origin/master
+
     gap: 1rem;
   }
   
@@ -23,16 +20,12 @@
         display: flex;
         flex-direction: column;
       }
-<<<<<<< HEAD
     
       .p-panel {
         margin-top: 20px; /* Espacio entre los paneles */
       }
     }
-  
-=======
+
       .p-panel {
         margin-top: 20px; 
     }
-}
->>>>>>> refs/remotes/origin/master

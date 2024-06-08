@@ -35,6 +35,7 @@ const SalesComponent = () => {
   const [serieNumero, setSerieNumero] = useState("000001");
   const [dialogVisible, setDialogVisible] = useState(false);
   const [persons, setPersons] = useState([]); // State para almacenar los clientes
+  const [companies, setCompanies] = useState([]); // State para almacenar las empresas
   const [products, setProducts] = useState([]); // State para almacenar los clientes
   const [productsDialogVisible, setProductsDialogVisible] = useState(false);
   const [selectedPersonName, setSelectedPersonName] = useState(""); // Paso 1: Estado para almacenar el nombre del cliente seleccionado
@@ -45,14 +46,14 @@ const SalesComponent = () => {
   // Función para manejar la selección de cliente
 
   useEffect(() => {
-    fetchPersons(); // Cargar clientes cuando el componente se monta
+    fetchClients(); // Cargar clientes cuando el componente se monta
     generateSerieNumero();
     fetchProducts();
   }, []);
 
   const handleUserDataReceived = (userData) => {
     console.log("Datos del usuario recibidos:", userData);
-    console.log("ID: ", userData.idUsuario);
+    console.log("IDQUE: ", userData.idUsuario);
     setId(userData.idUsuario);
   };
 
@@ -62,12 +63,15 @@ const SalesComponent = () => {
   const token = getToken();
 
   // Función para cargar los clientes desde la API
-  const fetchPersons = async () => {
+  const fetchClients = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/person");
-      setPersons(data);
+      const personsData = await apiClient.get("http://localhost:8080/person");
+      setPersons(personsData);
+
+      const companiesData = await apiClient.get("http://localhost:8080/empresa");
+      setCompanies(companiesData);
     } catch (error) {
-      console.error("Error fetching persons:", error);
+      console.error("Error fetching clients:", error);
     }
   };
 
@@ -85,148 +89,149 @@ const SalesComponent = () => {
     setSerieNumero(newSerieNumero);
   };
 
+  const [idsupremo, setIdsupremo] = useState("");
+
   const handleRealizarVenta = async () => {
     try {
-      // Verificar si selectedPerson no es null y salesDetails no está vacío
-      if (selectedPerson && salesDetails.length > 0) {
-        // Crear un objeto con los datos del pedido
-        const pedidoData = {
-          // Otros campos que puedas necesitar para el pedido
-        };
-
-        console.log("TU TOKEN:", token)
-
-        // Enviar la solicitud para insertar el pedido
-        const pedidoResponse = await fetch("http://localhost:8080/pedido", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(pedidoData),
-        });
-
-        if (!pedidoResponse.ok) {
-          throw new Error("Error al insertar el pedido.");
-        }
-
-        // Obtener el ID del pedido insertado
-        const pedidoId = await pedidoResponse.json();
-
-        // Promise.all para enviar todas las solicitudes de detalles del pedido en paralelo
-        await Promise.all(
-          salesDetails.map(async (detalle) => {
-            // Crear un objeto con los datos del detalle del pedido
-            console.log(detalle);
-            const detallePedidoData = {
-              idPedido: pedidoId,
-              idProducto: detalle.productId,
-              cantidad: detalle.quantity,
-              precio: detalle.price,
-              idUsuario: id,
-              // Otros campos que puedas necesitar para el detalle del pedido
+        // Verificar si selectedPerson no es null y salesDetails no está vacío
+        if (selectedPerson && salesDetails.length > 0) {
+            // Crear un objeto con los datos del pedido
+            const pedidoData = {
+                // Otros campos que puedas necesitar para el pedido
             };
 
-            // Enviar la solicitud para insertar el detalle del pedido
-            const detallePedidoResponse = await fetch(
-              `http://localhost:8080/detallepedido/${pedidoId}`,
-              {
+            console.log("TU TOKEN:", token)
+
+            // Enviar la solicitud para insertar el pedido
+            const pedidoResponse = await fetch("http://localhost:8080/pedido", {
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/json",
-                  'Authorization': `Bearer ${token}`
-
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(detallePedidoData),
-              }
+                body: JSON.stringify(pedidoData),
+            });
+
+            if (!pedidoResponse.ok) {
+                throw new Error("Error al insertar el pedido.");
+            }
+
+            // Obtener el ID del pedido insertado
+            const pedidoId = await pedidoResponse.json();
+
+            await Promise.all(
+              salesDetails.map(async (detalle) => {
+                // Crear un objeto con los datos del detalle del pedido
+                console.log(detalle);
+                const detallePedidoData = {
+                  idPedido: pedidoId,
+                  idProducto: detalle.productId,
+                  cantidad: detalle.quantity,
+                  precio: detalle.price,
+                  idUsuario: id,
+                  // Otros campos que puedas necesitar para el detalle del pedido
+                };
+    
+                // Enviar la solicitud para insertar el detalle del pedido
+                const detallePedidoResponse = await fetch(
+                  `http://localhost:8080/detallepedido/${pedidoId}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${token}`
+
+                    },
+                    body: JSON.stringify(detallePedidoData),
+                  }
+                );
+    
+                console.log("detalle");
+                if (!detallePedidoResponse.ok) {
+                  throw new Error("Error al insertar los detalles del pedido.");
+                }
+              })
             );
 
-            console.log("detalle");
-            if (!detallePedidoResponse.ok) {
-              throw new Error("Error al insertar los detalles del pedido.");
+            // Crear un objeto con los datos de la venta
+            const subtotal = salesDetails.reduce((total, sale) => {
+                return total + sale.quantity * sale.price;
+            }, 0);
+
+            const igv = subtotal * 0.18; // Suponiendo que el IGV es el 18% del subtotal
+            const descuento = 0; // Puedes calcular el descuento según tus necesidades
+            const totalDescuento = subtotal * (descuento / 100); // Descuento total
+            const totalPagar = subtotal + igv - totalDescuento; // Total a pagar
+
+            // Crear un objeto con los datos de la venta
+            let tipoComprobante;
+            if (saleType === "boleta") {
+                tipoComprobante = "B";
+                console.log(tipoComprobante);
+            } else if (saleType === "factura") {
+                tipoComprobante = "F";
+            } else {
+                throw new Error("Tipo de comprobante no válido.");
             }
-          })
-        );
 
-        // Crear un objeto con los datos de la venta
-        const subtotal = salesDetails.reduce((total, sale) => {
-          return total + sale.quantity * sale.price;
-        }, 0);
+            // Crear un objeto con los datos de la venta
+            const ventaData = {
+                Descuento: descuento,
+                igv: igv,
+                total: totalPagar,
+                subtotal: subtotal,
+                totaldescuento: totalDescuento,
+                totalPagar: totalPagar,
+                tipoComprobante: tipoComprobante, // Asignar el valor correspondiente a tipoComprobante
+                idCliente: selectedPerson,
+                idPedido: pedidoId,
+                idUsuario: id, // Aquí asignamos el idUsuario del estado local
+                idMetodoPago: 1,
+            };
 
-        const igv = subtotal * 0.18; // Suponiendo que el IGV es el 18% del subtotal
-        const descuento = 0; // Puedes calcular el descuento según tus necesidades
-        const totalDescuento = subtotal * (descuento / 100); // Descuento total
-        const totalPagar = subtotal + igv - totalDescuento; // Total a pagar
+            console.log(ventaData)
 
-        // Crear un objeto con los datos de la venta
-        let tipoComprobante;
-        if (saleType === "boleta") {
-          tipoComprobante = "B";
-          console.log(tipoComprobante);
-        } else if (saleType === "factura") {
-          tipoComprobante = "F";
+            // Enviar la solicitud para insertar la venta
+            const ventaResponse = await fetch("http://localhost:8080/venta", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+
+                },
+                body: JSON.stringify(ventaData),
+            });
+
+            if (!ventaResponse.ok) {
+                throw new Error("Error al insertar la venta.");
+            }
+
+            // Venta realizada con éxito
+            toast.current.show({
+                severity: "success",
+                summary: "Venta realizada",
+                detail: "La venta se realizó correctamente",
+                life: 3000,
+            });
+
+            // Limpiar los detalles de la venta después de realizarla
+            setSalesDetails([]);
         } else {
-          throw new Error("Tipo de comprobante no válido.");
+            // Manejar el caso en que no se haya seleccionado un cliente o no haya productos en la venta
+            throw new Error(
+                "Por favor, selecciona un cliente y agrega productos para realizar la venta."
+            );
         }
-
-        // Crear un objeto con los datos de la venta
-        const ventaData = {
-          Descuento: descuento,
-          igv: igv,
-          total: totalPagar,
-          subtotal: subtotal,
-          totaldescuento: totalDescuento,
-          totalPagar: totalPagar,
-          tipoComprobante: tipoComprobante, // Asignar el valor correspondiente a tipoComprobante
-          idCliente: selectedPerson,
-          idPedido: pedidoId,
-          idUsuario: id,
-          idMetodoPago: 1,
-        };
-
-        console.log(ventaData)
-
-        // Enviar la solicitud para insertar la venta
-        const ventaResponse = await fetch("http://localhost:8080/venta", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            'Authorization': `Bearer ${token}`
-
-          },
-          body: JSON.stringify(ventaData),
-        });
-
-        if (!ventaResponse.ok) {
-          throw new Error("Error al insertar la venta.");
-        }
-
-        // Venta realizada con éxito
-        toast.current.show({
-          severity: "success",
-          summary: "Venta realizada",
-          detail: "La venta se realizó correctamente",
-          life: 3000,
-        });
-
-        // Limpiar los detalles de la venta después de realizarla
-        setSalesDetails([]);
-      } else {
-        // Manejar el caso en que no se haya seleccionado un cliente o no haya productos en la venta
-        throw new Error(
-          "Por favor, selecciona un cliente y agrega productos para realizar la venta."
-        );
-      }
     } catch (error) {
-      console.error("Error realizando la venta:", error);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Error al realizar la venta",
-        life: 3000,
-      });
+        console.error("Error realizando la venta:", error);
+        toast.current.show({
+            severity: "error",
+            summary: "Error",
+            detail: "Error al realizar la venta",
+            life: 3000,
+        });
     }
-  };
+};
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
@@ -246,6 +251,12 @@ const SalesComponent = () => {
     setSelectedPerson(person.idPersona);
     setSelectedPersonName(person.nombrePersona);
     setDialogVisible(false); // Cerrar el diálogo después de seleccionar un cliente
+  };
+
+  const handleCompanySelect = (company) => {
+    setSelectedPerson(company.idEmpresa);
+    setSelectedPersonName(company.razonSocial);
+    setDialogVisible(false); // Cerrar el diálogo después de seleccionar una empresa
   };
 
   const handleAddSale = (e) => {
@@ -298,6 +309,11 @@ const SalesComponent = () => {
 
   return (
     <div className="">
+      <div>
+                {/* Otro contenido */}
+                <DataUsuario onUserDataReceived={handleUserDataReceived} />
+                {/* Otro contenido */}
+              </div>
       <div className="p-d-flex p-jc-center p-mt-5">
         <div className="sales-grid">
           <Toast ref={toast} />
@@ -316,11 +332,13 @@ const SalesComponent = () => {
               onSelectProduct={handleProductSelect}
               products={products} // Pasar los productos generados aleatoriamente
             />
-            <PersonDialog // Diálogo para seleccionar clientes
+            <PersonDialog // Diálogo para seleccionar clientes o empresas
               visible={dialogVisible}
               onHide={() => setDialogVisible(false)}
               onSelectPerson={handlePersonSelect}
-              persons={persons} // Pasar la lista de personas obtenidas de la API
+              onSelectCompany={handleCompanySelect} // Pasar la función de selección de empresas
+              data={saleType === "boleta" ? persons : companies} // Pasar la lista de personas o empresas según el tipo de comprobante
+              isPerson={saleType === "boleta"} // Pasar un flag indicando si se trata de personas o empresas
             />
             <SalesTable
               salesDetails={salesDetails}
@@ -461,22 +479,22 @@ const ProductDialog = ({ visible, onHide, onSelectProduct, products }) => {
   );
 };
 
-const PersonDialog = ({ visible, onHide, onSelectPerson, persons }) => {
+const PersonDialog = ({ visible, onHide, onSelectPerson, onSelectCompany, data, isPerson }) => {
   const [searchText, setSearchText] = useState("");
-  const filteredPersons = persons.filter((person) =>
-    person.nombrePersona.toLowerCase().includes(searchText.toLowerCase())
+  const filteredData = data.filter((item) =>
+    (isPerson ? item.nombrePersona : item.razonSocial).toLowerCase().includes(searchText.toLowerCase())
   );
 
   const [globalFilter, setGlobalFilter] = useState(null);
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <h4 className="m-0">Manage Persons</h4>
+      <h4 className="m-0">{isPerson ? "Seleccionar Cliente" : "Seleccionar Empresa"}</h4>
       <IconField iconPosition="left">
         <InputIcon className="pi pi-search" />
         <InputText
           type="search"
           onInput={(e) => setGlobalFilter(e.target.value)}
-          placeholder="Search..."
+          placeholder="Buscar..."
         />
       </IconField>
     </div>
@@ -484,7 +502,7 @@ const PersonDialog = ({ visible, onHide, onSelectPerson, persons }) => {
 
   return (
     <Dialog
-      header="Seleccionar Cliente"
+      header={isPerson ? "Seleccionar Cliente" : "Seleccionar Empresa"}
       visible={visible}
       style={{ width: "75vw" }}
       maximizable
@@ -492,19 +510,18 @@ const PersonDialog = ({ visible, onHide, onSelectPerson, persons }) => {
       onHide={onHide}
     >
       <DataTable
-        value={filteredPersons}
+        value={filteredData}
         selectionMode="single"
-        onRowSelect={(e) => onSelectPerson(e.data)}
-        dataKey="idPersona"
+        onRowSelect={(e) => isPerson ? onSelectPerson(e.data) : onSelectCompany(e.data)}
+        dataKey={isPerson ? "idPersona" : "idEmpresa"}
         header={header}
         paginator
         rows={10}
-        emptyMessage="No se encontraron personas"
-        globalFilter={globalFilter} // Asegúrate de agregar el filtro global aquí
+        emptyMessage={isPerson ? "No se encontraron clientes" : "No se encontraron empresas"}
+        globalFilter={globalFilter}
       >
-        <Column field="idPersona" header="Nombre" sortable />
-        <Column field="nombrePersona" header="Nombre" sortable />
-        <Column field="email" header="Email" />
+        <Column field={isPerson ? "nombrePersona" : "razonSocial"} header="Nombre" sortable />
+        <Column field={isPerson ? "correo" : "ruc"} header={isPerson ? "correo" : "ruc"} sortable />
       </DataTable>
 
       <Button
@@ -535,7 +552,6 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
   const handleUserDataReceived = (userData) => {
     console.log("Datos del usuario recibidos:", userData);
     console.log("ID: ", userData.idUsuario);
-    setId(userData.idUsuario);
   };
 
   const footerGroup = (
