@@ -32,6 +32,8 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 
             System.out.println("USER ID: " + userIdFromToken);
 
+            System.out.println(user.equals(userIdFromToken) && isActiveToken(token));
+
             return user.equals(userIdFromToken) && isActiveToken(token);
         } catch (Exception e) {
             System.out.println("NO SE PUDO");

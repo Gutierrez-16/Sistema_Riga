@@ -37,10 +37,26 @@ export default function ProductsDemo() {
     const toast = useRef(null);
     const dt = useRef(null);
 
+
+
     useEffect(() => {
         fetchCajas();
         fetchUsuarios();
     }, []);
+
+    console.log("TU ID: ");
+    let emptyCaja = {
+        idCaja: "",
+        descripcion: "",
+        fechaApertura: "",
+        fechaCierre: "",
+        montoInicial: "",
+        montoFinal: "",
+        idUsuario: ""
+    };
+
+    const [caja, setCaja] = useState(emptyCaja);
+
 
     const fetchUsuarios = async () => {
         try {
@@ -55,7 +71,7 @@ export default function ProductsDemo() {
 
     const fetchCajas = async () => {
         try {
-            const { data } = await apiClient.get("http://localhost:8080/caja");
+            const  data  = await apiClient.get("http://localhost:8080/caja");
             setProducts(data);
         } catch (error) {
             console.error(error);
@@ -63,31 +79,35 @@ export default function ProductsDemo() {
     };
 
     const saveProduct = async () => {
-        console.log(product)
+        console.log(caja);
         setSubmitted(true);
     
         if (
             product.descripcion.trim() &&
-            product.fechaApertura.trim() &&
-            product.fechaCierre.trim() &&
             product.montoInicial.trim() &&
-            product.montoFinal.trim() &&
             product.idusuario
         ) {
-            const method = product.idCaja ? "PUT" : "POST";
-            const url = product.idCaja
-                ? `http://localhost:8080/caja/${product.idCaja}`
+            caja.idUsuario = product.idusuario;
+            caja.montoInicial = product.montoInicial;
+            caja.descripcion = product.descripcion;
+            
+            
+            const method = caja.idCaja ? "PUT" : "POST";
+            const url = caja.idCaja
+                ? `http://localhost:8080/caja/${caja.idCaja}`
                 : "http://localhost:8080/caja";
     
             try {
-                console.log("Request URL:", url); // Agregar este console.log
-                console.log("Request Method:", method); // Agregar este console.log
-                console.log("Request Data:", product); // Agregar este console.log
-    
-                await apiClient[method.toLowerCase()](url, product);
+                console.log("Request URL:", url);
+                console.log("Request Method:", method);
+                console.log("Request Data:", product);
+                console.log("CAJA: ",caja)
+    console.log("desc: ", caja.descripcion)
+                await apiClient[method.toLowerCase()](url, caja);
+
                 fetchCajas();
                 setProductDialog(false);
-                setProduct(emptyProduct);
+                setCaja(emptyCaja);
                 toast.current.show({
                     severity: "success",
                     summary: "Successful",
@@ -96,9 +116,16 @@ export default function ProductsDemo() {
                 });
             } catch (error) {
                 console.error("Error al guardar la caja:", error);
+                toast.current.show({
+                    severity: "error",
+                    summary: "Error",
+                    detail: error.response?.data?.message || "Error al guardar la caja",
+                    life: 3000,
+                });
             }
         }
     };
+    
     
 
     const handleEdit = (product) => {
@@ -219,20 +246,7 @@ export default function ProductsDemo() {
                     severity="info"
                     onClick={openNew}
                 />
-                <Button
-                    label="Delete"
-                    icon="pi pi-trash"
-                    className="p-button-danger"
-                    onClick={() => confirmDeleteProduct(selectedProducts)}
-                    disabled={!selectedProducts || !selectedProducts.length}
-                />
-                <Button
-                    label="Activate"
-                    icon="pi pi-check"
-                    className="p-button-success"
-                    onClick={activateSelectedCajas}
-                    disabled={!selectedProducts || !selectedProducts.length}
-                />
+            
             </div>
         );
     };
@@ -323,7 +337,7 @@ export default function ProductsDemo() {
         const severity = getSeverity(rowData.estadoCaja);
         return (
             <Tag value={severity === "success"} severity={severity}>
-                {severity === "success" ? "Habilitado" : "Deshabilitado"}
+                {severity === "success" ? "Abierto" : "Cerrado"}
             </Tag>
         );
     };
@@ -334,7 +348,7 @@ export default function ProductsDemo() {
             case "Habilitado":
                 return "success";
             case "0":
-                return "warning";
+                return "danger";
             default:
                 return null;
         }
@@ -350,9 +364,10 @@ export default function ProductsDemo() {
     
     
     const usuarioBodyTemplate = (rowData) => {
-        const usuario = usuarios.find(usuario => usuario.idusuario === rowData.idusuario);
-        return usuario ? usuario.username : rowData.idusuario;
+        return rowData.idUsuario;
     };
+    
+    
 
     return (
         <div>
@@ -424,7 +439,7 @@ export default function ProductsDemo() {
                                     body={statusBodyTemplate}
                                     sortable
                                 ></Column>
-                                <Column body={actionBodyTemplate} exportable={false}></Column>
+                                
                             </DataTable>
                         </div>
 
@@ -453,38 +468,7 @@ export default function ProductsDemo() {
                                     <small className="p-error">Descripción es requerida.</small>
                                 )}
                             </div>
-                            <div className="field">
-                                <label htmlFor="fechaApertura">Fecha Apertura</label>
-                                <InputText
-                                    id="fechaApertura"
-                                    value={product.fechaApertura}
-                                    onChange={(e) => onInputChange(e, "fechaApertura")}
-                                    required
-                                    autoFocus
-                                    className={classNames({
-                                        "p-invalid": submitted && !product.fechaApertura,
-                                    })}
-                                />
-                                {submitted && !product.fechaApertura && (
-                                    <small className="p-error">Fecha Apertura es requerida.</small>
-                                )}
-                            </div>
-                            <div className="field">
-                                <label htmlFor="fechaCierre">Fecha Cierre</label>
-                                <InputText
-                                    id="fechaCierre"
-                                    value={product.fechaCierre}
-                                    onChange={(e) => onInputChange(e, "fechaCierre")}
-                                    required
-                                    autoFocus
-                                    className={classNames({
-                                        "p-invalid": submitted && !product.fechaCierre,
-                                    })}
-                                />
-                                {submitted && !product.fechaCierre && (
-                                    <small className="p-error">Fecha Cierre es requerida.</small>
-                                )}
-                            </div>
+                         
                             <div className="field">
                                 <label htmlFor="montoInicial">Monto Inicial</label>
                                 <InputText
@@ -501,22 +485,7 @@ export default function ProductsDemo() {
                                     <small className="p-error">Monto Inicial es requerido.</small>
                                 )}
                             </div>
-                            <div className="field">
-                                <label htmlFor="montoFinal">Monto Final</label>
-                                <InputText
-                                    id="montoFinal"
-                                    value={product.montoFinal}
-                                    onChange={(e) => onInputChange(e, "montoFinal")}
-                                    required
-                                    autoFocus
-                                    className={classNames({
-                                        "p-invalid": submitted && !product.montoFinal,
-                                    })}
-                                />
-                                {submitted && !product.montoFinal && (
-                                    <small className="p-error">Monto Final es requerido.</small>
-                                )}
-                            </div>
+                            
                             <div className="field">
                                 <label htmlFor="idusuario">Usuario</label>
                                 <Dropdown
@@ -535,27 +504,6 @@ export default function ProductsDemo() {
                             </div>
                         </Dialog>
 
-                        <Dialog
-                            visible={deleteProductDialog}
-                            style={{ width: "450px" }}
-                            header="Confirmar"
-                            modal
-                            footer={deleteProductDialogFooter}
-                            onHide={hideDeleteProductDialog}
-                        >
-                            <div className="flex align-items-center justify-content-center">
-                                <i
-                                    className="pi pi-exclamation-triangle mr-3"
-                                    style={{ fontSize: "2rem" }}
-                                />
-                                {product && (
-                                    <span>
-                                        ¿Está seguro de que quiere eliminar la Caja{" "}
-                                        <b>{product.descripcion}</b>?
-                                    </span>
-                                )}
-                            </div>
-                        </Dialog>
                     </div>
                 </div>
             </div>

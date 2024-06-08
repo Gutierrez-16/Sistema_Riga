@@ -98,7 +98,7 @@ const SalesComponent = () => {
         await Promise.all(
           salesDetails.map(async (detalle) => {
             // Crear un objeto con los datos del detalle del pedido
-            console.log(detalle);
+
             const detallePedidoData = {
               idPedido: pedidoId,
               idProducto: detalle.productId,
@@ -120,7 +120,6 @@ const SalesComponent = () => {
               }
             );
 
-            console.log("detalle");
             if (!detallePedidoResponse.ok) {
               throw new Error("Error al insertar los detalles del pedido.");
             }
@@ -141,7 +140,6 @@ const SalesComponent = () => {
         let tipoComprobante;
         if (saleType === "boleta") {
           tipoComprobante = "B";
-          console.log(tipoComprobante);
         } else if (saleType === "factura") {
           tipoComprobante = "F";
         } else {
@@ -205,7 +203,7 @@ const SalesComponent = () => {
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
-    console.log(product.idProducto);
+
     const newSale = {
       productId: product.idProducto,
       productName: product.nombreProd,
@@ -273,111 +271,110 @@ const SalesComponent = () => {
 
   return (
     <div className="">
-    <div className="p-d-flex p-jc-center p-mt-5">
-      <div className="sales-grid">
-        <Toast ref={toast} />
+      <div className="p-d-flex p-jc-center p-mt-5">
+        <div className="sales-grid">
+          <Toast ref={toast} />
 
-        <Panel header="Buscar Producto" className="p-shadow-4">
-          <Button
-            className="mb-4"
-            label="Seleccionar Producto"
-            icon="pi pi-external-link"
-            onClick={() => setProductsDialogVisible(true)} // Cambiar el estado para mostrar el diálogo de productos
-          />
+          <Panel header="Buscar Producto" className="p-shadow-4">
+            <Button
+              className="mb-4"
+              label="Seleccionar Producto"
+              icon="pi pi-external-link"
+              onClick={() => setProductsDialogVisible(true)} // Cambiar el estado para mostrar el diálogo de productos
+            />
 
-          <ProductDialog // Diálogo para seleccionar productos
-            visible={productsDialogVisible}
-            onHide={() => setProductsDialogVisible(false)}
-            onSelectProduct={handleProductSelect}
-            products={products} // Pasar los productos generados aleatoriamente
-          />
-          <PersonDialog // Diálogo para seleccionar clientes
-            visible={dialogVisible}
-            onHide={() => setDialogVisible(false)}
-            onSelectPerson={handlePersonSelect}
-            persons={persons} // Pasar la lista de personas obtenidas de la API
-          />
-          <SalesTable
-            salesDetails={salesDetails}
-            onQuantityChange={handleQuantityChange}
-            onDelete={handleDeleteSale}
-          />
-        </Panel>
+            <ProductDialog // Diálogo para seleccionar productos
+              visible={productsDialogVisible}
+              onHide={() => setProductsDialogVisible(false)}
+              onSelectProduct={handleProductSelect}
+              products={products} // Pasar los productos generados aleatoriamente
+            />
+            <PersonDialog // Diálogo para seleccionar clientes
+              visible={dialogVisible}
+              onHide={() => setDialogVisible(false)}
+              onSelectPerson={handlePersonSelect}
+              persons={persons} // Pasar la lista de personas obtenidas de la API
+            />
+            <SalesTable
+              salesDetails={salesDetails}
+              onQuantityChange={handleQuantityChange}
+              onDelete={handleDeleteSale}
+            />
+          </Panel>
 
-        <div className="row">
-          <Panel header="Informacion" className="p-shadow-4 mb-4">
-            <div className="p-field">
-              <div className="mb-2 font-bold">
-                Selecciona un tipo de comprobante:
+          <div className="row">
+            <Panel header="Informacion" className="p-shadow-4 mb-4">
+              <div className="p-field">
+                <div className="mb-2 font-bold">
+                  Selecciona un tipo de comprobante:
+                </div>
+                <div className="p-field-radiobutton mb-2 ">
+                  <RadioButton
+                    inputId="boleta"
+                    name="saleType"
+                    value="boleta"
+                    onChange={(e) => setSaleType(e.value)}
+                    checked={saleType === "boleta"}
+                  />
+                  <label htmlFor="boleta" className="mx-2">
+                    Boleta
+                  </label>
+                </div>
+                <div className="p-field-radiobutton mb-2">
+                  <RadioButton
+                    inputId="factura"
+                    name="saleType"
+                    value="factura"
+                    onChange={(e) => setSaleType(e.value)}
+                    checked={saleType === "factura"}
+                  />
+                  <label htmlFor="factura" className="mx-2">
+                    Factura
+                  </label>
+                </div>
+                <Divider align="center">
+                  <span>Datos</span>
+                </Divider>
               </div>
-              <div className="p-field-radiobutton mb-2 ">
-                <RadioButton
-                  inputId="boleta"
-                  name="saleType"
-                  value="boleta"
-                  onChange={(e) => setSaleType(e.value)}
-                  checked={saleType === "boleta"}
+
+              <div
+                className="p-d-flex p-flex-row p-jc-between"
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <Button
+                  style={{
+                    width: "38%",
+                    backgroundColor: "var(--orange-400)",
+                    border: "var(--green-500)",
+                  }}
+                  label="Cliente"
+                  icon="pi pi-users green-500"
+                  onClick={() => setDialogVisible(true)}
                 />
-                <label htmlFor="boleta" className="mx-2">
-                  Boleta
-                </label>
-              </div>
-              <div className="p-field-radiobutton mb-2">
-                <RadioButton
-                  inputId="factura"
-                  name="saleType"
-                  value="factura"
-                  onChange={(e) => setSaleType(e.value)}
-                  checked={saleType === "factura"}
-                />
-                <label htmlFor="factura" className="mx-2">
-                  Factura
-                </label>
-              </div>
-              <Divider align="center">
-                <span>Datos</span>
-              </Divider>
-            </div>
 
-            <div
-              className="p-d-flex p-flex-row p-jc-between"
-              style={{ display: "flex", justifyContent: "space-between" }}
-            >
+                <InputText
+                  disabled
+                  style={{ width: "58%" }}
+                  placeholder="Disabled"
+                  value={selectedPersonName} // Paso 3: Mostrar el nombre del cliente seleccionado
+                />
+              </div>
+            </Panel>
+            <div className="flex justify-content-center flex-wrap">
               <Button
                 style={{
-                  width: "38%",
-                  backgroundColor: "var(--orange-400)",
+                  backgroundColor: "var(--cyan-500)",
                   border: "var(--green-500)",
                 }}
-                label="Cliente"
-                icon="pi pi-users green-500"
-                onClick={() => setDialogVisible(true)}
-              />
-
-              <InputText
-                disabled
-                style={{ width: "58%" }}
-                placeholder="Disabled"
-                value={selectedPersonName} // Paso 3: Mostrar el nombre del cliente seleccionado
+                label="Realizar venta"
+                icon="pi pi-shopping-cart"
+                onClick={handleRealizarVenta} // Llama a la función handleRealizarVenta al hacer clic en el botón
               />
             </div>
-          </Panel>
-          <div className="flex justify-content-center flex-wrap">
-            <Button
-              style={{
-                backgroundColor: "var(--cyan-500)",
-                border: "var(--green-500)",
-              }}
-              label="Realizar venta"
-              icon="pi pi-shopping-cart"
-              onClick={handleRealizarVenta} // Llama a la función handleRealizarVenta al hacer clic en el botón
-            />
           </div>
         </div>
       </div>
     </div>
-    </div>
-    
   );
 };
 

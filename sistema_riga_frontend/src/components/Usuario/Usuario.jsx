@@ -16,8 +16,7 @@ import { Tag } from "primereact/tag";
 import apiClient from "../Security/apiClient";
 import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
-import { Password } from 'primereact/password';
-
+import { Password } from "primereact/password";
 
 export default function ProductsDemo() {
   let emptyProduct = {
@@ -25,7 +24,7 @@ export default function ProductsDemo() {
     username: "",
     password: "",
     idEmpleado: "",
-    idTipoUsuario: ""
+    idTipoUsuario: "",
   };
 
   const [empleado, setEmpleados] = useState([]);
@@ -45,7 +44,6 @@ export default function ProductsDemo() {
     fetchUsuarios();
     fetchEmployees();
     fetchTipoUsuario();
-
   }, []);
 
   const fetchEmployees = async () => {
@@ -69,21 +67,17 @@ export default function ProductsDemo() {
   const fetchUsuarios = async () => {
     try {
       const data = await apiClient.get("http://localhost:8080/auth");
-      console.log("Fetched Users:", data);
+
       setProducts(data);
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
     }
   };
 
-
   const saveProduct = async () => {
     setSubmitted(true);
 
-    if (
-      product.username &&
-      product.password
-    ) {
+    if (product.username && product.password) {
       const method = product.idusuario ? "PUT" : "POST";
       const url = product.idusuario
         ? `http://localhost:8080/auth/${product.idusuario}`
@@ -135,9 +129,7 @@ export default function ProductsDemo() {
   const deleteProduct = async () => {
     if (product.idusuario) {
       try {
-        await apiClient.del(
-          `http://localhost:8080/auth/${product.idusuario}`
-        );
+        await apiClient.del(`http://localhost:8080/auth/${product.idusuario}`);
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         fetchUsuarios();
@@ -404,17 +396,15 @@ export default function ProductsDemo() {
                 <Column selectionMode="multiple" exportable={false}></Column>
                 <Column field="idusuario" header="ID" sortable></Column>
                 <Column field="username" header="Username" sortable></Column>
-                <Column
-                  field="idEmpleado"
-                  header="Empleado"
-                  sortable
-                ></Column>
+                <Column field="idEmpleado" header="Empleado" sortable></Column>
                 <Column
                   field="idTipoUsuario"
                   header="Tipo Usuario"
                   body={(rowData) => {
-                    const tipoUsuario = tipousuario.find((tipo) => tipo.idTipoUsuario === rowData.idTipoUsuario);
-                    return tipoUsuario ? tipoUsuario.nombreTipoUsuario : '';
+                    const tipoUsuario = tipousuario.find(
+                      (tipo) => tipo.idTipoUsuario === rowData.idTipoUsuario
+                    );
+                    return tipoUsuario ? tipoUsuario.nombreTipoUsuario : "";
                   }}
                   sortable
                 ></Column>
@@ -438,7 +428,6 @@ export default function ProductsDemo() {
               footer={productDialogFooter}
               onHide={hideDialog}
             >
-
               <div className="field">
                 <label htmlFor="username">USERNAME</label>
                 <InputText

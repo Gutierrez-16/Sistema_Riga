@@ -62,7 +62,6 @@ public class UsuarioService implements IUsuarioService {
         return iUsuarioRepository.activateUsuario(id);
     }
 
-
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM Usuario WHERE Logeo = ?");

@@ -36,17 +36,17 @@ public class UsuarioController {
         String clave = loginRequest.get("password");
 
         try {
-            Map<String, Object> user = iUsuarioService.authenticateUser( logeo,  clave) ;
+            Map<String, Object> user = iUsuarioService.authenticateUser(logeo, clave);
             String token = jwtUtil.generateToken(user.get("Logeo").toString(), user.get("NomTipo").toString());
 
             tokenService.addActiveToken(token);
 
-            return ResponseEntity.ok(Map.of("token", token));
+            // Incluir el token y el IDUsuario en la respuesta
+            return ResponseEntity.ok(Map.of("token", token, "IDUsuario", user.get("IDUsuario")));
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
     }
-
 
     @PostMapping("/logout/{user}")
     public ResponseEntity<?> logout(@PathVariable("user") String user, HttpServletRequest request) {
@@ -65,7 +65,6 @@ public class UsuarioController {
         }
         return ResponseEntity.status(400).body("No se proporcionó un token válido.");
     }
-
 
     @GetMapping
     public List<UsuarioModel> getAllUsuarios() {

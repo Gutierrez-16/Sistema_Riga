@@ -13,14 +13,16 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 
 import { Tag } from "primereact/tag";
-import Header from '../Header/Header';
-import Dashboard from '../Header/Head';
+import Header from "../Header/Header";
+import Dashboard from "../Header/Head";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import apiCliente from "../Security/apiClient";
 
 import "primeicons/primeicons.css";
 import apiClient from "../Security/apiClient";
+
+import DataUsuario from "../Usuario/DataUsuario";
 
 export default function Persona() {
   let emptyPersona = {
@@ -90,10 +92,14 @@ export default function Persona() {
 
   const comboEdit = async (idDistrito) => {
     try {
-      const provinciaData = await apiCliente.get(`http://localhost:8080/provincia/distrito/${idDistrito}`);
+      const provinciaData = await apiCliente.get(
+        `http://localhost:8080/provincia/distrito/${idDistrito}`
+      );
       const provinciaNombre = provinciaData.nombreProvincia;
 
-      const departamentoData = await apiCliente.get(`http://localhost:8080/departamento/provincia/${provinciaNombre}`);
+      const departamentoData = await apiCliente.get(
+        `http://localhost:8080/departamento/provincia/${provinciaNombre}`
+      );
 
       setPersona((prevPersona) => ({
         ...prevPersona,
@@ -133,12 +139,13 @@ export default function Persona() {
     }
   };
 
-
   const fetchProvincias = async (idDepartamento) => {
     try {
       setDepartamento(idDepartamento);
 
-      const data = await apiCliente.get(`http://localhost:8080/provincia/departamento/${idDepartamento}`);
+      const data = await apiCliente.get(
+        `http://localhost:8080/provincia/departamento/${idDepartamento}`
+      );
       setProvincias(data);
     } catch (error) {
       console.error(error);
@@ -149,7 +156,9 @@ export default function Persona() {
     try {
       setProvincia(idProvincia);
 
-      const data = await apiCliente.get(`http://localhost:8080/distrito/provincia/${idProvincia}`);
+      const data = await apiCliente.get(
+        `http://localhost:8080/distrito/provincia/${idProvincia}`
+      );
       setDistritos(data);
     } catch (error) {
       console.error(error);
@@ -160,7 +169,7 @@ export default function Persona() {
     setPersona(emptyPersona);
     setSubmitted(false);
     setNewPersonaDialog(true);
-    setFechaNac(null)
+    setFechaNac(null);
   };
 
   const hideDialog = () => {
@@ -181,7 +190,6 @@ export default function Persona() {
   };
 
   const savePersona = async () => {
-    console.log(persona)
     setSubmitted(true);
 
     if (persona.nombrePersona.trim()) {
@@ -198,7 +206,9 @@ export default function Persona() {
           responseMessage = await apiCliente.put(url, persona);
         }
 
-        const successMessage = persona.idPersona ? "Persona Updated" : "Persona Created";
+        const successMessage = persona.idPersona
+          ? "Persona Updated"
+          : "Persona Created";
         toast.current.show({
           severity: "success",
           summary: "Successful",
@@ -220,7 +230,6 @@ export default function Persona() {
     }
   };
 
-
   const editPersona = async (persona) => {
     setPersona(persona);
     setNewPersonaDialog(true);
@@ -235,7 +244,9 @@ export default function Persona() {
   const activatePersona = async (rowData) => {
     if (rowData.idPersona) {
       try {
-        await apiClient.patch(`http://localhost:8080/person/${rowData.idPersona}`);
+        await apiClient.patch(
+          `http://localhost:8080/person/${rowData.idPersona}`
+        );
 
         setPersona(emptyPersona);
         fetchPersonas();
@@ -279,7 +290,9 @@ export default function Persona() {
   const deletePersona = async () => {
     if (persona.idPersona) {
       try {
-        await apiClient.del(`http://localhost:8080/person/${persona.idPersona}`);
+        await apiClient.del(
+          `http://localhost:8080/person/${persona.idPersona}`
+        );
 
         setDeletePersonaDialog(false);
         setPersona(emptyPersona);
@@ -315,7 +328,9 @@ export default function Persona() {
         console.error("Error al eliminar las personas:", error);
       }
     } else {
-      console.error("No se puede eliminar la persona. ID de persona no encontrado.");
+      console.error(
+        "No se puede eliminar la persona. ID de persona no encontrado."
+      );
     }
   };
 
@@ -495,9 +510,7 @@ export default function Persona() {
         <Dashboard />
       </div>
       <div className="flex">
-
         <div className="w-1/4">
-
           <Header />
         </div>
 
@@ -528,9 +541,21 @@ export default function Persona() {
                   <Column selectionMode="multiple" exportable={false}></Column>
                   <Column field="idPersona" header="ID" sortable></Column>
                   <Column field="dni" header="DNI" sortable></Column>
-                  <Column field="nombrePersona" header="Nombre" sortable></Column>
-                  <Column field="apePaterno" header="Ape. Paterno" sortable></Column>
-                  <Column field="apeMaterno" header="Ape. Materno" sortable></Column>
+                  <Column
+                    field="nombrePersona"
+                    header="Nombre"
+                    sortable
+                  ></Column>
+                  <Column
+                    field="apePaterno"
+                    header="Ape. Paterno"
+                    sortable
+                  ></Column>
+                  <Column
+                    field="apeMaterno"
+                    header="Ape. Materno"
+                    sortable
+                  ></Column>
                   <Column
                     field="fechaNac"
                     header="Fecha"
@@ -678,7 +703,6 @@ export default function Persona() {
                     dateFormat="yy-mm-dd"
                     showIcon
                   />
-
                 </div>
 
                 <div className="field">
@@ -687,10 +711,9 @@ export default function Persona() {
                   </label>
                   <InputText
                     id="correo"
-                    value={persona.correo || ''} 
+                    value={persona.correo || ""}
                     onChange={handleInputChange}
                   />
-
                 </div>
 
                 <div className="field">
@@ -701,11 +724,9 @@ export default function Persona() {
                     id="celular"
                     keyfilter="int"
                     maxLength="9"
-                    value={persona.celular || ''} 
+                    value={persona.celular || ""}
                     onChange={handleInputChange}
                   />
-
-
                 </div>
 
                 <div className="field">
@@ -826,8 +847,8 @@ export default function Persona() {
                   />
                   {persona && (
                     <span>
-                      Are you sure you want to delete <b>{persona.nombrePersona}</b>
-                      ?
+                      Are you sure you want to delete{" "}
+                      <b>{persona.nombrePersona}</b>?
                     </span>
                   )}
                 </div>
