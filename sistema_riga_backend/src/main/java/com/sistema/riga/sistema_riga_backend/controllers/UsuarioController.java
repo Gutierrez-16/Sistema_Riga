@@ -41,7 +41,7 @@ public class UsuarioController {
 
             tokenService.addActiveToken(token);
 
-            return ResponseEntity.ok(Map.of("token", token));
+            return ResponseEntity.ok(Map.of("token", token, "IDUsuario", user.get("IDUsuario")));
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }

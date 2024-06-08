@@ -3,7 +3,7 @@ import { Button } from 'primereact/button';
 import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
 
-function Logout({ user}) {
+function Logout() {
   const token = localStorage.getItem('token');
       console.log(token)
       console.log("LOGOUTTTT")
@@ -11,10 +11,8 @@ function Logout({ user}) {
 
     function obtenerUsuarioDelToken(token) {
       try {
-        // Decodificar el token para obtener el payload
         const decodedToken = jwtDecode(token);
     
-        // Extraer y retornar la información del usuario (suponiendo que está bajo la clave 'usuario')
         return decodedToken.sub;
       } catch (error) {
         console.error('Error al decodificar el token:', error);

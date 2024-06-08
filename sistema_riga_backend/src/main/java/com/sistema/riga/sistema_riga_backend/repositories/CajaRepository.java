@@ -14,20 +14,19 @@ public class CajaRepository implements ICajaRepository {
 
     @Override
     public String insertCaja(CajaModel cajaModel) {
-        jdbcTemplate.update("EXEC SP_CRUD_Caja @Descripcion = ?, @FechaApertura = ?, @FechaCierre = ?, @MontoInicial = ?, @MontoFinal = ?, @EstadoCaja = ?, @IDUsuario = ?, @Operation = 'C'",
+        jdbcTemplate.update(
+                "EXEC SP_CRUD_Caja @Descripcion = ?, @MontoInicial = ?, @IDUsuario = ?, @Operation = 'C'",
                 cajaModel.getDescripcion(),
-                cajaModel.getFechaApertura(),
-                cajaModel.getFechaCierre(),
                 cajaModel.getMontoInicial(),
-                cajaModel.getMontoFinal(),
-                cajaModel.getEstadoCaja(),
-                cajaModel.getIdUsuario());
+                cajaModel.getIdUsuario()
+        );
         return "Caja creada exitosamente";
     }
 
     @Override
     public String updateCaja(CajaModel cajaModel) {
-        jdbcTemplate.update("EXEC SP_CRUD_Caja @IDCaja = ?, @Descripcion = ?, @FechaApertura = ?, @FechaCierre = ?, @MontoInicial = ?, @MontoFinal = ?, @EstadoCaja = ?, @IDUsuario = ?, @Operation = 'U'",
+        jdbcTemplate.update(
+                "EXEC SP_CRUD_Caja @IDCaja = ?, @Descripcion = ?, @FechaApertura = ?, @FechaCierre = ?, @MontoInicial = ?, @MontoFinal = ?, @EstadoCaja = ?, @IDUsuario = ?, @Operation = 'U'",
                 cajaModel.getIdCaja(),
                 cajaModel.getDescripcion(),
                 cajaModel.getFechaApertura(),
@@ -35,7 +34,8 @@ public class CajaRepository implements ICajaRepository {
                 cajaModel.getMontoInicial(),
                 cajaModel.getMontoFinal(),
                 cajaModel.getEstadoCaja(),
-                cajaModel.getIdUsuario());
+                cajaModel.getIdUsuario()
+        );
         return "Caja actualizada exitosamente";
     }
 
@@ -47,37 +47,41 @@ public class CajaRepository implements ICajaRepository {
 
     @Override
     public CajaModel getCajaById(int id) {
-        return jdbcTemplate.queryForObject("EXEC SP_CRUD_Caja @IDCaja = ?, @Operation = 'R'",
+        return jdbcTemplate.queryForObject(
+                "EXEC SP_CRUD_Caja @IDCaja = ?, @Operation = 'R'",
                 new Object[]{id},
                 (rs, rowNum) -> {
                     CajaModel cajaModel = new CajaModel();
                     cajaModel.setIdCaja(rs.getInt("IDCaja"));
                     cajaModel.setDescripcion(rs.getString("Descripcion"));
-                    cajaModel.setFechaApertura(rs.getDate("FechaApertura"));
-                    cajaModel.setFechaCierre(rs.getDate("FechaCierre"));
+                    cajaModel.setFechaApertura(rs.getTimestamp("FechaApertura"));
+                    cajaModel.setFechaCierre(rs.getTimestamp("FechaCierre"));
                     cajaModel.setMontoInicial(rs.getDouble("MontoInicial"));
                     cajaModel.setMontoFinal(rs.getDouble("MontoFinal"));
-                    cajaModel.setEstadoCaja(rs.getString("EstadoCaja").charAt(0));
+                    cajaModel.setEstadoCaja(rs.getString("EstadoCaja"));
                     cajaModel.setIdUsuario(rs.getInt("IDUsuario"));
                     return cajaModel;
-                });
+                }
+        );
     }
 
     @Override
     public List<CajaModel> getAllCajas() {
-        return jdbcTemplate.query("EXEC SP_CRUD_Caja @Operation = 'R'",
+        return jdbcTemplate.query(
+                "EXEC SP_CRUD_Caja @Operation = 'R'",
                 (rs, rowNum) -> {
                     CajaModel cajaModel = new CajaModel();
                     cajaModel.setIdCaja(rs.getInt("IDCaja"));
                     cajaModel.setDescripcion(rs.getString("Descripcion"));
-                    cajaModel.setFechaApertura(rs.getDate("FechaApertura"));
-                    cajaModel.setFechaCierre(rs.getDate("FechaCierre"));
+                    cajaModel.setFechaApertura(rs.getTimestamp("FechaApertura"));
+                    cajaModel.setFechaCierre(rs.getTimestamp("FechaCierre"));
                     cajaModel.setMontoInicial(rs.getDouble("MontoInicial"));
                     cajaModel.setMontoFinal(rs.getDouble("MontoFinal"));
-                    cajaModel.setEstadoCaja(rs.getString("EstadoCaja").charAt(0));
+                    cajaModel.setEstadoCaja(rs.getString("EstadoCaja"));
                     cajaModel.setIdUsuario(rs.getInt("IDUsuario"));
                     return cajaModel;
-                });
+                }
+        );
     }
 
     @Override
@@ -87,22 +91,23 @@ public class CajaRepository implements ICajaRepository {
         return "Caja cerrada exitosamente con monto final: " + caja.getMontoFinal();
     }
 
-
     @Override
     public List<CajaModel> searchCajas(String descripcion) {
-        return jdbcTemplate.query("EXEC SP_CRUD_Caja @Descripcion = ?, @Operation = 'B'",
+        return jdbcTemplate.query(
+                "EXEC SP_CRUD_Caja @Descripcion = ?, @Operation = 'B'",
                 new Object[]{descripcion},
                 (rs, rowNum) -> {
                     CajaModel cajaModel = new CajaModel();
                     cajaModel.setIdCaja(rs.getInt("IDCaja"));
                     cajaModel.setDescripcion(rs.getString("Descripcion"));
-                    cajaModel.setFechaApertura(rs.getDate("FechaApertura"));
-                    cajaModel.setFechaCierre(rs.getDate("FechaCierre"));
+                    cajaModel.setFechaApertura(rs.getTimestamp("FechaApertura"));
+                    cajaModel.setFechaCierre(rs.getTimestamp("FechaCierre"));
                     cajaModel.setMontoInicial(rs.getDouble("MontoInicial"));
                     cajaModel.setMontoFinal(rs.getDouble("MontoFinal"));
-                    cajaModel.setEstadoCaja(rs.getString("EstadoCaja").charAt(0));
+                    cajaModel.setEstadoCaja(rs.getString("EstadoCaja"));
                     cajaModel.setIdUsuario(rs.getInt("IDUsuario"));
                     return cajaModel;
-                });
+                }
+        );
     }
 }
