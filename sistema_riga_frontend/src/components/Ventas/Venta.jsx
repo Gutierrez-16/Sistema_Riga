@@ -52,7 +52,7 @@ const SalesComponent = () => {
 
   const handleUserDataReceived = (userData) => {
     console.log("Datos del usuario recibidos:", userData);
-    console.log("ID: ", userData.idUsuario);
+    console.log("IDQUE: ", userData.idUsuario);
     setId(userData.idUsuario);
   };
 
@@ -85,148 +85,115 @@ const SalesComponent = () => {
     setSerieNumero(newSerieNumero);
   };
 
+  const [idsupremo, setIdsupremo] = useState("");
+
   const handleRealizarVenta = async () => {
     try {
-      // Verificar si selectedPerson no es null y salesDetails no está vacío
-      if (selectedPerson && salesDetails.length > 0) {
-        // Crear un objeto con los datos del pedido
-        const pedidoData = {
-          // Otros campos que puedas necesitar para el pedido
-        };
-
-        console.log("TU TOKEN:", token)
-
-        // Enviar la solicitud para insertar el pedido
-        const pedidoResponse = await fetch("http://localhost:8080/pedido", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(pedidoData),
-        });
-
-        if (!pedidoResponse.ok) {
-          throw new Error("Error al insertar el pedido.");
-        }
-
-        // Obtener el ID del pedido insertado
-        const pedidoId = await pedidoResponse.json();
-
-        // Promise.all para enviar todas las solicitudes de detalles del pedido en paralelo
-        await Promise.all(
-          salesDetails.map(async (detalle) => {
-            // Crear un objeto con los datos del detalle del pedido
-            console.log(detalle);
-            const detallePedidoData = {
-              idPedido: pedidoId,
-              idProducto: detalle.productId,
-              cantidad: detalle.quantity,
-              precio: detalle.price,
-              idUsuario: id,
-              // Otros campos que puedas necesitar para el detalle del pedido
+        // Verificar si selectedPerson no es null y salesDetails no está vacío
+        if (selectedPerson && salesDetails.length > 0) {
+            // Crear un objeto con los datos del pedido
+            const pedidoData = {
+                // Otros campos que puedas necesitar para el pedido
             };
 
-            // Enviar la solicitud para insertar el detalle del pedido
-            const detallePedidoResponse = await fetch(
-              `http://localhost:8080/detallepedido/${pedidoId}`,
-              {
+            console.log("TU TOKEN:", token)
+
+            // Enviar la solicitud para insertar el pedido
+            const pedidoResponse = await fetch("http://localhost:8080/pedido", {
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/json",
-                  'Authorization': `Bearer ${token}`
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(pedidoData),
+            });
+
+            if (!pedidoResponse.ok) {
+                throw new Error("Error al insertar el pedido.");
+            }
+
+            // Obtener el ID del pedido insertado
+            const pedidoId = await pedidoResponse.json();
+
+            // Crear un objeto con los datos de la venta
+            const subtotal = salesDetails.reduce((total, sale) => {
+                return total + sale.quantity * sale.price;
+            }, 0);
+
+            const igv = subtotal * 0.18; // Suponiendo que el IGV es el 18% del subtotal
+            const descuento = 0; // Puedes calcular el descuento según tus necesidades
+            const totalDescuento = subtotal * (descuento / 100); // Descuento total
+            const totalPagar = subtotal + igv - totalDescuento; // Total a pagar
+
+            // Crear un objeto con los datos de la venta
+            let tipoComprobante;
+            if (saleType === "boleta") {
+                tipoComprobante = "B";
+                console.log(tipoComprobante);
+            } else if (saleType === "factura") {
+                tipoComprobante = "F";
+            } else {
+                throw new Error("Tipo de comprobante no válido.");
+            }
+
+            // Crear un objeto con los datos de la venta
+            const ventaData = {
+                Descuento: descuento,
+                igv: igv,
+                total: totalPagar,
+                subtotal: subtotal,
+                totaldescuento: totalDescuento,
+                totalPagar: totalPagar,
+                tipoComprobante: tipoComprobante, // Asignar el valor correspondiente a tipoComprobante
+                idCliente: selectedPerson,
+                idPedido: pedidoId,
+                idUsuario: id, // Aquí asignamos el idUsuario del estado local
+                idMetodoPago: 1,
+            };
+
+            console.log(ventaData)
+
+            // Enviar la solicitud para insertar la venta
+            const ventaResponse = await fetch("http://localhost:8080/venta", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
 
                 },
-                body: JSON.stringify(detallePedidoData),
-              }
-            );
+                body: JSON.stringify(ventaData),
+            });
 
-            console.log("detalle");
-            if (!detallePedidoResponse.ok) {
-              throw new Error("Error al insertar los detalles del pedido.");
+            if (!ventaResponse.ok) {
+                throw new Error("Error al insertar la venta.");
             }
-          })
-        );
 
-        // Crear un objeto con los datos de la venta
-        const subtotal = salesDetails.reduce((total, sale) => {
-          return total + sale.quantity * sale.price;
-        }, 0);
+            // Venta realizada con éxito
+            toast.current.show({
+                severity: "success",
+                summary: "Venta realizada",
+                detail: "La venta se realizó correctamente",
+                life: 3000,
+            });
 
-        const igv = subtotal * 0.18; // Suponiendo que el IGV es el 18% del subtotal
-        const descuento = 0; // Puedes calcular el descuento según tus necesidades
-        const totalDescuento = subtotal * (descuento / 100); // Descuento total
-        const totalPagar = subtotal + igv - totalDescuento; // Total a pagar
-
-        // Crear un objeto con los datos de la venta
-        let tipoComprobante;
-        if (saleType === "boleta") {
-          tipoComprobante = "B";
-          console.log(tipoComprobante);
-        } else if (saleType === "factura") {
-          tipoComprobante = "F";
+            // Limpiar los detalles de la venta después de realizarla
+            setSalesDetails([]);
         } else {
-          throw new Error("Tipo de comprobante no válido.");
+            // Manejar el caso en que no se haya seleccionado un cliente o no haya productos en la venta
+            throw new Error(
+                "Por favor, selecciona un cliente y agrega productos para realizar la venta."
+            );
         }
-
-        // Crear un objeto con los datos de la venta
-        const ventaData = {
-          Descuento: descuento,
-          igv: igv,
-          total: totalPagar,
-          subtotal: subtotal,
-          totaldescuento: totalDescuento,
-          totalPagar: totalPagar,
-          tipoComprobante: tipoComprobante, // Asignar el valor correspondiente a tipoComprobante
-          idCliente: selectedPerson,
-          idPedido: pedidoId,
-          idUsuario: id,
-          idMetodoPago: 1,
-        };
-
-        console.log(ventaData)
-
-        // Enviar la solicitud para insertar la venta
-        const ventaResponse = await fetch("http://localhost:8080/venta", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            'Authorization': `Bearer ${token}`
-
-          },
-          body: JSON.stringify(ventaData),
-        });
-
-        if (!ventaResponse.ok) {
-          throw new Error("Error al insertar la venta.");
-        }
-
-        // Venta realizada con éxito
-        toast.current.show({
-          severity: "success",
-          summary: "Venta realizada",
-          detail: "La venta se realizó correctamente",
-          life: 3000,
-        });
-
-        // Limpiar los detalles de la venta después de realizarla
-        setSalesDetails([]);
-      } else {
-        // Manejar el caso en que no se haya seleccionado un cliente o no haya productos en la venta
-        throw new Error(
-          "Por favor, selecciona un cliente y agrega productos para realizar la venta."
-        );
-      }
     } catch (error) {
-      console.error("Error realizando la venta:", error);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Error al realizar la venta",
-        life: 3000,
-      });
+        console.error("Error realizando la venta:", error);
+        toast.current.show({
+            severity: "error",
+            summary: "Error",
+            detail: "Error al realizar la venta",
+            life: 3000,
+        });
     }
-  };
+};
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
@@ -298,6 +265,11 @@ const SalesComponent = () => {
 
   return (
     <div className="">
+      <div>
+                {/* Otro contenido */}
+                <DataUsuario onUserDataReceived={handleUserDataReceived} />
+                {/* Otro contenido */}
+              </div>
       <div className="p-d-flex p-jc-center p-mt-5">
         <div className="sales-grid">
           <Toast ref={toast} />
@@ -535,7 +507,6 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
   const handleUserDataReceived = (userData) => {
     console.log("Datos del usuario recibidos:", userData);
     console.log("ID: ", userData.idUsuario);
-    setId(userData.idUsuario);
   };
 
   const footerGroup = (
