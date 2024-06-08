@@ -60,4 +60,10 @@ public class CargoRepository implements ICargoRepositry{
                     return cargoModel;
                 });
     }
+
+    @Override
+    public String activateCargo(int id) {
+        jdbcTemplate.update("UPDATE Cargo SET estadoCargo = '1' WHERE idCargo = ?;", id);
+        return "cargoModel";
+    }
 }

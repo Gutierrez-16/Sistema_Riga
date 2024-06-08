@@ -10,4 +10,5 @@ public interface IMarcaService {
     String insertMarca(MarcaModel marcaModel);
     String updateMarca(MarcaModel marcaModel);
     String deleteMarca(int id);
+    String activateMarca(int id);
 }

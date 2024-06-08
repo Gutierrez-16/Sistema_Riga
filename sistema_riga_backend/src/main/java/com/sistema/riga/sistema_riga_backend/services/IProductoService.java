@@ -11,4 +11,6 @@ public interface IProductoService {
     String insertProducto(ProductoModel productoModel);
     String updateProducto(ProductoModel productoModel);
     String deleteProducto(int id);
+
+    String activateProducto(int id);
 }

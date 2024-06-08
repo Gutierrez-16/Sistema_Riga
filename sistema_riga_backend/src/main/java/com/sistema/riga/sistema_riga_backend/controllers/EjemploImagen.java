@@ -68,7 +68,6 @@ public class EjemploImagen {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("IMAGEN: "+imagenBytes);
         return imagenBytes;
     }
 }

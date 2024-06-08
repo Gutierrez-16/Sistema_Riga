@@ -39,4 +39,9 @@ public class ProductoService implements IProductoService {
     public String deleteProducto(int id) {
         return iProductoRepository.deleteProducto(id);
     }
+
+    @Override
+    public String activateProducto(int id) {
+        return iProductoRepository.activateProducto(id);
+    }
 }

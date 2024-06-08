@@ -19,7 +19,6 @@ public class ProductoRepository implements IProductoRepository{
     @Override
     public String insertProducto(ProductoModel productoModel) {
         String name = productoModel.getNombreProd();
-        System.out.println("Nombre: "+name);
         jdbcTemplate.update(
                 SQL2,
                     productoModel.getNombreProd(),
@@ -35,25 +34,29 @@ public class ProductoRepository implements IProductoRepository{
 
     @Override
     public String updateProducto(ProductoModel productoModel) {
-        jdbcTemplate.update("EXEC CRUD_Producto @IDProducto = ?, @NombreProducto = ?, @PrecioUnitario = ?, @Imagen = ?, @Descripcion = " +
-                                    "?, @EstadoProducto = ?, @IDCategoria = ?, @IDUnidadMedida = ?, @IDLinea = ?, @IDMarca = ?, @Operation = 'U';",
-                            productoModel.getIdProducto(),
+        jdbcTemplate.update("UPDATE Producto SET  NombreProducto = ?, PrecioUnitario = ?, Imagen = ?, Descripcion = " +
+                                    "?, IDCategoria = ?, IDUnidadMedida = ?, IDLinea = ?, IDMarca = ? WHERE IDProducto = ?;",
                             productoModel.getNombreProd(),
                             productoModel.getPrecioUnit(),
                             productoModel.getImagen(),
                             productoModel.getDescripcion(),
-                            productoModel.getEstadoProducto(),
                             productoModel.getIdCategoria(),
                             productoModel.getIdUnidadMedida(),
                             productoModel.getIdLinea(),
-                            productoModel.getIdMarca());
+                            productoModel.getIdMarca(),
+                            productoModel.getIdProducto());
         return "productoModel";
     }
 
     @Override
     public String deleteProducto(int idProducto) {
-        jdbcTemplate.update("EXEC CRUD_Producto @IDProducto = ?, @Operation = 'D';", idProducto);
-        // No necesitas pasar los otros parámetros si solo estás eliminando el producto
+        jdbcTemplate.update("UPDATE Producto SET estadoProducto = '0' WHERE IDProducto = ?;", idProducto);
+        return "productoModel";
+    }
+
+    @Override
+    public String activateProducto(int id) {
+        jdbcTemplate.update("UPDATE Producto SET estadoProducto = '1' WHERE idProducto = ?;", id);
         return "productoModel";
     }
 
@@ -92,8 +95,6 @@ public class ProductoRepository implements IProductoRepository{
                       productoModel.setIdUnidadMedida(rs.getInt("IDUnidadMedida"));
                       productoModel.setIdLinea(rs.getInt("IDLinea"));
                       productoModel.setIdMarca(rs.getInt("IDMarca"));
-
-                      System.out.println("Imagen: "+productoModel.getImagen());
                       return productoModel;
           });
     }

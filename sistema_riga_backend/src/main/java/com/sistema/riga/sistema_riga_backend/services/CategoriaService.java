@@ -37,4 +37,9 @@ public class CategoriaService implements ICategoriaService {
     public String deleteCategoria(int id) {
         return iCategoriaRepositry.deleteCategoria(id);
     }
+
+    @Override
+    public String activateCategoria(int id) {
+        return iCategoriaRepositry.activateCategoria(id);
+    }
 }
