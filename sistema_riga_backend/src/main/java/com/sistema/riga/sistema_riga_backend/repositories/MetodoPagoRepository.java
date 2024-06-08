@@ -60,4 +60,10 @@ public class MetodoPagoRepository implements IMetodoPagoRepositry {
                     return metodoPagoModel;
                 });
     }
+
+    @Override
+    public String activateMetodoPago(int id) {
+        jdbcTemplate.update("UPDATE MetodoPago SET EstadoMetodo = '1' WHERE IDMetodoPago = ?;", id);
+        return "metodoPagoModel";
+    }
 }

@@ -1,0 +1,56 @@
+package com.sistema.riga.sistema_riga_backend.security;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class JwtTokenServiceImpl implements JwtTokenService {
+
+    private List<String> activeTokens = new ArrayList<>();
+    private final String SECRET_KEY = "your-256-bit-secret";
+
+    @Override
+    public void invalidateToken(String token) {
+        activeTokens.remove(token);
+        System.out.println("invalidado"+token);
+    }
+
+    @Override
+    public boolean isValidTokenForUser(String token, String user) {
+        System.out.println("hois");
+        System.out.println(user);
+        try {
+            System.out.println("TU ID: " + user);
+            Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+            System.out.println("TU CLAIM ES: " + claims);
+            String userIdFromToken = claims.getSubject();
+
+            System.out.println("USER ID: " + userIdFromToken);
+
+            System.out.println(user.equals(userIdFromToken) && isActiveToken(token));
+
+            return user.equals(userIdFromToken) && isActiveToken(token);
+        } catch (Exception e) {
+            System.out.println("NO SE PUDO");
+            return false;
+        }
+    }
+
+
+
+
+
+    public boolean isActiveToken(String token) {
+        return activeTokens.contains(token);
+    }
+
+    @Override
+    public void addActiveToken(String token) {
+        activeTokens.add(token);
+    }
+}

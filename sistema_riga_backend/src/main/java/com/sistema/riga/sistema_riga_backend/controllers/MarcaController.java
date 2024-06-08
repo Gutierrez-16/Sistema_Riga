@@ -38,4 +38,9 @@ public class MarcaController {
     public String deleteMarca(@PathVariable int id) {
         return iMarcaService.deleteMarca(id);
     }
+
+    @PatchMapping("/{id}")
+    public String activateMarca(@PathVariable int id) {
+        return iMarcaService.activateMarca(id);
+    }
 }
