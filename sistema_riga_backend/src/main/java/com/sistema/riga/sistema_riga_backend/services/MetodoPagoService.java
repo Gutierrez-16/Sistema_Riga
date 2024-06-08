@@ -37,4 +37,9 @@ public class MetodoPagoService implements IMetodoPagoService {
     public String deleteMetodoPago(int id) {
         return iMetodoPagoRepositry.deleteMetodoPago(id);
     }
+
+    @Override
+    public String activateMetodoPago(int id) {
+        return iMetodoPagoRepositry.activateMetodoPago(id);
+    }
 }

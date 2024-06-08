@@ -39,4 +39,9 @@ public class EmpresaService  implements IEmpresaService{
     public String deleteEmpresa(int id) {
         return iEmpresaRepositry.deleteEmpresa(id);
     }
+
+    @Override
+    public String activateEmpresa(int id) {
+        return iEmpresaRepositry.activateEmpresa(id);
+    }
 }

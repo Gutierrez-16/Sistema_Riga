@@ -49,4 +49,10 @@ public class EmpleadoService implements IEmpleadoService{
     public List<PersonaModel> getAllPersonas() {
         return iEmpleadoRepositry.getAllPersonas();
     }
+
+    @Override
+    public String activateEmpleado(int id) {
+        return iEmpleadoRepositry.activateEmpleado(id);
+    }
+
 }
