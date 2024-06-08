@@ -14,4 +14,5 @@ public interface IUsuarioService {
     String updateUsuario(UsuarioModel usuarioModel);
     String deleteUsuario(int id);
     String activateUsuario(int id);
+
 }

@@ -1,26 +1,25 @@
-import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import LoginApp from './Components/Login/LoginApp';
-import Logout from './Components/Login/loguotbutton';
-import Usuario from './Components/Usuario/Usuario';
-import Persona from './Components/Person/Persona';
-import Producto from './Components/Product/Producto';
-import Empleado from './Components/Employer/Empleado';
-import Empresa from './Components/Empresa/Empresa';
-import Home from './Components/Home/Home';
-import Venta from './Components/Ventas/Venta';
-import Cargo from './Components/Cargo/Cargo';
-import Linea from './Components/Linea/Linea';
-import Categoria from './Components/Categoria/Categoria';
-import MetodoPago from './Components/MetodoPago/MetodoPago';
-import ProtectedRoute from './Components/Login/ProtectedRoute';
-import UnidadMedidad from './Components/UnidadMedida/UnidadMedida'
-import TipoUsuario from './Components/TipoUsuario/TipoUsuario'
-import Marca from './Components/Marca/Marca'
-import Caja from './Components/Caja/Caja'
+import React, { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import LoginApp from "./Components/Login/LoginApp";
+import Logout from "./Components/Login/loguotbutton";
+import Usuario from "./Components/Usuario/Usuario";
+import Persona from "./Components/Person/Persona";
+import Producto from "./Components/Product/Producto";
+import Empleado from "./Components/Employer/Empleado";
+import Empresa from "./Components/Empresa/Empresa";
+import Home from "./Components/Home/Home";
+import Venta from "./Components/Ventas/Venta";
+import Cargo from "./Components/Cargo/Cargo";
+import Linea from "./Components/Linea/Linea";
+import Categoria from "./Components/Categoria/Categoria";
+import MetodoPago from "./Components/MetodoPago/MetodoPago";
+import ProtectedRoute from "./Components/Login/ProtectedRoute";
+import UnidadMedidad from "./Components/UnidadMedida/UnidadMedida";
+import TipoUsuario from "./Components/TipoUsuario/TipoUsuario";
+import Marca from "./Components/Marca/Marca";
+import Caja from "./Components/Caja/Caja";
 
 function App() {
-
   return (
     <Routes>
       <Route path="/login" element={<LoginApp />} />
@@ -51,7 +50,7 @@ function App() {
       <Route
         path="/persona"
         element={
-          <ProtectedRoute >
+          <ProtectedRoute>
             <Persona />
           </ProtectedRoute>
         }
@@ -99,7 +98,7 @@ function App() {
       <Route
         path="/empleado"
         element={
-          <ProtectedRoute >
+          <ProtectedRoute>
             <Empleado />
           </ProtectedRoute>
         }
@@ -107,7 +106,7 @@ function App() {
       <Route
         path="/empresa"
         element={
-          <ProtectedRoute >
+          <ProtectedRoute>
             <Empresa />
           </ProtectedRoute>
         }
@@ -139,7 +138,7 @@ function App() {
       <Route
         path="/linea"
         element={
-          <ProtectedRoute >
+          <ProtectedRoute>
             <Linea />
           </ProtectedRoute>
         }
@@ -147,7 +146,7 @@ function App() {
       <Route
         path="/categoria"
         element={
-          <ProtectedRoute >
+          <ProtectedRoute>
             <Categoria />
           </ProtectedRoute>
         }
@@ -155,7 +154,7 @@ function App() {
       <Route
         path="/metodopago"
         element={
-          <ProtectedRoute >
+          <ProtectedRoute>
             <MetodoPago />
           </ProtectedRoute>
         }

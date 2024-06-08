@@ -16,5 +16,4 @@ public interface IUsuarioRepository {
     String deleteUsuario(int id);
     String activateUsuario(int id);
     Map<String, Object> authenticateUser(String logeo, String clave) throws Exception;
-
 }

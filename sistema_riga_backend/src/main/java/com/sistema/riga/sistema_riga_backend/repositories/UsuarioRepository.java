@@ -19,15 +19,16 @@ public class UsuarioRepository implements IUsuarioRepository {
     @Override
     public Map<String, Object> authenticateUser(String logeo, String clave) throws Exception {
         String sql = "EXEC sp_LoginUsuario ?, ?";
+
         Map<String, Object> user = jdbcTemplate.queryForMap(sql, logeo, clave);
 
         if (user == null || !passwordEncoder.matches(clave, user.get("Clave").toString())) {
             throw new Exception("Invalid credentials");
         }
 
+        System.out.println("TU USER: "+user);
         return user;
     }
-
 
     @Override
     public String insertUsuario(UsuarioModel usuarioModel) {

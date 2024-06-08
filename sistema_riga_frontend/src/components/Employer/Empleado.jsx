@@ -19,7 +19,6 @@ import Dashboard from "../Header/Head";
 import { Calendar } from "primereact/calendar";
 import { InputNumber } from "primereact/inputnumber";
 
-
 export default function ProductsDemo() {
   let emptyProduct = {
     idEmpleado: "",
@@ -32,7 +31,7 @@ export default function ProductsDemo() {
     idCargo: "",
     celular: "",
     nombrePersona: "",
-    direccion: ""
+    direccion: "",
   };
 
   const [personas, setPersonas] = useState([]);
@@ -74,7 +73,7 @@ export default function ProductsDemo() {
   const fetchEmployees = async () => {
     try {
       const data = await apiClient.get("http://localhost:8080/employee");
-      console.log({ data });
+
       setProducts(data);
     } catch (error) {
       console.error("Error al obtener empleados:", error);
@@ -133,20 +132,19 @@ export default function ProductsDemo() {
     const fechaIngDate = new Date(employee.fechaIng);
     const offset = fechaIngDate.getTimezoneOffset();
     fechaIngDate.setMinutes(fechaIngDate.getMinutes() + offset);
-    const selectedPersona = personas.find(p => p.idPersona === employee.idPersona);
+    const selectedPersona = personas.find(
+      (p) => p.idPersona === employee.idPersona
+    );
 
     setProduct({
       ...employee,
       fechaIng: fechaIngDate,
       celular: selectedPersona ? selectedPersona.celular : "",
       nombrePersona: selectedPersona ? selectedPersona.nombrePersona : "",
-      direccion: selectedPersona ? selectedPersona.direccion : ""
+      direccion: selectedPersona ? selectedPersona.direccion : "",
     });
     setProductDialog(true);
-};
-
-
-
+  };
 
   const confirmDeleteProduct = (product) => {
     setProduct(product);
@@ -387,26 +385,30 @@ export default function ProductsDemo() {
     setProduct({ ...product, idCargo: selectedCargoId });
   }
   function updatePersona(selectedPersonaId) {
-    const selectedPersona = personas.find(persona => persona.idPersona === selectedPersonaId);
+    const selectedPersona = personas.find(
+      (persona) => persona.idPersona === selectedPersonaId
+    );
 
     setProduct({
       ...product,
       idPersona: selectedPersonaId,
-      celular: selectedPersona ? selectedPersona.celular : "", 
-      nombrePersona: selectedPersona ? selectedPersona.nombrePersona : "", 
-      direccion: selectedPersona ? selectedPersona.direccion : "" 
+      celular: selectedPersona ? selectedPersona.celular : "",
+      nombrePersona: selectedPersona ? selectedPersona.nombrePersona : "",
+      direccion: selectedPersona ? selectedPersona.direccion : "",
     });
   }
   const cargoBodyTemplate = (rowData) => {
-    const cargo = cargos.find(cargo => cargo.idCargo === rowData.idCargo);
+    const cargo = cargos.find((cargo) => cargo.idCargo === rowData.idCargo);
     return cargo ? cargo.nombreCargo : rowData.idCargo;
   };
-  
+
   const personaBodyTemplate = (rowData) => {
-    const persona = personas.find(persona => persona.idPersona === rowData.idPersona);
+    const persona = personas.find(
+      (persona) => persona.idPersona === rowData.idPersona
+    );
     return persona ? persona.nombrePersona : rowData.idPersona;
   };
-  
+
   return (
     <div>
       <Dashboard />
@@ -458,8 +460,18 @@ export default function ProductsDemo() {
                   sortable
                 ></Column>
                 <Column field="turno" header="Turno" sortable></Column>
-                <Column field="idPersona" header="Persona" body={personaBodyTemplate} sortable></Column>
-                <Column field="idCargo" header="Cargo" body={cargoBodyTemplate} sortable></Column>
+                <Column
+                  field="idPersona"
+                  header="Persona"
+                  body={personaBodyTemplate}
+                  sortable
+                ></Column>
+                <Column
+                  field="idCargo"
+                  header="Cargo"
+                  body={cargoBodyTemplate}
+                  sortable
+                ></Column>
                 <Column
                   field="estadoEmpleado"
                   header="Estado"
@@ -494,7 +506,11 @@ export default function ProductsDemo() {
               </div>
               <div className="field">
                 <label htmlFor="nombrePersona">Nombre</label>
-                <InputText id="nombrePersona" value={product.nombrePersona} readOnly />
+                <InputText
+                  id="nombrePersona"
+                  value={product.nombrePersona}
+                  readOnly
+                />
               </div>
               <div className="field">
                 <label htmlFor="dni">Celular</label>
@@ -510,9 +526,9 @@ export default function ProductsDemo() {
                   id="idCargo"
                   value={product.idCargo}
                   options={cargos}
-                  onChange={(e) => updateCargo(e.value)}  
+                  onChange={(e) => updateCargo(e.value)}
                   required
-                  optionLabel="nombreCargo"  
+                  optionLabel="nombreCargo"
                   optionValue="idCargo"
                   placeholder="Seleccione a cargo"
                 />
