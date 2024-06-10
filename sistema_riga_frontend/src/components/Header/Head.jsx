@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Menubar } from 'primereact/menubar';
 import { InputText } from 'primereact/inputtext';
 import { Badge } from 'primereact/badge';
 import { Avatar } from 'primereact/avatar'; 
 import Logout from '../Login/loguotbutton';
+import Header from './Header';
 
 export default function TemplateDemo() {
+    const [showHeader, setShowHeader] = useState(true);
+
+    const toggleHeader = () => {
+        setShowHeader(!showHeader);
+    };
 
     const itemRenderer = (item) => (
-        <a className="flex align-items-center p-menuitem-link">
+        <a className="flex align-items-center p-menuitem-link" onClick={toggleHeader}>
             <span className={item.icon} />
             <span className="mx-2">{item.label}</span>
             {item.badge && <Badge className="ml-auto" value={item.badge} />}
@@ -16,7 +22,12 @@ export default function TemplateDemo() {
         </a>
     );
 
-    const items = [
+    const menuItems = [
+        {
+            label: 'Toggle Header',
+            icon: 'pi pi-bars',
+            command: toggleHeader
+        },
         {
             label: 'Home',
             icon: 'pi pi-home'
@@ -24,51 +35,6 @@ export default function TemplateDemo() {
         {
             label: 'Features',
             icon: 'pi pi-star'
-        },
-        {
-            label: 'Projects',
-            icon: 'pi pi-search',
-            items: [
-                {
-                    label: 'Core',
-                    icon: 'pi pi-bolt',
-                    shortcut: '⌘+S',
-                    template: itemRenderer
-                },
-                {
-                    label: 'Blocks',
-                    icon: 'pi pi-server',
-                    shortcut: '⌘+B',
-                    template: itemRenderer
-                },
-                {
-                    label: 'UI Kit',
-                    icon: 'pi pi-pencil',
-                    shortcut: '⌘+U',
-                    template: itemRenderer
-                },
-                {
-                    separator: true
-                },
-                {
-                    label: 'Templates',
-                    icon: 'pi pi-palette',
-                    items: [
-                        {
-                            label: 'Apollo',
-                            icon: 'pi pi-palette',
-                            badge: 2,
-                            template: itemRenderer
-                        },
-                        {
-                            label: 'Ultima',
-                            icon: 'pi pi-palette',
-                            badge: 3,
-                            template: itemRenderer
-                        }
-                    ]
-                }
-            ]
         },
         {
             label: 'Contact',
@@ -90,8 +56,8 @@ export default function TemplateDemo() {
 
     return (
         <div className="card">
-            <Menubar model={items} start={start} end={end} />
+            <Menubar model={menuItems} start={start} end={end} />
+            {showHeader && <Header />}
         </div>
     )
 }
-

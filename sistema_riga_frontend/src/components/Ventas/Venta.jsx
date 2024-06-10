@@ -10,10 +10,11 @@ import { Divider } from "primereact/divider";
 import { Dialog } from "primereact/dialog";
 import { InputNumber } from "primereact/inputnumber";
 import { ColumnGroup } from "primereact/columngroup";
-
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import bodega from "../Imagenes/7.png";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
-
 import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 
@@ -24,7 +25,7 @@ import apiClient from "../Security/apiClient";
 import { Row } from "primereact/row";
 
 import "./VentaStyle.css";
-
+import Boleta from "../Comprobante/Boleta";
 const SalesComponent = () => {
   const [productName, setProductName] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -39,8 +40,30 @@ const SalesComponent = () => {
   const [products, setProducts] = useState([]); // State para almacenar los clientes
   const [productsDialogVisible, setProductsDialogVisible] = useState(false);
   const [selectedPersonName, setSelectedPersonName] = useState(""); // Paso 1: Estado para almacenar el nombre del cliente seleccionado
+  const [comprobante, setComprobante] = useState(null);
 
   const [id, setId] = useState("");
+  const [idVenta, setIdVenta] = useState(null); // Estado para almacenar el ID de la venta seleccionada
+  const [showBoletaDialog, setShowBoletaDialog] = useState(false); // Estado para controlar la visibilidad del diálogo de la boleta
+  const [empresa, setEmpresa] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  useEffect(() => {
+      fetchEmpresas();
+  }, []);
+
+  const fetchEmpresas = async () => {
+      try {
+          const data = await apiClient.get("http://localhost:8080/empresa/1");
+          setEmpresa(data); // Aquí asumo que la respuesta del servidor contiene tanto el RUC como la razón social
+      } catch (error) {
+          console.error("Error al obtener empresas:", error);
+      }
+  };
+  // Función para manejar la generación del PDF
+  const handleGenerarPDF = () => {
+    setIdVenta(idVenta); // Esto no está haciendo nada
+    setShowBoletaDialog(true); // Esto mostrará el diálogo, pero no generará el PDF
+};
 
 
   // Función para manejar la selección de cliente
@@ -90,148 +113,251 @@ const SalesComponent = () => {
   };
 
   const [idsupremo, setIdsupremo] = useState("");
+  const generatePDF = () => {
+    if (!comprobante) return;
+  
+    const doc = new jsPDF();
+
+
+
+    // Encabezado
+    doc.text(`Boleta de Venta`, 10, 5);
+    doc.text(`Todo lo que necesitas, a tu alcance.`, 10, 15);
+
+    // Imagen del logo
+    const logoImgSrc = bodega; // Ruta de la imagen
+    doc.addImage(logoImgSrc, 'JPEG', 10, 20, 50, 50); // (imagen, formato, x, y, ancho, alto)
+
+    // Datos de la empresa
+    let yPosition = 30; // Posición inicial
+    if (empresa) {
+        doc.text(`RUC: ${empresa.ruc}`, 70, yPosition);
+        doc.text(`Razón Social: ${empresa.razonSocial}`, 70, yPosition + 10);
+        doc.text(`Dirección: ${empresa.direccion}`, 70, yPosition + 20);
+    }
+
+    // Datos de la venta
+    yPosition += 40; // Incremento de posición para los datos de la venta
+    doc.text(`ID Venta: ${comprobante.idVenta}`, 10, yPosition);
+    doc.text(`Numero: ${comprobante.numero}`, 10, yPosition + 10);
+    doc.text(`Serie: ${comprobante.serie}`, 10, yPosition + 20);
+    doc.text(`Fecha: ${new Date(comprobante.fechaVenta).toLocaleString()}`, 10, yPosition + 30);
+    doc.text(`Cliente: ${comprobante.nomCli}`, 10, yPosition + 40);
+    doc.text(`Documento: ${comprobante.docCli}`, 10, yPosition + 50);
+    doc.text(`Dirección: ${comprobante.direccion}`, 10, yPosition + 60);
+    doc.text(`Método de Pago: ${comprobante.nombreMetodo}`, 10, yPosition + 70);
+
+    // Tabla de detalles
+    yPosition += 80; // Incremento de posición para la tabla de detalles
+    const headers = ["#", "Producto", "Cantidad", "Precio Unitario", "Total"];
+    const detalles = comprobante.detallesPedido.map((detalle, index) => [
+        index + 1,
+        detalle.nomProducto,
+        detalle.cant,
+        `$${detalle.precioUnitario.toFixed(2)}`, // Formato de precio
+        `$${detalle.totalPro.toFixed(2)}` // Formato de total
+    ]);
+
+    doc.autoTable({
+        startY: yPosition,
+        head: [headers],
+        body: detalles,
+        theme: 'grid', // Cambiar a tema de cuadrícula para bordes
+        margin: { top: 10 },
+        styles: {
+            font: 'Arial',
+            fontSize: 10,
+            textColor: '#333333',
+            cellPadding: 2, // Reducir el relleno de la celda
+            headerCellPadding: 2,
+            halign: 'center' // Alineación horizontal centrada
+        },
+        columnStyles: {
+            0: { halign: 'center' }, // Alineación horizontal centrada para la primera columna
+            2: { halign: 'center' }, // Alineación horizontal centrada para la tercera columna
+            3: { halign: 'right' }, // Alineación horizontal a la derecha para la cuarta columna
+            4: { halign: 'right' } // Alineación horizontal a la derecha para la quinta columna
+        }
+    });
+
+    // Resumen
+    yPosition = doc.autoTable.previous.finalY + 5; // Posición del resumen
+    doc.text(`Subtotal: $${comprobante.subTotal.toFixed(2)}`, 10, yPosition);
+    doc.text(`IGV: $${comprobante.igv.toFixed(2)}`, 10, yPosition + 10);
+    doc.text(`Descuento: $${comprobante.descuento.toFixed(2)}`, 10, yPosition + 20);
+    doc.text(`Total Descuento: $${comprobante.totalDescuento.toFixed(2)}`, 10, yPosition + 30);
+    doc.text(`Total: $${comprobante.total.toFixed(2)}`, 10, yPosition + 40);
+
+    // Guardar el PDF
+    doc.save('boleta.pdf');
+};
 
   const handleRealizarVenta = async () => {
     try {
-        // Verificar si selectedPerson no es null y salesDetails no está vacío
-        if (selectedPerson && salesDetails.length > 0) {
-            // Crear un objeto con los datos del pedido
-            const pedidoData = {
-                // Otros campos que puedas necesitar para el pedido
-            };
+      // Verificar si selectedPerson no es null y salesDetails no está vacío
+      if (selectedPerson && salesDetails.length > 0) {
+        // Crear un objeto con los datos del pedido
+        const pedidoData = {
+          // Otros campos que puedas necesitar para el pedido
+        };
 
-            console.log("TU TOKEN:", token)
+        console.log("TU TOKEN:", token)
 
-            // Enviar la solicitud para insertar el pedido
-            const pedidoResponse = await fetch("http://localhost:8080/pedido", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(pedidoData),
-            });
-
-            if (!pedidoResponse.ok) {
-                throw new Error("Error al insertar el pedido.");
-            }
-
-            // Obtener el ID del pedido insertado
-            const pedidoId = await pedidoResponse.json();
-
-            await Promise.all(
-              salesDetails.map(async (detalle) => {
-                // Crear un objeto con los datos del detalle del pedido
-                console.log(detalle);
-                const detallePedidoData = {
-                  idPedido: pedidoId,
-                  idProducto: detalle.productId,
-                  cantidad: detalle.quantity,
-                  precio: detalle.price,
-                  idUsuario: id,
-                  // Otros campos que puedas necesitar para el detalle del pedido
-                };
-    
-                // Enviar la solicitud para insertar el detalle del pedido
-                const detallePedidoResponse = await fetch(
-                  `http://localhost:8080/detallepedido/${pedidoId}`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      "Authorization": `Bearer ${token}`
-
-                    },
-                    body: JSON.stringify(detallePedidoData),
-                  }
-                );
-    
-                console.log("detalle");
-                if (!detallePedidoResponse.ok) {
-                  throw new Error("Error al insertar los detalles del pedido.");
-                }
-              })
-            );
-
-            // Crear un objeto con los datos de la venta
-            const subtotal = salesDetails.reduce((total, sale) => {
-                return total + sale.quantity * sale.price;
-            }, 0);
-
-            const igv = subtotal * 0.18; // Suponiendo que el IGV es el 18% del subtotal
-            const descuento = 0; // Puedes calcular el descuento según tus necesidades
-            const totalDescuento = subtotal * (descuento / 100); // Descuento total
-            const totalPagar = subtotal + igv - totalDescuento; // Total a pagar
-
-            // Crear un objeto con los datos de la venta
-            let tipoComprobante;
-            if (saleType === "boleta") {
-                tipoComprobante = "B";
-                console.log(tipoComprobante);
-            } else if (saleType === "factura") {
-                tipoComprobante = "F";
-            } else {
-                throw new Error("Tipo de comprobante no válido.");
-            }
-
-            // Crear un objeto con los datos de la venta
-            const ventaData = {
-                Descuento: descuento,
-                igv: igv,
-                total: totalPagar,
-                subtotal: subtotal,
-                totaldescuento: totalDescuento,
-                totalPagar: totalPagar,
-                tipoComprobante: tipoComprobante, // Asignar el valor correspondiente a tipoComprobante
-                idCliente: selectedPerson,
-                idPedido: pedidoId,
-                idUsuario: id, // Aquí asignamos el idUsuario del estado local
-                idMetodoPago: 1,
-            };
-
-            console.log(ventaData)
-
-            // Enviar la solicitud para insertar la venta
-            const ventaResponse = await fetch("http://localhost:8080/venta", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-
-                },
-                body: JSON.stringify(ventaData),
-            });
-
-            if (!ventaResponse.ok) {
-                throw new Error("Error al insertar la venta.");
-            }
-
-            // Venta realizada con éxito
-            toast.current.show({
-                severity: "success",
-                summary: "Venta realizada",
-                detail: "La venta se realizó correctamente",
-                life: 3000,
-            });
-
-            // Limpiar los detalles de la venta después de realizarla
-            setSalesDetails([]);
-        } else {
-            // Manejar el caso en que no se haya seleccionado un cliente o no haya productos en la venta
-            throw new Error(
-                "Por favor, selecciona un cliente y agrega productos para realizar la venta."
-            );
-        }
-    } catch (error) {
-        console.error("Error realizando la venta:", error);
-        toast.current.show({
-            severity: "error",
-            summary: "Error",
-            detail: "Error al realizar la venta",
-            life: 3000,
+        // Enviar la solicitud para insertar el pedido
+        const pedidoResponse = await fetch("http://localhost:8080/pedido", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(pedidoData),
         });
+
+        if (!pedidoResponse.ok) {
+          throw new Error("Error al insertar el pedido.");
+        }
+
+        // Obtener el ID del pedido insertado
+        const pedidoId = await pedidoResponse.json();
+
+        // Insertar los detalles del pedido
+        await Promise.all(
+          salesDetails.map(async (detalle) => {
+            // Crear un objeto con los datos del detalle del pedido
+            const detallePedidoData = {
+              idPedido: pedidoId,
+              idProducto: detalle.productId,
+              cantidad: detalle.quantity,
+              precio: detalle.price,
+              idUsuario: id,
+              // Otros campos que puedas necesitar para el detalle del pedido
+            };
+
+            // Enviar la solicitud para insertar el detalle del pedido
+            const detallePedidoResponse = await fetch(
+              `http://localhost:8080/detallepedido/${pedidoId}`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(detallePedidoData),
+              }
+            );
+
+            if (!detallePedidoResponse.ok) {
+              throw new Error("Error al insertar los detalles del pedido.");
+            }
+          })
+        );
+
+        // Crear un objeto con los datos de la venta
+        const subtotal = salesDetails.reduce((total, sale) => {
+          return total + sale.quantity * sale.price;
+        }, 0);
+
+        const igv = subtotal * 0.18; // Suponiendo que el IGV es el 18% del subtotal
+        const descuento = 0; // Puedes calcular el descuento según tus necesidades
+        const totalDescuento = subtotal * (descuento / 100); // Descuento total
+        const totalPagar = subtotal + igv - totalDescuento; // Total a pagar
+
+        // Crear un objeto con los datos de la venta
+        let tipoComprobante;
+        if (saleType === "boleta") {
+          tipoComprobante = "B";
+          console.log(tipoComprobante);
+        } else if (saleType === "factura") {
+          tipoComprobante = "F";
+        } else {
+          throw new Error("Tipo de comprobante no válido.");
+        }
+
+        // Crear un objeto con los datos de la venta
+        const ventaData = {
+          idVenta: "",
+          Descuento: descuento,
+          igv: igv,
+          total: totalPagar,
+          subtotal: subtotal,
+          totaldescuento: totalDescuento,
+          totalPagar: totalPagar,
+          tipoComprobante: tipoComprobante, // Asignar el valor correspondiente a tipoComprobante
+          idCliente: selectedPerson,
+          idPedido: pedidoId,
+          idUsuario: id, // Aquí asignamos el idUsuario del estado local
+          idMetodoPago: 1,
+        };
+
+        console.log(ventaData)
+
+        // Enviar la solicitud para insertar la venta
+        const ventaResponse = await fetch("http://localhost:8080/venta", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(ventaData)
+        });
+
+        if (!ventaResponse.ok) {
+          throw new Error("Error al insertar la venta.");
+        }
+
+        // Obtener el ID de la venta insertada
+        const ventaId = (await ventaResponse.json()).idVenta;
+
+        // Venta realizada con éxito
+        toast.current.show({
+          severity: "success",
+          summary: "Venta realizada",
+          detail: "La venta se realizó correctamente",
+          life: 3000,
+        });
+
+        // Limpiar los detalles de la venta después de realizarla
+        setSalesDetails([]);
+
+        // Obtener y establecer el comprobante de venta
+        const comprobanteResponse = await fetch(`http://localhost:8080/venta/comprobante/${ventaId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+        });
+        
+        if (!comprobanteResponse.ok) {
+          throw new Error("Error al obtener el comprobante de venta.");
+        }
+        
+        const comprobanteData = await comprobanteResponse.json();
+        console.log(comprobanteData);
+        setComprobante(comprobanteData);
+        
+        handleGenerarPDF();
+        // Función para generar el PDF del comprobante de venta
+        
+      } else {
+        // Manejar el caso en que no se haya seleccionado un cliente o no haya productos en la venta
+        throw new Error(
+          "Por favor, selecciona un cliente y agrega productos para realizar la venta."
+        );
+      }
+      generatePDF(comprobante);
+    } catch (error) {
+      console.error("Error realizando la venta:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error al realizar la venta",
+        life: 3000,
+      });
     }
-};
+   
+  };
+
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
@@ -293,10 +419,10 @@ const SalesComponent = () => {
     const updatedSalesDetails = salesDetails.map((sale) =>
       sale === rowData
         ? {
-            ...sale,
-            quantity: newQuantity,
-            total: (newQuantity * sale.price).toFixed(2), // Redondear a dos decimales
-          }
+          ...sale,
+          quantity: newQuantity,
+          total: (newQuantity * sale.price).toFixed(2), // Redondear a dos decimales
+        }
         : sale
     );
     setSalesDetails(updatedSalesDetails);
@@ -308,113 +434,119 @@ const SalesComponent = () => {
   };
 
   return (
-    <div className="">
-      <div>
-                {/* Otro contenido */}
-                <DataUsuario onUserDataReceived={handleUserDataReceived} />
-                {/* Otro contenido */}
-              </div>
-      <div className="p-d-flex p-jc-center p-mt-5">
-        <div className="sales-grid">
-          <Toast ref={toast} />
+    <div><Boleta />
+      <div className="">
+        <div>
+          {/* Otro contenido */}
+          <DataUsuario onUserDataReceived={handleUserDataReceived} />
+          {/* Otro contenido */}
+        </div>
+        <div className="p-d-flex p-jc-center p-mt-5">
+          <div className="sales-grid">
+            <Toast ref={toast} />
 
-          <Panel header="Buscar Producto" className="p-shadow-4">
-            <Button
-              className="mb-4"
-              label="Seleccionar Producto"
-              icon="pi pi-external-link"
-              onClick={() => setProductsDialogVisible(true)} // Cambiar el estado para mostrar el diálogo de productos
-            />
-
-            <ProductDialog // Diálogo para seleccionar productos
-              visible={productsDialogVisible}
-              onHide={() => setProductsDialogVisible(false)}
-              onSelectProduct={handleProductSelect}
-              products={products} // Pasar los productos generados aleatoriamente
-            />
-            <PersonDialog // Diálogo para seleccionar clientes o empresas
-              visible={dialogVisible}
-              onHide={() => setDialogVisible(false)}
-              onSelectPerson={handlePersonSelect}
-              onSelectCompany={handleCompanySelect} // Pasar la función de selección de empresas
-              data={saleType === "boleta" ? persons : companies} // Pasar la lista de personas o empresas según el tipo de comprobante
-              isPerson={saleType === "boleta"} // Pasar un flag indicando si se trata de personas o empresas
-            />
-            <SalesTable
-              salesDetails={salesDetails}
-              onQuantityChange={handleQuantityChange}
-              onDelete={handleDeleteSale}
-            />
-          </Panel>
-
-          <div className="row">
-            <Panel header="Informacion" className="p-shadow-4 mb-4">
-              <div className="p-field">
-                <div className="mb-2 font-bold">
-                  Selecciona un tipo de comprobante:
-                </div>
-                <div className="p-field-radiobutton mb-2 ">
-                  <RadioButton
-                    inputId="boleta"
-                    name="saleType"
-                    value="boleta"
-                    onChange={(e) => setSaleType(e.value)}
-                    checked={saleType === "boleta"}
-                  />
-                  <label htmlFor="boleta" className="mx-2">
-                    Boleta
-                  </label>
-                </div>
-                <div className="p-field-radiobutton mb-2">
-                  <RadioButton
-                    inputId="factura"
-                    name="saleType"
-                    value="factura"
-                    onChange={(e) => setSaleType(e.value)}
-                    checked={saleType === "factura"}
-                  />
-                  <label htmlFor="factura" className="mx-2">
-                    Factura
-                  </label>
-                </div>
-                <Divider align="center">
-                  <span>Datos</span>
-                </Divider>
-              </div>
-
-              <div
-                className="p-d-flex p-flex-row p-jc-between"
-                style={{ display: "flex", justifyContent: "space-between" }}
-              >
-                <Button
-                  style={{
-                    width: "38%",
-                    backgroundColor: "var(--orange-400)",
-                    border: "var(--green-500)",
-                  }}
-                  label="Cliente"
-                  icon="pi pi-users green-500"
-                  onClick={() => setDialogVisible(true)}
-                />
-
-                <InputText
-                  disabled
-                  style={{ width: "58%" }}
-                  placeholder="Disabled"
-                  value={selectedPersonName} // Paso 3: Mostrar el nombre del cliente seleccionado
-                />
-              </div>
-            </Panel>
-            <div className="flex justify-content-center flex-wrap">
+            <Panel header="Buscar Producto" className="p-shadow-4">
               <Button
-                style={{
-                  backgroundColor: "var(--cyan-500)",
-                  border: "var(--green-500)",
-                }}
-                label="Realizar venta"
-                icon="pi pi-shopping-cart"
-                onClick={handleRealizarVenta} // Llama a la función handleRealizarVenta al hacer clic en el botón
+                className="mb-4"
+                label="Seleccionar Producto"
+                icon="pi pi-external-link"
+                onClick={() => setProductsDialogVisible(true)} // Cambiar el estado para mostrar el diálogo de productos
               />
+
+              <ProductDialog // Diálogo para seleccionar productos
+                visible={productsDialogVisible}
+                onHide={() => setProductsDialogVisible(false)}
+                onSelectProduct={handleProductSelect}
+                products={products} // Pasar los productos generados aleatoriamente
+              />
+              <PersonDialog // Diálogo para seleccionar clientes o empresas
+                visible={dialogVisible}
+                onHide={() => setDialogVisible(false)}
+                onSelectPerson={handlePersonSelect}
+                onSelectCompany={handleCompanySelect} // Pasar la función de selección de empresas
+                data={saleType === "boleta" ? persons : companies} // Pasar la lista de personas o empresas según el tipo de comprobante
+                isPerson={saleType === "boleta"} // Pasar un flag indicando si se trata de personas o empresas
+              />
+              <SalesTable
+                salesDetails={salesDetails}
+                onQuantityChange={handleQuantityChange}
+                onDelete={handleDeleteSale}
+              />
+            </Panel>
+
+            <div className="row">
+              <Panel header="Informacion" className="p-shadow-4 mb-4">
+                <div className="p-field">
+                  <div className="mb-2 font-bold">
+                    Selecciona un tipo de comprobante:
+                  </div>
+                  <div className="p-field-radiobutton mb-2 ">
+                    <RadioButton
+                      inputId="boleta"
+                      name="saleType"
+                      value="boleta"
+                      onChange={(e) => setSaleType(e.value)}
+                      checked={saleType === "boleta"}
+                    />
+                    <label htmlFor="boleta" className="mx-2">
+                      Boleta
+                    </label>
+                  </div>
+                  <div className="p-field-radiobutton mb-2">
+                    <RadioButton
+                      inputId="factura"
+                      name="saleType"
+                      value="factura"
+                      onChange={(e) => setSaleType(e.value)}
+                      checked={saleType === "factura"}
+                    />
+                    <label htmlFor="factura" className="mx-2">
+                      Factura
+                    </label>
+                  </div>
+                  <Divider align="center">
+                    <span>Datos</span>
+                  </Divider>
+                </div>
+
+                <div
+                  className="p-d-flex p-flex-row p-jc-between"
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <Button
+                    style={{
+                      width: "38%",
+                      backgroundColor: "var(--orange-400)",
+                      border: "var(--green-500)",
+                    }}
+                    label="Cliente"
+                    icon="pi pi-users green-500"
+                    onClick={() => setDialogVisible(true)}
+                  />
+
+                  <InputText
+                    disabled
+                    style={{ width: "58%" }}
+                    placeholder="Disabled"
+                    value={selectedPersonName} // Paso 3: Mostrar el nombre del cliente seleccionado
+                  />
+                </div>
+              </Panel>
+              <div className="flex justify-content-center flex-wrap">
+              <Button
+  style={{
+    backgroundColor: "var(--cyan-500)",
+    border: "var(--green-500)",
+  }}
+  label="Realizar venta"
+  icon="pi pi-shopping-cart"
+  onClick={() => {
+    handleRealizarVenta();
+    generatePDF();
+  }}
+/>
+
+              </div>
             </div>
           </div>
         </div>
@@ -610,10 +742,10 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
   return (
     <div className="">
       <div>
-                {/* Otro contenido */}
-                <DataUsuario onUserDataReceived={handleUserDataReceived} />
-                {/* Otro contenido */}
-              </div>
+        {/* Otro contenido */}
+        <DataUsuario onUserDataReceived={handleUserDataReceived} />
+        {/* Otro contenido */}
+      </div>
       <DataTable
         value={salesDetails}
         footerColumnGroup={footerGroup}
