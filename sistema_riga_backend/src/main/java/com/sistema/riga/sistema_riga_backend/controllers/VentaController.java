@@ -1,13 +1,10 @@
 package com.sistema.riga.sistema_riga_backend.controllers;
 
-import com.sistema.riga.sistema_riga_backend.models.DetallePedidoModel;
+import com.sistema.riga.sistema_riga_backend.models.ComprobanteModel;
 import com.sistema.riga.sistema_riga_backend.models.VentaModel;
 import com.sistema.riga.sistema_riga_backend.services.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/venta")
@@ -17,7 +14,12 @@ public class VentaController {
     private IVentaService ventaService;
 
     @PostMapping
-    public int insertarVenta(@RequestBody VentaModel ventaModel) {
+    public ComprobanteModel insertarVenta(@RequestBody VentaModel ventaModel) {
         return ventaService.insertarVenta(ventaModel);
+    }
+
+    @GetMapping("/comprobante/{id}")
+    public ComprobanteModel getComprobanteById(@PathVariable int id) {
+        return ventaService.getComprobanteById(id);
     }
 }
