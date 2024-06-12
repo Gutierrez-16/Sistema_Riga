@@ -10,9 +10,9 @@ export default function TemplateDemo() {
     const start = (
         <div className="flex align-items-center gap-3 px-2">
             <a href="/home">
-                <img alt="logo" src={bodega} height="50" className="mr-2" />
+                <img alt="logo" src={bodega} height="60" className="mr-2" />
             </a>
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#333' }}>Bodega Riga</h1>
+            <h1 style={{ margin: 0, fontSize: '24px', color: '#333' }}>Bodega Riga</h1>
         </div>
     );
 

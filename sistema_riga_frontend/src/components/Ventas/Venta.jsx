@@ -19,13 +19,12 @@ import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 
 import DataUsuario from "../Usuario/DataUsuario";
-
+import { Dropdown } from "primereact/dropdown";
 import apiClient from "../Security/apiClient";
-
+import Boleta from "../Comprobante/Boleta";
 import { Row } from "primereact/row";
 
 import "./VentaStyle.css";
-import Boleta from "../Comprobante/Boleta";
 const SalesComponent = () => {
   const [productName, setProductName] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -46,7 +45,14 @@ const SalesComponent = () => {
   const [idVenta, setIdVenta] = useState(null); // Estado para almacenar el ID de la venta seleccionada
   const [showBoletaDialog, setShowBoletaDialog] = useState(false); // Estado para controlar la visibilidad del diálogo de la boleta
   const [empresa, setEmpresa] = useState(null);
+  const [metodo, setMetodo] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+
+  
+  const [submitted, setSubmitted] = useState(false);
+
+
+  const [idmet, setIdmet] = useState("");
   useEffect(() => {
     fetchEmpresas();
   }, []);
@@ -59,14 +65,6 @@ const SalesComponent = () => {
       console.error("Error al obtener empresas:", error);
     }
   };
-  // Función para manejar la generación del PDF
-  const handleGenerarPDF = () => {
-    setIdVenta(idVenta); // Esto no está haciendo nada
-    setShowBoletaDialog(true); // Esto mostrará el diálogo, pero no generará el PDF
-  };
-
-
-  // Función para manejar la selección de cliente
 
   useEffect(() => {
     fetchClients(); // Cargar clientes cuando el componente se monta
@@ -77,6 +75,10 @@ const SalesComponent = () => {
   const handleUserDataReceived = (userData) => {
     setId(userData.idUsuario);
   };
+
+
+  const [metodosPago, setMetodosPago] = useState([]);
+
 
   const getToken = () => {
     return localStorage.getItem('token');
@@ -110,9 +112,13 @@ const SalesComponent = () => {
     setSerieNumero(newSerieNumero);
   };
 
-  const [idsupremo, setIdsupremo] = useState("");
-  const generatePDF = () => {
-    if (!comprobante) return;
+  const generatePDF = (comprobante) => {
+    if (!comprobante) {
+      console.log("NO HAY COMPROBANTE P")
+      return;
+    }
+
+    setComprobante(null);
 
     const doc = new jsPDF();
 
@@ -156,7 +162,6 @@ const SalesComponent = () => {
       theme: 'grid',
       margin: { top: 10 },
       styles: {
-        font: 'Arial',
         fontSize: 10,
         textColor: '#333333',
         cellPadding: 2,
@@ -169,6 +174,7 @@ const SalesComponent = () => {
         3: { halign: 'right' },
         4: { halign: 'right' }
       }
+
     });
 
     yPosition = doc.autoTable.previous.finalY + 5;
@@ -179,21 +185,21 @@ const SalesComponent = () => {
     doc.text(`Total: $${comprobante.total.toFixed(2)}`, 10, yPosition + 40);
 
     doc.save('boleta.pdf');
+
   };
 
   const handleRealizarVenta = async () => {
     try {
       if (selectedPerson && salesDetails.length > 0) {
-        const pedidoData = {
-        };
+        console.log("PASE POR SELECTED");
         const pedidoResponse = await fetch("http://localhost:8080/pedido", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(pedidoData),
+          }
         });
+        console.log("PEDIDO: ", pedidoResponse);
 
         if (!pedidoResponse.ok) {
           throw new Error("Error al insertar el pedido.");
@@ -244,9 +250,13 @@ const SalesComponent = () => {
         } else {
           throw new Error("Tipo de comprobante no válido.");
         }
+        const dataMetodo = await apiClient.get("http://localhost:8080/metodopago");
+        console.log("DATA METODO: ", dataMetodo)
+        
+
+        console.log("ID MET: ",idmet);
 
         const ventaData = {
-          idVenta: "",
           Descuento: descuento,
           igv: igv,
           total: totalPagar,
@@ -257,9 +267,10 @@ const SalesComponent = () => {
           idCliente: selectedPerson,
           idPedido: pedidoId,
           idUsuario: id,
-          idMetodoPago: 1,
+          idMetodoPago: idmet, // Aquí se incluye el idMetodoPago obtenido
         };
-
+        console.log("DATA: ", ventaData);
+        
         const ventaResponse = await fetch("http://localhost:8080/venta", {
           method: "POST",
           headers: {
@@ -268,6 +279,9 @@ const SalesComponent = () => {
           },
           body: JSON.stringify(ventaData)
         });
+
+        console.log("RESPONSE: : ", ventaResponse);
+
 
         if (!ventaResponse.ok) {
           throw new Error("Error al insertar la venta.");
@@ -296,14 +310,26 @@ const SalesComponent = () => {
         const comprobanteData = await comprobanteResponse.json();
         setComprobante(comprobanteData);
 
-        handleGenerarPDF();
+        console.log("data: ", comprobanteData)
+
+        generatePDF(comprobanteData);
+        console.log("PASE POR EL PDF");
+
+        setIdVenta(idVenta); // Esto no está haciendo nada
+        setShowBoletaDialog(true);
+
 
       } else {
         throw new Error(
-          "Por favor, selecciona un cliente y agrega productos para realizar la venta."
+          toast.current.show({
+            severity: "error",
+            summary: "Error",
+            detail: "seleccione un cliente y productos",
+            life: 3000,
+          })
         );
       }
-      generatePDF(comprobante);
+
     } catch (error) {
       console.error("Error realizando la venta:", error);
       toast.current.show({
@@ -315,7 +341,6 @@ const SalesComponent = () => {
     }
 
   };
-
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
@@ -390,10 +415,39 @@ const SalesComponent = () => {
     setSalesDetails(updatedSalesDetails);
   };
 
+
+  const handleSaleTypeChange = (e) => {
+    setSaleType(e.value);
+    setSelectedPersonName(""); // Limpiar el contenido del InputText
+    setSelectedPerson(null); // Limpiar el cliente seleccionado
+  };
+
+  useEffect(() => {
+    fetchMetodosPago();
+  }, []);
+
+  const fetchMetodosPago = async () => {
+    try {
+      const dataMetodo = await apiClient.get("http://localhost:8080/metodopago");
+      console.log(dataMetodo);
+      setMetodosPago(dataMetodo); // Actualizamos el estado con los métodos de pago obtenidos
+    } catch (error) {
+      console.error("Error fetching payment methods:", error);
+    }
+  };
+
+  const changeMetodo = (e) => {
+    setMetodo(e.value);
+    console.log(e.value)
+
+    setIdmet(e.value)
+  }
+
   return (
-    <div><Boleta />
+    <div>
       <div className="">
         <div>
+          <Boleta />
           <DataUsuario onUserDataReceived={handleUserDataReceived} />
         </div>
         <div className="p-d-flex p-jc-center p-mt-5">
@@ -440,7 +494,7 @@ const SalesComponent = () => {
                       inputId="boleta"
                       name="saleType"
                       value="boleta"
-                      onChange={(e) => setSaleType(e.value)}
+                      onChange={handleSaleTypeChange}
                       checked={saleType === "boleta"}
                     />
                     <label htmlFor="boleta" className="mx-2">
@@ -452,13 +506,35 @@ const SalesComponent = () => {
                       inputId="factura"
                       name="saleType"
                       value="factura"
-                      onChange={(e) => setSaleType(e.value)}
+                      onChange={handleSaleTypeChange}
                       checked={saleType === "factura"}
                     />
                     <label htmlFor="factura" className="mx-2">
                       Factura
                     </label>
                   </div>
+                  <div className="p-field-radiobutton ">
+                    <label className="font-bold mb-8" htmlFor="idMetodoPago" >
+                      <p className="mb-2">Metodo de pago</p>
+                    </label>
+                    <div >
+                    <Dropdown
+                    
+                      id="idMetodoPago"
+                      value={metodo} // Assuming 'metodo' is the state variable holding the selected method
+                      options={metodosPago.map((metodo) => ({
+                        label: metodo.nombreMetodo,
+                        value: metodo.idMetodo,
+                      }))}
+                      onChange={changeMetodo}
+                      placeholder="Seleccione un pago"
+                    />
+                    </div>
+                    {submitted && !metodosPago.idMetodo   && (
+                      <small className="p-error">Metodo pago es requerido.</small>
+                    )}
+                  </div>
+
                   <Divider align="center">
                     <span>Datos</span>
                   </Divider>
@@ -482,13 +558,14 @@ const SalesComponent = () => {
                   <InputText
                     disabled
                     style={{ width: "58%" }}
-                    placeholder="Disabled"
+                    placeholder="Seleccione..."
                     value={selectedPersonName}
                   />
                 </div>
               </Panel>
               <div className="flex justify-content-center flex-wrap">
                 <Button
+                onSubmit={setSubmitted}
                   style={{
                     backgroundColor: "var(--cyan-500)",
                     border: "var(--green-500)",
@@ -497,7 +574,7 @@ const SalesComponent = () => {
                   icon="pi pi-shopping-cart"
                   onClick={() => {
                     handleRealizarVenta();
-                    generatePDF();
+
                   }}
                 />
 
@@ -630,10 +707,10 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
     return total + sale.quantity * sale.price;
   }, 0);
 
-  const igv = subtotal * 0.18; 
-  const descuento = 0; 
-  const totalDescuento = subtotal * (descuento / 100); 
-  const totalPagar = subtotal + igv - totalDescuento; 
+  const igv = subtotal * 0.18;
+  const descuento = 0;
+  const totalDescuento = subtotal * (descuento / 100);
+  const totalPagar = subtotal + igv - totalDescuento;
 
   const footerGroup = (
     <ColumnGroup>
@@ -647,7 +724,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"IGV:"} 
+          footer={"IGV:"}
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -655,7 +732,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"Total:"} 
+          footer={"Total:"}
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -663,7 +740,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"Subtotal:"} 
+          footer={"Subtotal:"}
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -671,7 +748,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"Total descuento:"} 
+          footer={"Total descuento:"}
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -679,7 +756,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"Total Pagar:"} 
+          footer={"Total Pagar:"}
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />

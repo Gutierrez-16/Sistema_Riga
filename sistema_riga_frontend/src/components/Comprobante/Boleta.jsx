@@ -33,6 +33,7 @@ const Boleta = ({ idVenta }) => {
         if (showDetails && !comprobante) {
             const fetchData = async () => {
                 try {
+                    const idVenta =1
                     const data = await apiClient.get(`http://localhost:8080/comprobante/${idVenta}`);
                     if (Array.isArray(data) && data.length > 0) {
                         setComprobante(data[0]);

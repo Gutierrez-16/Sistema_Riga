@@ -63,7 +63,6 @@ const CloseCajaButton = ({ onCaja }) => {
   const handleClick = () => {
     handleCloseCaja();
     fetchCajas();
-    console.log("HOLA");
     onCaja(false); 
   };
 

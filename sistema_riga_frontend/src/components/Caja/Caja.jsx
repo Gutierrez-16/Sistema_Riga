@@ -64,7 +64,6 @@ export default function Caja() {
 
   const handleCaja = (data) => {
     setSentinela(data);
-    console.log(data);
   };
 
   let emptyCaja = {
@@ -76,6 +75,7 @@ export default function Caja() {
     montoFinal: "",
     idUsuario: "",
   };
+  const [loading, setLoading] = useState(false);
 
   const [caja, setCaja] = useState(emptyCaja);
 
@@ -103,38 +103,44 @@ export default function Caja() {
     setSubmitted(true);
 
     if (product.descripcion.trim() && product.montoInicial.trim()) {
-      caja.montoInicial = product.montoInicial;
-      caja.descripcion = product.descripcion;
-      caja.idUsuario = id;
+        setLoading(true);  // Deshabilitar el botón de guardar
 
-      const method = caja.idCaja ? "PUT" : "POST";
-      const url = caja.idCaja
-        ? `http://localhost:8080/caja/${caja.idCaja}`
-        : "http://localhost:8080/caja";
+        caja.montoInicial = product.montoInicial;
+        caja.descripcion = product.descripcion;
+        caja.idUsuario = id;
 
-      try {
-        await apiClient[method.toLowerCase()](url, caja);
+        const method = caja.idCaja ? "PUT" : "POST";
+        const url = caja.idCaja
+            ? `http://localhost:8080/caja/${caja.idCaja}`
+            : "http://localhost:8080/caja";
 
-        fetchCajas();
-        setProductDialog(false);
-        setCaja(emptyCaja);
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Caja guardada",
-          life: 3000,
-        });
-      } catch (error) {
-        console.error("Error al guardar la caja:", error);
-        toast.current.show({
-          severity: "error",
-          summary: "Error",
-          detail: error.response?.data?.message || "Error al guardar la caja",
-          life: 3000,
-        });
-      }
+        try {
+            await apiClient[method.toLowerCase()](url, caja);
+
+            fetchCajas();
+            setProductDialog(false);
+            setCaja(emptyCaja);
+            toast.current.show({
+                severity: "success",
+                summary: "Successful",
+                detail: "Caja guardada",
+                life: 3000,
+            });
+        } catch (error) {
+            console.error("Error al guardar la caja:", error);
+            toast.current.show({
+                severity: "error",
+                summary: "Error",
+                detail: error.response?.data?.message || "Error al guardar la caja",
+                life: 3000,
+            });
+        } finally {
+            setLoading(false);  // Habilitar el botón de guardar
+        }
     }
-  };
+};
+
+
 
   const closeCaja = async () => {
     if (product.idCaja) {
@@ -264,10 +270,11 @@ export default function Caja() {
 
   const productDialogFooter = (
     <React.Fragment>
-      <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
-      <Button label="Save" icon="pi pi-check" onClick={saveProduct} />
+        <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
+        <Button label="Save" icon="pi pi-check" onClick={saveProduct} disabled={loading} />
     </React.Fragment>
-  );
+);
+
 
   const closeProductDialogFooter = (
     <React.Fragment>

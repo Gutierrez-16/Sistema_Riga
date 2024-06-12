@@ -17,6 +17,7 @@ import TipoUsuario from './Components/TipoUsuario/TipoUsuario'
 import Marca from './Components/Marca/Marca'
 import Caja from './Components/Caja/Caja'
 import Cerrar from './Components/Caja/ButtonCaja'
+import Reporte from './Components/Reporte/Reporte'
 
 function App() {
 
@@ -36,6 +37,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Usuario />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reporte"
+        element={
+          <ProtectedRoute>
+            <Reporte />
           </ProtectedRoute>
         }
       />

@@ -61,6 +61,18 @@ const Header = () => {
       ],
     },
     {
+      label: "Reportes",
+      icon: "pi pi-id-card",
+      items: [
+        {
+          label: "Reporte",
+          icon: "pi pi-chart-line",
+          command: () => navigateTo("/reporte"),
+        },
+     
+      ],
+    },
+    {
       label: "Clientes",
       icon: "pi pi-id-card",
       items: [

@@ -15,15 +15,15 @@ class Home extends Component {
           </div>
           <SalesOverview />
           <div className="md:w-3/4 md:order-2"> {/* Establece el ancho y el orden de SalesOverview y SalesComponent en dispositivos medianos y superiores */}
-            <div className="p-4">
              
             </div>
+            <div className="col-9 xl:col-10">
             <div className="p-4">
               <SalesComponent />
             </div>
           </div>
         </div>
-      </div>
+        </div>
     );
   }
 }
