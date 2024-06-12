@@ -1,5 +1,6 @@
 package com.sistema.riga.sistema_riga_backend.services;
 
+import com.sistema.riga.sistema_riga_backend.models.ComprobanteModel;
 import com.sistema.riga.sistema_riga_backend.models.VentaModel;
 import com.sistema.riga.sistema_riga_backend.repositories.IVentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,12 @@ public class VentaService implements IVentaService {
     private IVentaRepository ventaRepository;
 
     @Override
-    public int insertarVenta(VentaModel ventaModel) {
+    public ComprobanteModel insertarVenta(VentaModel ventaModel) {
         return ventaRepository.insertarVenta(ventaModel);
+    }
+
+    @Override
+    public ComprobanteModel getComprobanteById(int id) {
+        return ventaRepository.getComprobanteById(id);
     }
 }

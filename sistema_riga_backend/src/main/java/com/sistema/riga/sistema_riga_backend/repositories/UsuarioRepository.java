@@ -97,7 +97,7 @@ public class UsuarioRepository implements IUsuarioRepository {
 
     @Override
     public String activateUsuario(int id) {
-        jdbcTemplate.update("UPDATE Usuario SET EstadoUsuario = '1' WHERE IDUsuario = ?;", id);
+        jdbcTemplate.update("EXEC SP_CRUD_Usuario @IDUsuario = ?, @Operation = 'A';", id);
         return "usuarioModel";
     }
 }

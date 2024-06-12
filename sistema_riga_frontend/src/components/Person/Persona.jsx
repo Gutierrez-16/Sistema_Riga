@@ -505,13 +505,15 @@ export default function Persona() {
   );
 
   return (
-    <div>
-      <div className="layout-sidebar">
-        <Dashboard />
+    <div >
+      <div className="layout-sidebar"
+      >
+        <Dashboard  />
       </div>
       <div className="flex">
-        <div className="w-1/4">
-          <Header />
+        <div className="w-1/4"
+        >
+          <Header  />
         </div>
 
         <div className="col-12 xl:col-10">
