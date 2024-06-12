@@ -24,14 +24,12 @@ const DataUsuario = ({ onUserDataReceived }) => {
         }
 
         const usuario = obtenerUsuarioDelToken(token);
-        console.log(usuario);
 
         const data = await apiClient.get(
           `http://localhost:8080/data/${usuario}`
         );
         setUserData(data);
-        onUserDataReceived(data); // Llama a la función proporcionada con los datos del usuario
-        console.log(token);
+        onUserDataReceived(data); 
       } catch (error) {
         console.error("Error:", error.message);
       }

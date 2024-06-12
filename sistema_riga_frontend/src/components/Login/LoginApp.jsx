@@ -68,7 +68,6 @@ function LoginApp() {
         body: JSON.stringify({ username, password }),
       });
       const data = await response.json();
-      console.log(data.IDUsuario);
       if (response.ok) {
         localStorage.setItem("token", data.token);
         setMessage("Inicio de sesión exitoso");
