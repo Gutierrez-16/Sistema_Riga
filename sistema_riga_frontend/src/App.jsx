@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import LoginApp from './Components/Login/LoginApp';
-import Logout from './Components/Login/loguotbutton';
 import Usuario from './Components/Usuario/Usuario';
 import Persona from './Components/Person/Persona';
 import Producto from './Components/Product/Producto';
 import Empleado from './Components/Employer/Empleado';
 import Empresa from './Components/Empresa/Empresa';
 import Home from './Components/Home/Home';
-import Venta from './Components/Ventas/Venta';
 import Cargo from './Components/Cargo/Cargo';
 import Linea from './Components/Linea/Linea';
 import Categoria from './Components/Categoria/Categoria';
@@ -66,7 +64,7 @@ function App() {
         }
       />
       <Route
-        path="/unidadmedidad"
+        path="/unidadmedida"
         element={
           <ProtectedRoute>
             <UnidadMedidad />
@@ -126,14 +124,6 @@ function App() {
         element={
           <ProtectedRoute>
             <Home />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/venta"
-        element={
-          <ProtectedRoute>
-            <Venta />
           </ProtectedRoute>
         }
       />

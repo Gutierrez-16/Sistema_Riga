@@ -9,7 +9,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import apiClient from '../Security/apiClient';
-import './Boleta.css'; // Assuming you have a CSS file for additional styling
+import './Boleta.css'; 
 import { Image } from 'primereact/image';
 import bodega from "../Imagenes/7.png";
 const Boleta = ({ idVenta }) => {
@@ -23,7 +23,7 @@ const Boleta = ({ idVenta }) => {
     const fetchEmpresas = async () => {
         try {
             const data = await apiClient.get("http://localhost:8080/empresa/1");
-            setEmpresa(data); // Aquí asumo que la respuesta del servidor contiene tanto el RUC como la razón social
+            setEmpresa(data); 
         } catch (error) {
             console.error("Error al obtener empresas:", error);
         }
@@ -33,7 +33,6 @@ const Boleta = ({ idVenta }) => {
         if (showDetails && !comprobante) {
             const fetchData = async () => {
                 try {
-                    const idVenta = 10;
                     const data = await apiClient.get(`http://localhost:8080/comprobante/${idVenta}`);
                     if (Array.isArray(data) && data.length > 0) {
                         setComprobante(data[0]);
@@ -64,7 +63,6 @@ const Boleta = ({ idVenta }) => {
         const logoImgSrc = bodega; // Ruta de la imagen
         doc.addImage(logoImgSrc, 'JPEG', 10, 20, 50, 50); // (imagen, formato, x, y, ancho, alto)
     
-        // Datos de la empresa
         let yPosition = 30; // Posición inicial
         if (empresa) {
             doc.text(`RUC: ${empresa.ruc}`, 70, yPosition);
@@ -72,8 +70,7 @@ const Boleta = ({ idVenta }) => {
             doc.text(`Dirección: ${empresa.direccion}`, 70, yPosition + 20);
         }
     
-        // Datos de la venta
-        yPosition += 40; // Incremento de posición para los datos de la venta
+        yPosition += 40; 
         doc.text(`ID Venta: ${comprobante.idVenta}`, 10, yPosition);
         doc.text(`Numero: ${comprobante.numero}`, 10, yPosition + 10);
         doc.text(`Serie: ${comprobante.serie}`, 10, yPosition + 20);
@@ -83,8 +80,7 @@ const Boleta = ({ idVenta }) => {
         doc.text(`Dirección: ${comprobante.direccion}`, 10, yPosition + 60);
         doc.text(`Método de Pago: ${comprobante.nombreMetodo}`, 10, yPosition + 70);
     
-        // Tabla de detalles
-        yPosition += 80; // Incremento de posición para la tabla de detalles
+        yPosition += 80; 
         const headers = ["#", "Producto", "Cantidad", "Precio Unitario", "Total"];
         const detalles = comprobante.detallesPedido.map((detalle, index) => [
             index + 1,

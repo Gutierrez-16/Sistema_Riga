@@ -17,7 +17,17 @@ import { Dropdown } from "primereact/dropdown";
 
 import DataUsuario from "../Usuario/DataUsuario";
 
-export default function ProductsDemo() {
+// Function to fetch Cajas
+export const fetchCajas = async () => {
+  try {
+    const data = await apiClient.get("http://localhost:8080/caja");
+    setProducts(data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export default function Caja() {
   let emptyProduct = {
     idCaja: "",
     descripcion: "",
@@ -32,6 +42,7 @@ export default function ProductsDemo() {
   const [usuarios, setUsuarios] = useState([]);
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
+  const [closeProductDialog, setCloseProductDialog] = useState(false);
   const [product, setProduct] = useState(emptyProduct);
   const [selectedProducts, setSelectedProducts] = useState(null);
   const [submitted, setSubmitted] = useState(false);
@@ -40,6 +51,7 @@ export default function ProductsDemo() {
   const dt = useRef(null);
 
   const [id, setId] = useState("");
+  const [sentinela, setSentinela] = useState("");
 
   useEffect(() => {
     fetchCajas();
@@ -47,14 +59,14 @@ export default function ProductsDemo() {
   }, []);
 
   const handleUserDataReceived = (userData) => {
-    console.log("Datos del usuario recibidos:", userData);
-    console.log("ID: ", userData.idUsuario);
     setId(userData.idUsuario);
   };
 
-  console.log("IDDDDD: ", id);
+  const handleCaja = (data) => {
+    setSentinela(data);
+    console.log(data);
+  };
 
-  console.log("TU ID: ");
   let emptyCaja = {
     idCaja: "",
     descripcion: "",
@@ -77,16 +89,17 @@ export default function ProductsDemo() {
   };
 
   const fetchCajas = async () => {
-    try {
-      const data = await apiClient.get("http://localhost:8080/caja");
-      setProducts(data);
-    } catch (error) {
-      console.error(error);
+    if (1 < 2 || data) {
+      try {
+        const data = await apiClient.get("http://localhost:8080/caja");
+        setProducts(data);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
   const saveProduct = async () => {
-    console.log(caja);
     setSubmitted(true);
 
     if (product.descripcion.trim() && product.montoInicial.trim()) {
@@ -100,11 +113,6 @@ export default function ProductsDemo() {
         : "http://localhost:8080/caja";
 
       try {
-        console.log("Request URL:", url);
-        console.log("Request Method:", method);
-        console.log("Request Data:", product);
-        console.log("CAJA: ", caja);
-        console.log("desc: ", caja.descripcion);
         await apiClient[method.toLowerCase()](url, caja);
 
         fetchCajas();
@@ -128,52 +136,28 @@ export default function ProductsDemo() {
     }
   };
 
-  const handleEdit = (product) => {
-    setProduct({ ...product });
-    setProductDialog(true);
-  };
-
-  const confirmDeleteProduct = (product) => {
-    setProduct(product);
-    setDeleteProductDialog(true);
-  };
-
-  const deleteProduct = async () => {
+  const closeCaja = async () => {
     if (product.idCaja) {
       try {
-        await apiClient.delete(`http://localhost:8080/caja/${product.idCaja}`);
-        setDeleteProductDialog(false);
+        const response = await apiClient.patch(`http://localhost:8080/caja/cerrar/${product.idCaja}`);
+        setCloseProductDialog(false);
         setProduct(emptyProduct);
         fetchCajas();
         toast.current.show({
-          severity: "error",
+          severity: "success",
           summary: "Successful",
-          detail: "Caja eliminada",
+          detail: response.data,
           life: 3000,
         });
       } catch (error) {
-        console.error("Error al eliminar la caja:", error);
-      }
-    } else if (selectedProducts && selectedProducts.length > 0) {
-      try {
-        const deletePromises = selectedProducts.map((prod) =>
-          apiClient.delete(`http://localhost:8080/caja/${prod.idCaja}`)
-        );
-        await Promise.all(deletePromises);
-        setDeleteProductDialog(false);
-        setSelectedProducts(null);
-        fetchCajas();
+        console.error("Error al cerrar la caja:", error);
         toast.current.show({
           severity: "error",
-          summary: "Successful",
-          detail: "Cajas eliminadas",
+          summary: "Error",
+          detail: error.response?.data?.message || "Error al cerrar la caja",
           life: 3000,
         });
-      } catch (error) {
-        console.error("Error al eliminar las cajas:", error);
       }
-    } else {
-      console.error("No se puede eliminar la caja. ID de caja no encontrado.");
     }
   };
 
@@ -192,47 +176,15 @@ export default function ProductsDemo() {
     setDeleteProductDialog(false);
   };
 
+  const hideCloseProductDialog = () => {
+    setCloseProductDialog(false);
+  };
+
   const onInputChange = (e, name) => {
     const val = (e.target && e.target.value) || "";
     let _product = { ...product };
     _product[name] = val;
     setProduct(_product);
-  };
-
-  const activateCaja = async (id) => {
-    try {
-      await apiClient.patch(`http://localhost:8080/caja/${id}`);
-      fetchCajas();
-      toast.current.show({
-        severity: "success",
-        summary: "Successful",
-        detail: "Caja activada",
-        life: 3000,
-      });
-    } catch (error) {
-      console.error("Error al activar la caja:", error);
-    }
-  };
-
-  const activateSelectedCajas = async () => {
-    if (selectedProducts && selectedProducts.length > 0) {
-      try {
-        const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/caja/${prod.idCaja}`)
-        );
-        await Promise.all(activatePromises);
-        setSelectedProducts(null);
-        fetchCajas();
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Cajas activadas",
-          life: 3000,
-        });
-      } catch (error) {
-        console.error("Error al activar las cajas:", error);
-      }
-    }
   };
 
   const leftToolbarTemplate = () => {
@@ -259,28 +211,38 @@ export default function ProductsDemo() {
     );
   };
 
+  const LockIcon = ({ open }) => {
+    return (
+      <i
+        className={`pi ${open ? 'pi-lock-open' : 'pi-lock'}`}
+        style={{ color: open ? 'green' : 'red' }}
+      ></i>
+    );
+  };
+  
+  
   const actionBodyTemplate = (rowData) => {
     return (
       <div className="flex">
         <Button
-          icon="pi pi-pencil"
+          icon={<LockIcon open={rowData.estadoCaja === "1"} />}
           rounded
           outlined
-          className="mr-3"
-          onClick={() => handleEdit(rowData)}
-        />
-        <Button
-          icon={rowData.estadoCaja === "1" ? "pi pi-trash" : "pi pi-check"}
-          rounded
-          outlined
-          severity={rowData.estadoCaja === "1" ? "danger" : "success"}
+          className={`p-button-${rowData.estadoCaja === "1" ? 'success' : 'danger'}`}
           onClick={() => {
             if (rowData.estadoCaja === "1") {
-              confirmDeleteProduct(rowData);
+              setProduct(rowData);
+              setCloseProductDialog(true);
             } else {
-              activateCaja(rowData.idCaja);
+              toast.current.show({
+                severity: "warn",
+                summary: "Warning",
+                detail: "La caja ya está cerrada",
+                life: 3000,
+              });
             }
           }}
+          disabled={rowData.estadoCaja === "0"}
         />
       </div>
     );
@@ -307,19 +269,19 @@ export default function ProductsDemo() {
     </React.Fragment>
   );
 
-  const deleteProductDialogFooter = (
+  const closeProductDialogFooter = (
     <React.Fragment>
       <Button
         label="No"
         icon="pi pi-times"
         outlined
-        onClick={hideDeleteProductDialog}
+        onClick={hideCloseProductDialog}
       />
       <Button
         label="Yes"
         icon="pi pi-check"
-        severity="danger"
-        onClick={deleteProduct}
+        severity="info"
+        onClick={closeCaja}
       />
     </React.Fragment>
   );
@@ -351,7 +313,6 @@ export default function ProductsDemo() {
     }
   };
   function updateUsuario(selectedUsuarioId) {
-    console.log("Selected Usuario ID:", selectedUsuarioId);
     setProduct((prevProduct) => ({
       ...prevProduct,
       idusuario: selectedUsuarioId,
@@ -374,9 +335,7 @@ export default function ProductsDemo() {
             <Toast ref={toast} />
             <div className="card">
               <div>
-                {/* Otro contenido */}
                 <DataUsuario onUserDataReceived={handleUserDataReceived} />
-                {/* Otro contenido */}
               </div>
               <Toolbar
                 className="mb-4"
@@ -409,11 +368,14 @@ export default function ProductsDemo() {
                 <Column
                   field="fechaApertura"
                   header="Fecha Apertura"
+                  body={(rowData) => new Date(rowData.fechaApertura).toLocaleString()}
                   sortable
                 ></Column>
+
                 <Column
                   field="fechaCierre"
                   header="Fecha Cierre"
+                  body={(rowData) => new Date(rowData.fechaCierre).toLocaleString()}
                   sortable
                 ></Column>
                 <Column
@@ -438,6 +400,7 @@ export default function ProductsDemo() {
                   body={statusBodyTemplate}
                   sortable
                 ></Column>
+                <Column body={actionBodyTemplate}></Column>
               </DataTable>
             </div>
 
@@ -484,9 +447,29 @@ export default function ProductsDemo() {
                 )}
               </div>
             </Dialog>
+
+            <Dialog
+              visible={closeProductDialog}
+              style={{ width: "450px" }}
+              header="Confirmar Cierre de Caja"
+              modal
+              className="p-fluid"
+              footer={closeProductDialogFooter}
+              onHide={hideCloseProductDialog}
+            >
+              <div className="confirmation-content">
+                <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: "2rem" }} />
+                {product && (
+                  <span>
+                    ¿Está seguro de que desea cerrar la caja <b>{product.descripcion}</b>?
+                  </span>
+                )}
+              </div>
+            </Dialog>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

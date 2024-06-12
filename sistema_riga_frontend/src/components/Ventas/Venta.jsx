@@ -48,22 +48,22 @@ const SalesComponent = () => {
   const [empresa, setEmpresa] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   useEffect(() => {
-      fetchEmpresas();
+    fetchEmpresas();
   }, []);
 
   const fetchEmpresas = async () => {
-      try {
-          const data = await apiClient.get("http://localhost:8080/empresa/1");
-          setEmpresa(data); // Aquí asumo que la respuesta del servidor contiene tanto el RUC como la razón social
-      } catch (error) {
-          console.error("Error al obtener empresas:", error);
-      }
+    try {
+      const data = await apiClient.get("http://localhost:8080/empresa/1");
+      setEmpresa(data); // Aquí asumo que la respuesta del servidor contiene tanto el RUC como la razón social
+    } catch (error) {
+      console.error("Error al obtener empresas:", error);
+    }
   };
   // Función para manejar la generación del PDF
   const handleGenerarPDF = () => {
     setIdVenta(idVenta); // Esto no está haciendo nada
     setShowBoletaDialog(true); // Esto mostrará el diálogo, pero no generará el PDF
-};
+  };
 
 
   // Función para manejar la selección de cliente
@@ -75,8 +75,6 @@ const SalesComponent = () => {
   }, []);
 
   const handleUserDataReceived = (userData) => {
-    console.log("Datos del usuario recibidos:", userData);
-    console.log("IDQUE: ", userData.idUsuario);
     setId(userData.idUsuario);
   };
 
@@ -115,29 +113,23 @@ const SalesComponent = () => {
   const [idsupremo, setIdsupremo] = useState("");
   const generatePDF = () => {
     if (!comprobante) return;
-  
+
     const doc = new jsPDF();
 
-
-
-    // Encabezado
     doc.text(`Boleta de Venta`, 10, 5);
     doc.text(`Todo lo que necesitas, a tu alcance.`, 10, 15);
 
-    // Imagen del logo
-    const logoImgSrc = bodega; // Ruta de la imagen
-    doc.addImage(logoImgSrc, 'JPEG', 10, 20, 50, 50); // (imagen, formato, x, y, ancho, alto)
+    const logoImgSrc = bodega;
+    doc.addImage(logoImgSrc, 'JPEG', 10, 20, 50, 50);
 
-    // Datos de la empresa
-    let yPosition = 30; // Posición inicial
+    let yPosition = 30;
     if (empresa) {
-        doc.text(`RUC: ${empresa.ruc}`, 70, yPosition);
-        doc.text(`Razón Social: ${empresa.razonSocial}`, 70, yPosition + 10);
-        doc.text(`Dirección: ${empresa.direccion}`, 70, yPosition + 20);
+      doc.text(`RUC: ${empresa.ruc}`, 70, yPosition);
+      doc.text(`Razón Social: ${empresa.razonSocial}`, 70, yPosition + 10);
+      doc.text(`Dirección: ${empresa.direccion}`, 70, yPosition + 20);
     }
 
-    // Datos de la venta
-    yPosition += 40; // Incremento de posición para los datos de la venta
+    yPosition += 40;
     doc.text(`ID Venta: ${comprobante.idVenta}`, 10, yPosition);
     doc.text(`Numero: ${comprobante.numero}`, 10, yPosition + 10);
     doc.text(`Serie: ${comprobante.serie}`, 10, yPosition + 20);
@@ -147,63 +139,53 @@ const SalesComponent = () => {
     doc.text(`Dirección: ${comprobante.direccion}`, 10, yPosition + 60);
     doc.text(`Método de Pago: ${comprobante.nombreMetodo}`, 10, yPosition + 70);
 
-    // Tabla de detalles
-    yPosition += 80; // Incremento de posición para la tabla de detalles
+    yPosition += 80;
     const headers = ["#", "Producto", "Cantidad", "Precio Unitario", "Total"];
     const detalles = comprobante.detallesPedido.map((detalle, index) => [
-        index + 1,
-        detalle.nomProducto,
-        detalle.cant,
-        `$${detalle.precioUnitario.toFixed(2)}`, // Formato de precio
-        `$${detalle.totalPro.toFixed(2)}` // Formato de total
+      index + 1,
+      detalle.nomProducto,
+      detalle.cant,
+      `$${detalle.precioUnitario.toFixed(2)}`,
+      `$${detalle.totalPro.toFixed(2)}`
     ]);
 
     doc.autoTable({
-        startY: yPosition,
-        head: [headers],
-        body: detalles,
-        theme: 'grid', // Cambiar a tema de cuadrícula para bordes
-        margin: { top: 10 },
-        styles: {
-            font: 'Arial',
-            fontSize: 10,
-            textColor: '#333333',
-            cellPadding: 2, // Reducir el relleno de la celda
-            headerCellPadding: 2,
-            halign: 'center' // Alineación horizontal centrada
-        },
-        columnStyles: {
-            0: { halign: 'center' }, // Alineación horizontal centrada para la primera columna
-            2: { halign: 'center' }, // Alineación horizontal centrada para la tercera columna
-            3: { halign: 'right' }, // Alineación horizontal a la derecha para la cuarta columna
-            4: { halign: 'right' } // Alineación horizontal a la derecha para la quinta columna
-        }
+      startY: yPosition,
+      head: [headers],
+      body: detalles,
+      theme: 'grid',
+      margin: { top: 10 },
+      styles: {
+        font: 'Arial',
+        fontSize: 10,
+        textColor: '#333333',
+        cellPadding: 2,
+        headerCellPadding: 2,
+        halign: 'center'
+      },
+      columnStyles: {
+        0: { halign: 'center' },
+        2: { halign: 'center' },
+        3: { halign: 'right' },
+        4: { halign: 'right' }
+      }
     });
 
-    // Resumen
-    yPosition = doc.autoTable.previous.finalY + 5; // Posición del resumen
+    yPosition = doc.autoTable.previous.finalY + 5;
     doc.text(`Subtotal: $${comprobante.subTotal.toFixed(2)}`, 10, yPosition);
     doc.text(`IGV: $${comprobante.igv.toFixed(2)}`, 10, yPosition + 10);
     doc.text(`Descuento: $${comprobante.descuento.toFixed(2)}`, 10, yPosition + 20);
     doc.text(`Total Descuento: $${comprobante.totalDescuento.toFixed(2)}`, 10, yPosition + 30);
     doc.text(`Total: $${comprobante.total.toFixed(2)}`, 10, yPosition + 40);
 
-    // Guardar el PDF
     doc.save('boleta.pdf');
-};
+  };
 
   const handleRealizarVenta = async () => {
     try {
-      // Verificar si selectedPerson no es null y salesDetails no está vacío
       if (selectedPerson && salesDetails.length > 0) {
-        // Crear un objeto con los datos del pedido
         const pedidoData = {
-          // Otros campos que puedas necesitar para el pedido
         };
-
-        console.log("TU TOKEN:", token)
-
-        // Enviar la solicitud para insertar el pedido
         const pedidoResponse = await fetch("http://localhost:8080/pedido", {
           method: "POST",
           headers: {
@@ -216,24 +198,17 @@ const SalesComponent = () => {
         if (!pedidoResponse.ok) {
           throw new Error("Error al insertar el pedido.");
         }
-
-        // Obtener el ID del pedido insertado
         const pedidoId = await pedidoResponse.json();
-
-        // Insertar los detalles del pedido
         await Promise.all(
           salesDetails.map(async (detalle) => {
-            // Crear un objeto con los datos del detalle del pedido
             const detallePedidoData = {
               idPedido: pedidoId,
               idProducto: detalle.productId,
               cantidad: detalle.quantity,
               precio: detalle.price,
               idUsuario: id,
-              // Otros campos que puedas necesitar para el detalle del pedido
             };
 
-            // Enviar la solicitud para insertar el detalle del pedido
             const detallePedidoResponse = await fetch(
               `http://localhost:8080/detallepedido/${pedidoId}`,
               {
@@ -252,28 +227,24 @@ const SalesComponent = () => {
           })
         );
 
-        // Crear un objeto con los datos de la venta
         const subtotal = salesDetails.reduce((total, sale) => {
           return total + sale.quantity * sale.price;
         }, 0);
 
-        const igv = subtotal * 0.18; // Suponiendo que el IGV es el 18% del subtotal
-        const descuento = 0; // Puedes calcular el descuento según tus necesidades
-        const totalDescuento = subtotal * (descuento / 100); // Descuento total
-        const totalPagar = subtotal + igv - totalDescuento; // Total a pagar
+        const igv = subtotal * 0.18;
+        const descuento = 0;
+        const totalDescuento = subtotal * (descuento / 100);
+        const totalPagar = subtotal + igv - totalDescuento;
 
-        // Crear un objeto con los datos de la venta
         let tipoComprobante;
         if (saleType === "boleta") {
           tipoComprobante = "B";
-          console.log(tipoComprobante);
         } else if (saleType === "factura") {
           tipoComprobante = "F";
         } else {
           throw new Error("Tipo de comprobante no válido.");
         }
 
-        // Crear un objeto con los datos de la venta
         const ventaData = {
           idVenta: "",
           Descuento: descuento,
@@ -282,16 +253,13 @@ const SalesComponent = () => {
           subtotal: subtotal,
           totaldescuento: totalDescuento,
           totalPagar: totalPagar,
-          tipoComprobante: tipoComprobante, // Asignar el valor correspondiente a tipoComprobante
+          tipoComprobante: tipoComprobante,
           idCliente: selectedPerson,
           idPedido: pedidoId,
-          idUsuario: id, // Aquí asignamos el idUsuario del estado local
+          idUsuario: id,
           idMetodoPago: 1,
         };
 
-        console.log(ventaData)
-
-        // Enviar la solicitud para insertar la venta
         const ventaResponse = await fetch("http://localhost:8080/venta", {
           method: "POST",
           headers: {
@@ -305,10 +273,7 @@ const SalesComponent = () => {
           throw new Error("Error al insertar la venta.");
         }
 
-        // Obtener el ID de la venta insertada
         const ventaId = (await ventaResponse.json()).idVenta;
-
-        // Venta realizada con éxito
         toast.current.show({
           severity: "success",
           summary: "Venta realizada",
@@ -316,10 +281,7 @@ const SalesComponent = () => {
           life: 3000,
         });
 
-        // Limpiar los detalles de la venta después de realizarla
         setSalesDetails([]);
-
-        // Obtener y establecer el comprobante de venta
         const comprobanteResponse = await fetch(`http://localhost:8080/venta/comprobante/${ventaId}`, {
           method: "GET",
           headers: {
@@ -327,20 +289,16 @@ const SalesComponent = () => {
             "Authorization": `Bearer ${token}`
           },
         });
-        
         if (!comprobanteResponse.ok) {
           throw new Error("Error al obtener el comprobante de venta.");
         }
-        
+
         const comprobanteData = await comprobanteResponse.json();
-        console.log(comprobanteData);
         setComprobante(comprobanteData);
-        
+
         handleGenerarPDF();
-        // Función para generar el PDF del comprobante de venta
-        
+
       } else {
-        // Manejar el caso en que no se haya seleccionado un cliente o no haya productos en la venta
         throw new Error(
           "Por favor, selecciona un cliente y agrega productos para realizar la venta."
         );
@@ -355,13 +313,12 @@ const SalesComponent = () => {
         life: 3000,
       });
     }
-   
+
   };
 
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
-    console.log(product.idProducto);
     const newSale = {
       productId: product.idProducto,
       productName: product.nombreProd,
@@ -376,13 +333,13 @@ const SalesComponent = () => {
   const handlePersonSelect = (person) => {
     setSelectedPerson(person.idPersona);
     setSelectedPersonName(person.nombrePersona);
-    setDialogVisible(false); // Cerrar el diálogo después de seleccionar un cliente
+    setDialogVisible(false);
   };
 
   const handleCompanySelect = (company) => {
     setSelectedPerson(company.idEmpresa);
     setSelectedPersonName(company.razonSocial);
-    setDialogVisible(false); // Cerrar el diálogo después de seleccionar una empresa
+    setDialogVisible(false);
   };
 
   const handleAddSale = (e) => {
@@ -421,7 +378,7 @@ const SalesComponent = () => {
         ? {
           ...sale,
           quantity: newQuantity,
-          total: (newQuantity * sale.price).toFixed(2), // Redondear a dos decimales
+          total: (newQuantity * sale.price).toFixed(2),
         }
         : sale
     );
@@ -437,9 +394,7 @@ const SalesComponent = () => {
     <div><Boleta />
       <div className="">
         <div>
-          {/* Otro contenido */}
           <DataUsuario onUserDataReceived={handleUserDataReceived} />
-          {/* Otro contenido */}
         </div>
         <div className="p-d-flex p-jc-center p-mt-5">
           <div className="sales-grid">
@@ -450,22 +405,22 @@ const SalesComponent = () => {
                 className="mb-4"
                 label="Seleccionar Producto"
                 icon="pi pi-external-link"
-                onClick={() => setProductsDialogVisible(true)} // Cambiar el estado para mostrar el diálogo de productos
+                onClick={() => setProductsDialogVisible(true)}
               />
 
-              <ProductDialog // Diálogo para seleccionar productos
+              <ProductDialog
                 visible={productsDialogVisible}
                 onHide={() => setProductsDialogVisible(false)}
                 onSelectProduct={handleProductSelect}
-                products={products} // Pasar los productos generados aleatoriamente
+                products={products}
               />
-              <PersonDialog // Diálogo para seleccionar clientes o empresas
+              <PersonDialog
                 visible={dialogVisible}
                 onHide={() => setDialogVisible(false)}
                 onSelectPerson={handlePersonSelect}
-                onSelectCompany={handleCompanySelect} // Pasar la función de selección de empresas
-                data={saleType === "boleta" ? persons : companies} // Pasar la lista de personas o empresas según el tipo de comprobante
-                isPerson={saleType === "boleta"} // Pasar un flag indicando si se trata de personas o empresas
+                onSelectCompany={handleCompanySelect}
+                data={saleType === "boleta" ? persons : companies}
+                isPerson={saleType === "boleta"}
               />
               <SalesTable
                 salesDetails={salesDetails}
@@ -528,23 +483,23 @@ const SalesComponent = () => {
                     disabled
                     style={{ width: "58%" }}
                     placeholder="Disabled"
-                    value={selectedPersonName} // Paso 3: Mostrar el nombre del cliente seleccionado
+                    value={selectedPersonName}
                   />
                 </div>
               </Panel>
               <div className="flex justify-content-center flex-wrap">
-              <Button
-  style={{
-    backgroundColor: "var(--cyan-500)",
-    border: "var(--green-500)",
-  }}
-  label="Realizar venta"
-  icon="pi pi-shopping-cart"
-  onClick={() => {
-    handleRealizarVenta();
-    generatePDF();
-  }}
-/>
+                <Button
+                  style={{
+                    backgroundColor: "var(--cyan-500)",
+                    border: "var(--green-500)",
+                  }}
+                  label="Realizar venta"
+                  icon="pi pi-shopping-cart"
+                  onClick={() => {
+                    handleRealizarVenta();
+                    generatePDF();
+                  }}
+                />
 
               </div>
             </div>
@@ -667,24 +622,18 @@ const PersonDialog = ({ visible, onHide, onSelectPerson, onSelectCompany, data, 
   );
 };
 
-// SalesTable component
 const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
   const handleQuantityChange = (rowData, newQuantity) => {
-    onQuantityChange(rowData, newQuantity); // Llamamos a la función que maneja el cambio de cantidad
+    onQuantityChange(rowData, newQuantity);
   };
   const subtotal = salesDetails.reduce((total, sale) => {
     return total + sale.quantity * sale.price;
   }, 0);
 
-  const igv = subtotal * 0.18; // Suponiendo que el IGV es el 18% del subtotal
-  const descuento = 0; // Puedes calcular el descuento según tus necesidades
-  const totalDescuento = subtotal * (descuento / 100); // Descuento total
-  const totalPagar = subtotal + igv - totalDescuento; // Total a pagar
-
-  const handleUserDataReceived = (userData) => {
-    console.log("Datos del usuario recibidos:", userData);
-    console.log("ID: ", userData.idUsuario);
-  };
+  const igv = subtotal * 0.18; 
+  const descuento = 0; 
+  const totalDescuento = subtotal * (descuento / 100); 
+  const totalPagar = subtotal + igv - totalDescuento; 
 
   const footerGroup = (
     <ColumnGroup>
@@ -698,7 +647,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"IGV:"} // Redondear a dos decimales
+          footer={"IGV:"} 
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -706,7 +655,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"Total:"} // Redondear a dos decimales
+          footer={"Total:"} 
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -714,7 +663,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"Subtotal:"} // Redondear a dos decimales
+          footer={"Subtotal:"} 
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -722,7 +671,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"Total descuento:"} // Redondear a dos decimales
+          footer={"Total descuento:"} 
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -730,7 +679,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
       </Row>
       <Row>
         <Column
-          footer={"Total Pagar:"} // Redondear a dos decimales
+          footer={"Total Pagar:"} 
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -742,9 +691,6 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
   return (
     <div className="">
       <div>
-        {/* Otro contenido */}
-        <DataUsuario onUserDataReceived={handleUserDataReceived} />
-        {/* Otro contenido */}
       </div>
       <DataTable
         value={salesDetails}

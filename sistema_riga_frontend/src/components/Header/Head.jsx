@@ -1,63 +1,39 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Menubar } from 'primereact/menubar';
-import { InputText } from 'primereact/inputtext';
-import { Badge } from 'primereact/badge';
-import { Avatar } from 'primereact/avatar'; 
 import Logout from '../Login/loguotbutton';
-import Header from './Header';
+import bodega from "../Imagenes/7.png";
+
+import "./HeaderStyle.css"
+
 
 export default function TemplateDemo() {
-    const [showHeader, setShowHeader] = useState(true);
-
-    const toggleHeader = () => {
-        setShowHeader(!showHeader);
-    };
-
-    const itemRenderer = (item) => (
-        <a className="flex align-items-center p-menuitem-link" onClick={toggleHeader}>
-            <span className={item.icon} />
-            <span className="mx-2">{item.label}</span>
-            {item.badge && <Badge className="ml-auto" value={item.badge} />}
-            {item.shortcut && <span className="ml-auto border-1 surface-border border-round surface-100 text-xs p-1">{item.shortcut}</span>}
-        </a>
+    const start = (
+        <div className="flex align-items-center gap-3 px-2">
+            <a href="/home">
+                <img alt="logo" src={bodega} height="50" className="mr-2" />
+            </a>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#333' }}>Bodega Riga</h1>
+        </div>
     );
 
-    const menuItems = [
-        {
-            label: 'Toggle Header',
-            icon: 'pi pi-bars',
-            command: toggleHeader
-        },
-        {
-            label: 'Home',
-            icon: 'pi pi-home'
-        },
-        {
-            label: 'Features',
-            icon: 'pi pi-star'
-        },
-        {
-            label: 'Contact',
-            icon: 'pi pi-envelope',
-            badge: 3,
-            template: itemRenderer
-        }
-    ];
-
-    const start = <img alt="logo" src="https://primefaces.org/cdn/primereact/images/logo.png" height="40" className="mr-2"></img>;
-
     const end = (
-        <div className="flex align-items-center gap-2">
-            <InputText placeholder="Search" type="text" className="w-8rem sm:w-auto" />
-            <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" />
-            <Logout  /> 
+        <div className="flex align-items-center px-2" style={{ gap: '10px' }}>
+            <Logout />
         </div>
     );
 
     return (
-        <div className="card">
-            <Menubar model={menuItems} start={start} end={end} />
-            {showHeader && <Header />}
+        <div className="card estatico" >
+            <Menubar 
+                start={start} 
+                end={end} 
+                style={{ 
+                    backgroundColor: '#f8f9fa', 
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', 
+                    borderBottom: '2px solid #d1d5db' ,
+                }} 
+                className="p-m-0 p-p-0"
+            />
         </div>
-    )
+    );
 }

@@ -3,27 +3,33 @@ import { Button } from 'primereact/button';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../Security/apiClient';
 
-const CloseCajaButton = () => {
+import { fetchCajas } from './Caja';
+
+const CloseCajaButton = ({ onCaja }) => {
   const navigate = useNavigate();
   const [caja, setCajas] = useState([]);
 
+  
   useEffect(() => {
-    const fetchCajas = async () => {
+    fetchCajast();
+  }, [onCaja]);
+
+    const fetchCajast = async () => {
       try {
         const data = await apiClient.get("http://localhost:8080/caja");
         const cajasEstado1 = data.filter(caja => caja.estadoCaja === '1');
         setCajas(cajasEstado1);
-        console.log("Cajas con estado 1:", cajasEstado1);
       } catch (error) {
         console.error('Error fetching cajas:', error);
       }
     };
 
-    fetchCajas();
-  }, []);
+   
 
   const handleCloseCaja = async () => {
+    
     try {
+      fetchCajas();
       const idCajaEstado1 = caja[0]?.idCaja;
 
       if (!idCajaEstado1) {
@@ -42,7 +48,7 @@ const CloseCajaButton = () => {
           }
         }
       );
-
+      
       if (response.status === 200) {
         navigate('/caja');
       } else {
@@ -51,10 +57,18 @@ const CloseCajaButton = () => {
     } catch (error) {
       console.error('Error while closing caja:', error);
     }
+    
+  };
+
+  const handleClick = () => {
+    handleCloseCaja();
+    fetchCajas();
+    console.log("HOLA");
+    onCaja(false); 
   };
 
   return (
-    <Button label="Cerrar Caja" icon="pi pi-times" className="w-full" onClick={handleCloseCaja} />
+    <Button label="Cerrar Caja" icon="pi pi-unlock" className="w-full" onClick={handleClick} />
   );
 };
 

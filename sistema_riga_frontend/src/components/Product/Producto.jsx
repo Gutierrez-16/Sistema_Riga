@@ -2,30 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import { classNames } from "primereact/utils";
 import { Toast } from "primereact/toast";
 import { Toolbar } from "primereact/toolbar";
-
 import { Dialog } from "primereact/dialog";
-
 import { Tag } from "primereact/tag";
-
-import Header from "../Header/Header";
-import { Link } from "react-router-dom";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
-import { TbArrowZigZag } from "react-icons/tb";
-
-
-
 import { FileUpload } from "primereact/fileupload";
-
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
-
 import { Image } from "primereact/image";
 import "primeicons/primeicons.css";
 import apiClient from "../Security/apiClient";
+import Header from "../Header/Header";
+import Dashboard from "../Header/Head";
 
 export default function Producto() {
   let emptyProducto = {
@@ -107,7 +98,6 @@ export default function Producto() {
     reader.readAsDataURL(file);
 
     setProducto({ ...producto, imagen: file });
-    console.log(file);
   };
 
   useEffect(() => {
@@ -209,7 +199,6 @@ export default function Producto() {
           : base64StringToFile(producto.imagen);
       formData.append("imagen", imagenFile);
 
-      console.log("IMAGEN: ", producto.imagen);
       formData.append("descripcion", producto.descripcion);
       formData.append("idCategoria", producto.idCategoria);
       formData.append("idUnidadMedida", producto.idUnidadMedida);
@@ -220,7 +209,6 @@ export default function Producto() {
         : "http://localhost:8080/products/prueba";
 
       try {
-        console.log(formData)
         const response = await fetch(url, {
           method,
           body: formData,
@@ -619,9 +607,15 @@ export default function Producto() {
   };
 
   return (
-    <div className="">
-      <div className="col-12">
-        <div className="card">
+    <div>
+    <Dashboard />
+    <div className="flex">
+      <div className="w-1/4">
+        <Header />
+      </div>
+      <div className="col-12 xl:col-10">
+        <div className="card" >
+        <div className="w-3/4 p-4">
           <Toast ref={toast} />
           <Toolbar
             className="mb-4"
@@ -654,7 +648,7 @@ export default function Producto() {
               header="IMAGEN"
               sortable
             ></Column>
-            <Column field="descripcion" header="DESCRIPCIÃ“N" sortable></Column>
+            <Column field="descripcion" header="DESCRIPCIÓN" sortable></Column>
             <Column
               field="estadoProducto"
               header="ESTADO"
@@ -942,8 +936,10 @@ export default function Producto() {
               )}
             </div>
           </Dialog>
+            </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

@@ -1,24 +1,23 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sidebar } from "primereact/sidebar";
-import { Button } from "primereact/button";
 import { Menu } from "primereact/menu";
+import { Avatar } from 'primereact/avatar';
+import { classNames } from 'primereact/utils';
+import DataUsuario from "../Usuario/DataUsuario";
+
+import { Sidebar } from "primereact/sidebar";
+
+import "./HeaderStyle.css"
 
 const Header = () => {
   const navigate = useNavigate();
-  const [visible, setVisible] = useState(false);
-
   const navigateTo = (path) => {
     navigate(path);
     setVisible(false);
   };
 
   const items = [
-    {
-      label: "Usuarios",
-      icon: "pi pi-users",
-      command: () => navigateTo("/usuario"),
-    },
+
     {
       label: "Venta",
       icon: "pi pi-id-card",
@@ -26,7 +25,7 @@ const Header = () => {
         {
           label: "Ventas",
           icon: "pi pi-dollar",
-          command: () => navigateTo("/venta"),
+          command: () => navigateTo("/home"),
         },
         {
           label: "Caja",
@@ -45,13 +44,18 @@ const Header = () => {
       icon: "pi pi-id-card",
       items: [
         {
+          label: "Usuarios",
+          icon: "pi pi-users",
+          command: () => navigateTo("/usuario"),
+        },
+        {
           label: "Empleados",
           icon: "pi pi-id-card",
           command: () => navigateTo("/empleado"),
         },
         {
           label: "Cargo",
-          icon: "pi pi-suitcase",
+          icon: "pi pi-briefcase",
           command: () => navigateTo("/cargo"),
         },
       ],
@@ -103,18 +107,38 @@ const Header = () => {
         },
       ],
     },
+    { separator: true },
+    {
+      
+      template: ( options) => {
+        return (
+          <button onClick={(e) => options.onClick(e)} className={classNames(options.className, 'w-full p-link flex align-items-center p-2 pl-4 text-color hover:surface-200 border-noround')}>
+            <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" className="mr-2" shape="circle" />
+            <div className="flex flex-column align">
+              <span className="font-bold">Usuario</span>
+              <span className="text-sm">Agent</span>
+            </div>
+          </button>
+        );
+      }
+    }
   ];
 
   return (
-    <header>
-      <div className="head">
-        <div className="titleheader" style={{ padding: "20px 0px" }}>
-          <div style={{ overflowY: "hidden" }}>
-          
-              <Menu model={items} />
+   
+    <header style={{  marginRight: '230px'}}>
+
+      <div className="head sidebar" style={{ top: '100px', marginRight: '40px'}}>
+        <div className="titleheader overflow-y-auto" style={{  marginLeft: '20px', marginRight: '40px'}}>
+          <div className="overflow-y-auto" style={{  overflowX: 'hidden' , overflowY: 'auto'}}>
+          <div className="overflow-y-auto" style={{ overflowX: 'hidden', overflowY: 'auto' }}>
+    <Menu className="overflow-y-auto"  model={items} />
+</div>
+
           </div>
         </div>
       </div>
+      
     </header>
   );
 };
