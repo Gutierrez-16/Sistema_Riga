@@ -158,7 +158,6 @@ const Header = () => {
               shape="circle"
             />
             <div className="flex flex-column align">
-              <DataUsuario />
             </div>
           </button>
         );

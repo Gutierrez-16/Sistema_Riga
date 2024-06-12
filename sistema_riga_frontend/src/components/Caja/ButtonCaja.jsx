@@ -13,7 +13,6 @@ const CloseCajaButton = () => {
         const data = await apiClient.get("http://localhost:8080/caja");
         const cajasEstado1 = data.filter(caja => caja.estadoCaja === '1');
         setCajas(cajasEstado1);
-        console.log("Cajas con estado 1:", cajasEstado1);
       } catch (error) {
         console.error('Error fetching cajas:', error);
       }

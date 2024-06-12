@@ -107,7 +107,6 @@ export default function Producto() {
     reader.readAsDataURL(file);
 
     setProducto({ ...producto, imagen: file });
-    console.log(file);
   };
 
   useEffect(() => {
@@ -209,7 +208,6 @@ export default function Producto() {
           : base64StringToFile(producto.imagen);
       formData.append("imagen", imagenFile);
 
-      console.log("IMAGEN: ", producto.imagen);
       formData.append("descripcion", producto.descripcion);
       formData.append("idCategoria", producto.idCategoria);
       formData.append("idUnidadMedida", producto.idUnidadMedida);
@@ -220,7 +218,6 @@ export default function Producto() {
         : "http://localhost:8080/products/prueba";
 
       try {
-        console.log(formData)
         const response = await fetch(url, {
           method,
           body: formData,

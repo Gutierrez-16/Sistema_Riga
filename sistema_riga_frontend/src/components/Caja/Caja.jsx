@@ -47,14 +47,9 @@ export default function ProductsDemo() {
   }, []);
 
   const handleUserDataReceived = (userData) => {
-    console.log("Datos del usuario recibidos:", userData);
-    console.log("ID: ", userData.idUsuario);
     setId(userData.idUsuario);
   };
 
-  console.log("IDDDDD: ", id);
-
-  console.log("TU ID: ");
   let emptyCaja = {
     idCaja: "",
     descripcion: "",
@@ -86,7 +81,6 @@ export default function ProductsDemo() {
   };
 
   const saveProduct = async () => {
-    console.log(caja);
     setSubmitted(true);
 
     if (product.descripcion.trim() && product.montoInicial.trim()) {
@@ -100,11 +94,6 @@ export default function ProductsDemo() {
         : "http://localhost:8080/caja";
 
       try {
-        console.log("Request URL:", url);
-        console.log("Request Method:", method);
-        console.log("Request Data:", product);
-        console.log("CAJA: ", caja);
-        console.log("desc: ", caja.descripcion);
         await apiClient[method.toLowerCase()](url, caja);
 
         fetchCajas();
@@ -350,13 +339,7 @@ export default function ProductsDemo() {
         return null;
     }
   };
-  function updateUsuario(selectedUsuarioId) {
-    console.log("Selected Usuario ID:", selectedUsuarioId);
-    setProduct((prevProduct) => ({
-      ...prevProduct,
-      idusuario: selectedUsuarioId,
-    }));
-  }
+  
 
   const usuarioBodyTemplate = (rowData) => {
     return rowData.idUsuario;
