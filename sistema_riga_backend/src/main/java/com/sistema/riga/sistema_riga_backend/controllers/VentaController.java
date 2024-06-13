@@ -6,6 +6,8 @@ import com.sistema.riga.sistema_riga_backend.services.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/venta")
 public class VentaController {
@@ -22,4 +24,9 @@ public class VentaController {
     public ComprobanteModel getComprobanteById(@PathVariable int id) {
         return ventaService.getComprobanteById(id);
     }
+    @GetMapping
+    public List<VentaModel> getAllVentass() {
+        return ventaService.getAllVentass();
+    }
+
 }

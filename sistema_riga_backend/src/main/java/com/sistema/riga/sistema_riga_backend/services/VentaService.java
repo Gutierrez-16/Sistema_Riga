@@ -6,6 +6,8 @@ import com.sistema.riga.sistema_riga_backend.repositories.IVentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class VentaService implements IVentaService {
 
@@ -21,4 +23,9 @@ public class VentaService implements IVentaService {
     public ComprobanteModel getComprobanteById(int id) {
         return ventaRepository.getComprobanteById(id);
     }
+    @Override
+    public List<VentaModel> getAllVentass() {
+        return ventaRepository.getAllVentass();
+    }
+
 }

@@ -27,7 +27,16 @@ export default function ProductsDemo() {
     idTipoUsuario: "",
   };
 
+  const [employeer, setEmployeer] = useState({
+    idPersona: "",
+    idEmpleado: "",
+    nombrePersona: ""
+  });
+
   const [empleado, setEmpleados] = useState([]);
+
+  const [emplo, setEmplo] = useState([]);
+
   const [tipousuario, setTipoUsuario] = useState([]);
   const [products, setProducts] = useState([]);
 
@@ -39,19 +48,53 @@ export default function ProductsDemo() {
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
   const dt = useRef(null);
+  const [emploo, setEmploo] = useState([]);
+
+  const [personas, setPersonas] = useState([]);
+
+  const [arroz, setArroz] = useState([]);
 
   useEffect(() => {
     fetchUsuarios();
     fetchEmployees();
     fetchTipoUsuario();
+    fetchPersonas();
+    createEmployeePersonJson()
+      .then(array => {
+        console.log("Array de objetos JSON:", array);
+        setArroz(array)
+
+        console.log("Array de objetos arro:", arroz);
+
+        // Acceder al primer objeto dentro del array
+        if (array.length > 0) {
+          const firstObject = array[0];
+          console.log("Primer objeto JSON:", firstObject);
+
+          // Verificar si el primer objeto tiene la propiedad idPersona
+          if (firstObject.idPersona !== undefined) {
+            console.log("ID Persona del primer objeto:", firstObject.idPersona);
+          } else {
+            console.log("La propiedad idPersona no está definida en el primer objeto JSON.");
+          }
+        } else {
+          console.log("El array de objetos está vacío.");
+        }
+      })
+      .catch(error => {
+        console.error("Error al obtener el array de objetos JSON:", error);
+      });
+    jsonEmplo();
   }, []);
 
   const fetchEmployees = async () => {
     try {
       const data = await apiClient.get("http://localhost:8080/employee");
-      setEmpleados(data);
+
+      return data; // Devuelve los empleados para su uso posterior
     } catch (error) {
       console.error("Error al obtener empleados:", error);
+      return []; // Devuelve un array vacío en caso de error
     }
   };
 
@@ -64,10 +107,54 @@ export default function ProductsDemo() {
     }
   };
 
+  const fetchPersonas = async () => {
+    try {
+      const data = await apiClient.get("http://localhost:8080/person");
+
+      return data; // Devuelve las personas para su uso posterior
+    } catch (error) {
+      console.error("Error al obtener personas:", error);
+      return []; // Devuelve un array vacío en caso de error
+    }
+  };
+
+  const createEmployeePersonJson = async () => {
+    const empleados = await fetchEmployees();
+    const personas = await fetchPersonas();
+
+    // Aquí asumo que cada empleado tiene un campo idPersona que se puede usar para emparejar con personas
+    const combinedData = empleados.map(empleado => {
+      const persona = personas.find(p => p.idPersona === empleado.idPersona);
+      if (persona) {
+        return {
+          idEmpleado: empleado.idEmpleado,
+          idPersona: persona.idPersona,
+          nombrePersona: persona.nombrePersona
+        };
+      } else {
+        return {
+          idEmpleado: empleado.idEmpleado,
+          idPersona: null,
+          nombrePersona: null
+        };
+      }
+    });
+
+    setEmploo(combinedData);
+    return combinedData;
+  };
+
+  const jsonEmplo = () => {
+    createEmployeePersonJson()
+      .then(json => {
+        console.log("ARROZ:", json);  // Logs the entire JSON object
+        console.log("ID: ", emploo.idEmpleado);
+      });
+  };
+
   const fetchUsuarios = async () => {
     try {
       const data = await apiClient.get("http://localhost:8080/auth");
-
       setProducts(data);
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
@@ -91,7 +178,7 @@ export default function ProductsDemo() {
         toast.current.show({
           severity: "success",
           summary: "Successful",
-          detail: "usuario guardado",
+          detail: "Usuario guardado",
           life: 3000,
         });
       } catch (error) {
@@ -196,11 +283,11 @@ export default function ProductsDemo() {
       toast.current.show({
         severity: "success",
         summary: "Successful",
-        detail: "Usuario Activada",
+        detail: "Usuario Activado",
         life: 3000,
       });
     } catch (error) {
-      console.error("Error al activar la Usuario:", error);
+      console.error("Error al activar el Usuario:", error);
     }
   };
 
@@ -216,11 +303,11 @@ export default function ProductsDemo() {
         toast.current.show({
           severity: "success",
           summary: "Successful",
-          detail: "Usuario Activadas",
+          detail: "Usuarios Activados",
           life: 3000,
         });
       } catch (error) {
-        console.error("Error al activar las Usuario:", error);
+        console.error("Error al activar los Usuarios:", error);
       }
     }
   };
@@ -354,9 +441,19 @@ export default function ProductsDemo() {
         return null;
     }
   };
+
   function updateEmpleado(selectedEmpleadoId) {
-    setProduct({ ...product, idEmpleado: selectedEmpleadoId });
+    const selectedEmpleado = arroz.find(emp => emp.idEmpleado === selectedEmpleadoId);
+
+    if (selectedEmpleado) {
+      setProduct({ ...product, idEmpleado: selectedEmpleadoId });
+      console.log("ID Empleado seleccionado:", selectedEmpleadoId);
+    } else {
+      console.error(`No se encontró empleado con ID ${selectedEmpleadoId}`);
+    }
   }
+
+
   function updateTipoUsuario(selectedTipoUsuarioId) {
     setProduct({ ...product, idTipoUsuario: selectedTipoUsuarioId });
   }
@@ -396,7 +493,17 @@ export default function ProductsDemo() {
                 <Column selectionMode="multiple" exportable={false}></Column>
                 <Column field="idusuario" header="ID" sortable></Column>
                 <Column field="username" header="Username" sortable></Column>
-                <Column field="idEmpleado" header="Empleado" sortable></Column>
+                <Column field="idEmpleado" header="Empleado" sortable
+                  body={(rowData) => {
+                    const arrozT = arroz.find(
+                      (tipo) => tipo.idEmpleado === rowData.idEmpleado
+                    );
+                    return arrozT ? arrozT.nombrePersona : "hola";
+
+
+                  }}></Column>
+                
+
                 <Column
                   field="idTipoUsuario"
                   header="Tipo Usuario"
@@ -463,14 +570,15 @@ export default function ProductsDemo() {
               <div className="field">
                 <label htmlFor="idEmpleado">Empleado</label>
                 <Dropdown
-                  id="empleadoDropdown"
+                  id="idEmpleado"
                   value={product.idEmpleado}
-                  options={empleado}
+                  options={arroz}
                   onChange={(e) => updateEmpleado(e.value)}
-                  optionLabel="idEmpleado"
+                  optionLabel="nombrePersona"
                   optionValue="idEmpleado"
-                  placeholder="Seleccione a empleado"
+                  placeholder="Seleccione a un empleado"
                 />
+
               </div>
 
               <div className="field">

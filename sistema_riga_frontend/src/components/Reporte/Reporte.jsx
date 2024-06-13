@@ -1,20 +1,21 @@
-
 import React, { useState, useEffect } from 'react';
 import { Chart } from 'primereact/chart';
 import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 
-
 export default function MultiAxisDemo() {
-    const [chartData, setChartData] = useState({});
-    const [chartOptions, setChartOptions] = useState({});
+    const [chartData1, setChartData1] = useState({});
+    const [chartOptions1, setChartOptions1] = useState({});
+    const [chartData2, setChartData2] = useState({});
+    const [chartOptions2, setChartOptions2] = useState({});
 
     useEffect(() => {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
-        const data = {
+
+        const data1 = {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
             datasets: [
                 {
@@ -35,7 +36,8 @@ export default function MultiAxisDemo() {
                 }
             ]
         };
-        const options = {
+
+        const options1 = {
             stacked: false,
             maintainAspectRatio: false,
             aspectRatio: 0.6,
@@ -81,28 +83,65 @@ export default function MultiAxisDemo() {
             }
         };
 
-        setChartData(data);
-        setChartOptions(options);
+        const data2 = {
+            datasets: [
+                {
+                    data: [11, 16, 7, 3, 14],
+                    backgroundColor: [
+                        documentStyle.getPropertyValue('--red-500'),
+                        documentStyle.getPropertyValue('--green-500'),
+                        documentStyle.getPropertyValue('--yellow-500'),
+                        documentStyle.getPropertyValue('--bluegray-500'),
+                        documentStyle.getPropertyValue('--blue-500')
+                    ],
+                    label: 'My dataset'
+                }
+            ],
+            labels: ['Red', 'Green', 'Yellow', 'Grey', 'Blue']
+        };
+
+        const options2 = {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    grid: {
+                        color: surfaceBorder
+                    }
+                }
+            }
+        };
+
+        setChartData1(data1);
+        setChartOptions1(options1);
+        setChartData2(data2);
+        setChartOptions2(options2);
     }, []);
 
     return (
         <div>
-      <Dashboard />
-      <div className="flex">
-        <div className="w-1/3">
-          <Header />
+            <Dashboard />
+            <div className="flex">
+                <div className="w-1/3">
+                    <Header />
+                </div>
+                <div className="col-9 xl:col-10">
+                    <div className="card p-4 mb-4">
+                        <h2 className="text-center">Reporte Ventas 1</h2>
+                        <Chart type="line" data={chartData1} options={chartOptions1} style={{ height: '300px' }} />
+                    </div>
+                    <div className="card p-4">
+                        <h2 className="text-center">Reporte Ventas 2</h2>
+                        <Chart type="polarArea" data={chartData2} options={chartOptions2} style={{ height: '300px' }} />
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div className="col-9 xl:col-10">
-        <div className="card">
-          <div className="w-3/4 p-4">
-            <h2 style={{textAlign:'center'}}>Reporte Ventas</h2>
-            <Chart type="line" data={chartData} options={chartOptions} />
-        </div>
-        </div>
-        </div>
-        </div>
-      </div>
-    )
+    );
 }
-        
