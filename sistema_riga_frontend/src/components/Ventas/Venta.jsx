@@ -10,8 +10,8 @@ import { Divider } from "primereact/divider";
 import { Dialog } from "primereact/dialog";
 import { InputNumber } from "primereact/inputnumber";
 import { ColumnGroup } from "primereact/columngroup";
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import bodega from "../Imagenes/7.png";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
@@ -21,8 +21,9 @@ import Dashboard from "../Header/Head";
 import DataUsuario from "../Usuario/DataUsuario";
 import { Dropdown } from "primereact/dropdown";
 import apiClient from "../Security/apiClient";
-import Boleta from "../Comprobante/Boleta";
 import { Row } from "primereact/row";
+
+import { Tag } from "primereact/tag";
 
 import "./VentaStyle.css";
 const SalesComponent = () => {
@@ -48,9 +49,21 @@ const SalesComponent = () => {
   const [metodo, setMetodo] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
-  
   const [submitted, setSubmitted] = useState(false);
 
+  const [habilitado, setHabilitado] = useState(true);
+
+  const [habilitadoVenta, setHabilitadoVenta] = useState(true);
+
+  const [descuento, setDescuento] = useState(0);
+
+  const handleHabilitado = () => {
+    setHabilitado(false);
+  };
+
+  const handleHabilitadoVenta = () => {
+    setHabilitadoVenta(false);
+  };
 
   const [idmet, setIdmet] = useState("");
   useEffect(() => {
@@ -76,12 +89,10 @@ const SalesComponent = () => {
     setId(userData.idUsuario);
   };
 
-
   const [metodosPago, setMetodosPago] = useState([]);
 
-
   const getToken = () => {
-    return localStorage.getItem('token');
+    return localStorage.getItem("token");
   };
   const token = getToken();
 
@@ -91,7 +102,9 @@ const SalesComponent = () => {
       const personsData = await apiClient.get("http://localhost:8080/person");
       setPersons(personsData);
 
-      const companiesData = await apiClient.get("http://localhost:8080/empresa");
+      const companiesData = await apiClient.get(
+        "http://localhost:8080/empresa"
+      );
       setCompanies(companiesData);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -114,37 +127,37 @@ const SalesComponent = () => {
 
   const generatePDF = (comprobante) => {
     if (!comprobante) {
-      console.log("NO HAY COMPROBANTE P")
       return;
     }
-
-    setComprobante(null);
-
     const doc = new jsPDF();
-
+  
     doc.text(`Boleta de Venta`, 10, 5);
     doc.text(`Todo lo que necesitas, a tu alcance.`, 10, 15);
-
+  
     const logoImgSrc = bodega;
-    doc.addImage(logoImgSrc, 'JPEG', 10, 20, 50, 50);
-
+    doc.addImage(logoImgSrc, "JPEG", 10, 20, 50, 50);
+  
     let yPosition = 30;
     if (empresa) {
       doc.text(`RUC: ${empresa.ruc}`, 70, yPosition);
       doc.text(`Razón Social: ${empresa.razonSocial}`, 70, yPosition + 10);
       doc.text(`Dirección: ${empresa.direccion}`, 70, yPosition + 20);
     }
-
+  
     yPosition += 40;
     doc.text(`ID Venta: ${comprobante.idVenta}`, 10, yPosition);
     doc.text(`Numero: ${comprobante.numero}`, 10, yPosition + 10);
     doc.text(`Serie: ${comprobante.serie}`, 10, yPosition + 20);
-    doc.text(`Fecha: ${new Date(comprobante.fechaVenta).toLocaleString()}`, 10, yPosition + 30);
+    doc.text(
+      `Fecha: ${new Date(comprobante.fechaVenta).toLocaleString()}`,
+      10,
+      yPosition + 30
+    );
     doc.text(`Cliente: ${comprobante.nomCli}`, 10, yPosition + 40);
     doc.text(`Documento: ${comprobante.docCli}`, 10, yPosition + 50);
     doc.text(`Dirección: ${comprobante.direccion}`, 10, yPosition + 60);
     doc.text(`Método de Pago: ${comprobante.nombreMetodo}`, 10, yPosition + 70);
-
+  
     yPosition += 80;
     const headers = ["#", "Producto", "Cantidad", "Precio Unitario", "Total"];
     const detalles = comprobante.detallesPedido.map((detalle, index) => [
@@ -152,55 +165,89 @@ const SalesComponent = () => {
       detalle.nomProducto,
       detalle.cant,
       `$${detalle.precioUnitario.toFixed(2)}`,
-      `$${detalle.totalPro.toFixed(2)}`
+      `$${detalle.totalPro.toFixed(2)}`,
     ]);
-
+  
     doc.autoTable({
       startY: yPosition,
       head: [headers],
       body: detalles,
-      theme: 'grid',
+      theme: "grid",
       margin: { top: 10 },
       styles: {
         fontSize: 10,
-        textColor: '#333333',
+        textColor: "#333333",
         cellPadding: 2,
         headerCellPadding: 2,
-        halign: 'center'
+        halign: "center",
       },
       columnStyles: {
-        0: { halign: 'center' },
-        2: { halign: 'center' },
-        3: { halign: 'right' },
-        4: { halign: 'right' }
-      }
-
+        0: { halign: "center" },
+        2: { halign: "center" },
+        3: { halign: "right" },
+        4: { halign: "right" },
+      },
     });
-
+  
     yPosition = doc.autoTable.previous.finalY + 5;
     doc.text(`Subtotal: $${comprobante.subTotal.toFixed(2)}`, 10, yPosition);
     doc.text(`IGV: $${comprobante.igv.toFixed(2)}`, 10, yPosition + 10);
-    doc.text(`Descuento: $${comprobante.descuento.toFixed(2)}`, 10, yPosition + 20);
-    doc.text(`Total Descuento: $${comprobante.totalDescuento.toFixed(2)}`, 10, yPosition + 30);
+    doc.text(
+      `Descuento: $${comprobante.descuento.toFixed(2)}`,
+      10,
+      yPosition + 20
+    );
+    doc.text(
+      `Total Descuento: $${comprobante.totalDescuento.toFixed(2)}`,
+      10,
+      yPosition + 30
+    );
     doc.text(`Total: $${comprobante.total.toFixed(2)}`, 10, yPosition + 40);
-
-    doc.save('boleta.pdf');
-
+  
+    doc.save("boleta.pdf");
+  
+    // No se requiere limpiar el comprobante aquí, ya que se hace en handleRealizarVenta
   };
+  
+
+  const [closeProductDialog, setCloseProductDialog] = useState(false);
+
+  const hideCloseProductDialog = () => {
+    setCloseProductDialog(false);
+  };
+
+  function redirigirCaja() {
+    window.location.href = "/caja";
+  }
+
+  const closeVentaDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        outlined
+        onClick={hideCloseProductDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        severity="info"
+        onClick={redirigirCaja}
+      />
+    </React.Fragment>
+  );
 
   const handleRealizarVenta = async () => {
     try {
       if (selectedPerson && salesDetails.length > 0) {
-        console.log("PASE POR SELECTED");
         const pedidoResponse = await fetch("http://localhost:8080/pedido", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
-        console.log("PEDIDO: ", pedidoResponse);
-
+  
         if (!pedidoResponse.ok) {
           throw new Error("Error al insertar el pedido.");
         }
@@ -214,34 +261,33 @@ const SalesComponent = () => {
               precio: detalle.price,
               idUsuario: id,
             };
-
+  
             const detallePedidoResponse = await fetch(
               `http://localhost:8080/detallepedido/${pedidoId}`,
               {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  "Authorization": `Bearer ${token}`
+                  Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(detallePedidoData),
               }
             );
-
+  
             if (!detallePedidoResponse.ok) {
               throw new Error("Error al insertar los detalles del pedido.");
             }
           })
         );
-
+  
         const subtotal = salesDetails.reduce((total, sale) => {
           return total + sale.quantity * sale.price;
         }, 0);
-
+  
         const igv = subtotal * 0.18;
-        const descuento = 0;
         const totalDescuento = subtotal * (descuento / 100);
         const totalPagar = subtotal + igv - totalDescuento;
-
+  
         let tipoComprobante;
         if (saleType === "boleta") {
           tipoComprobante = "B";
@@ -250,12 +296,10 @@ const SalesComponent = () => {
         } else {
           throw new Error("Tipo de comprobante no válido.");
         }
-        const dataMetodo = await apiClient.get("http://localhost:8080/metodopago");
-        console.log("DATA METODO: ", dataMetodo)
-        
-
-        console.log("ID MET: ",idmet);
-
+        const dataMetodo = await apiClient.get(
+          "http://localhost:8080/metodopago"
+        );
+  
         const ventaData = {
           Descuento: descuento,
           igv: igv,
@@ -269,24 +313,20 @@ const SalesComponent = () => {
           idUsuario: id,
           idMetodoPago: idmet, // Aquí se incluye el idMetodoPago obtenido
         };
-        console.log("DATA: ", ventaData);
-        
+  
         const ventaResponse = await fetch("http://localhost:8080/venta", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(ventaData)
+          body: JSON.stringify(ventaData),
         });
-
-        console.log("RESPONSE: : ", ventaResponse);
-
-
+  
         if (!ventaResponse.ok) {
           throw new Error("Error al insertar la venta.");
         }
-
+  
         const ventaId = (await ventaResponse.json()).idVenta;
         toast.current.show({
           severity: "success",
@@ -294,31 +334,37 @@ const SalesComponent = () => {
           detail: "La venta se realizó correctamente",
           life: 3000,
         });
-
-        setSalesDetails([]);
-        const comprobanteResponse = await fetch(`http://localhost:8080/venta/comprobante/${ventaId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-        });
+  
+        const comprobanteResponse = await fetch(
+          `http://localhost:8080/venta/comprobante/${ventaId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (!comprobanteResponse.ok) {
           throw new Error("Error al obtener el comprobante de venta.");
         }
-
+  
         const comprobanteData = await comprobanteResponse.json();
         setComprobante(comprobanteData);
-
-        console.log("data: ", comprobanteData)
-
+  
         generatePDF(comprobanteData);
-        console.log("PASE POR EL PDF");
-
-        setIdVenta(idVenta); // Esto no está haciendo nada
+  
+        // Limpiar estados después de generar el PDF
+        setSalesDetails([]);
+        setSelectedPerson(null);
+        setSelectedPersonName("");
+        setComprobante(null);
+        setMetodo(null);
+        setIdmet("");
+        setSaleType("boleta");
+        setDescuento(0);
+  
         setShowBoletaDialog(true);
-
-
       } else {
         throw new Error(
           toast.current.show({
@@ -329,7 +375,6 @@ const SalesComponent = () => {
           })
         );
       }
-
     } catch (error) {
       console.error("Error realizando la venta:", error);
       toast.current.show({
@@ -338,10 +383,11 @@ const SalesComponent = () => {
         detail: "Error al realizar la venta",
         life: 3000,
       });
+  
+      setCloseProductDialog(true);
     }
-
   };
-
+  
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
     const newSale = {
@@ -401,10 +447,10 @@ const SalesComponent = () => {
     const updatedSalesDetails = salesDetails.map((sale) =>
       sale === rowData
         ? {
-          ...sale,
-          quantity: newQuantity,
-          total: (newQuantity * sale.price).toFixed(2),
-        }
+            ...sale,
+            quantity: newQuantity,
+            total: (newQuantity * sale.price).toFixed(2),
+          }
         : sale
     );
     setSalesDetails(updatedSalesDetails);
@@ -414,7 +460,6 @@ const SalesComponent = () => {
     const updatedSalesDetails = salesDetails.filter((sale) => sale !== rowData);
     setSalesDetails(updatedSalesDetails);
   };
-
 
   const handleSaleTypeChange = (e) => {
     setSaleType(e.value);
@@ -428,8 +473,9 @@ const SalesComponent = () => {
 
   const fetchMetodosPago = async () => {
     try {
-      const dataMetodo = await apiClient.get("http://localhost:8080/metodopago");
-      console.log(dataMetodo);
+      const dataMetodo = await apiClient.get(
+        "http://localhost:8080/metodopago"
+      );
       setMetodosPago(dataMetodo); // Actualizamos el estado con los métodos de pago obtenidos
     } catch (error) {
       console.error("Error fetching payment methods:", error);
@@ -438,16 +484,14 @@ const SalesComponent = () => {
 
   const changeMetodo = (e) => {
     setMetodo(e.value);
-    console.log(e.value)
 
-    setIdmet(e.value)
-  }
+    setIdmet(e.value);
+  };
 
   return (
     <div>
       <div className="">
         <div>
-          <Boleta />
           <DataUsuario onUserDataReceived={handleUserDataReceived} />
         </div>
         <div className="p-d-flex p-jc-center p-mt-5">
@@ -455,13 +499,50 @@ const SalesComponent = () => {
             <Toast ref={toast} />
 
             <Panel header="Buscar Producto" className="p-shadow-4">
-              <Button
-                className="mb-4"
-                label="Seleccionar Producto"
-                icon="pi pi-external-link"
-                onClick={() => setProductsDialogVisible(true)}
-              />
-
+              <div
+                className=""
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <Button
+                  className="mb-4"
+                  label="Seleccionar Producto"
+                  icon="pi pi-external-link"
+                  onClick={() => {
+                    setProductsDialogVisible(true);
+                    handleHabilitado();
+                  }}
+                />
+                <div className="">
+                  <Tag
+                    style={{
+                      minWidth: "7rem",
+                      minHeight: "46px",
+                      fontSize: "1rem",
+                      backgroundColor: "#ccffcb",
+                      border: "1px solid #b6f3b6",
+                      color: "#3f3a3a",
+                    }}
+                    severity="success"
+                    className="mx-4"
+                    value="Descuento: "
+                  ></Tag>
+                  <InputText
+                    style={{ maxWidth: "4rem" }}
+                    className="mb-4"
+                    id="descuento"
+                    value={descuento}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value) || 0;
+                      if (value <= 10) {
+                        setDescuento(value);
+                      } else {
+                        setDescuento(10);
+                      }
+                    }}
+                    max={10}
+                  />
+                </div>
+              </div>
               <ProductDialog
                 visible={productsDialogVisible}
                 onHide={() => setProductsDialogVisible(false)}
@@ -480,6 +561,7 @@ const SalesComponent = () => {
                 salesDetails={salesDetails}
                 onQuantityChange={handleQuantityChange}
                 onDelete={handleDeleteSale}
+                descuento={descuento}
               />
             </Panel>
 
@@ -514,24 +596,25 @@ const SalesComponent = () => {
                     </label>
                   </div>
                   <div className="p-field-radiobutton ">
-                    <label className="font-bold mb-8" htmlFor="idMetodoPago" >
-                      <p className="mb-2">Metodo de pago</p>
+                    <label className="font-bold mb-8" htmlFor="idMetodoPago">
+                      <p className="mb-3">Metodo de pago</p>
                     </label>
-                    <div >
-                    <Dropdown
-                    
-                      id="idMetodoPago"
-                      value={metodo} // Assuming 'metodo' is the state variable holding the selected method
-                      options={metodosPago.map((metodo) => ({
-                        label: metodo.nombreMetodo,
-                        value: metodo.idMetodo,
-                      }))}
-                      onChange={changeMetodo}
-                      placeholder="Seleccione un pago"
-                    />
+                    <div>
+                      <Dropdown
+                        id="idMetodoPago"
+                        value={metodo} // Assuming 'metodo' is the state variable holding the selected method
+                        options={metodosPago.map((metodo) => ({
+                          label: metodo.nombreMetodo,
+                          value: metodo.idMetodo,
+                        }))}
+                        onChange={changeMetodo}
+                        placeholder="Seleccione un pago"
+                      />
                     </div>
-                    {submitted && !metodosPago.idMetodo   && (
-                      <small className="p-error">Metodo pago es requerido.</small>
+                    {submitted && !metodosPago.idMetodo && (
+                      <small className="p-error">
+                        Metodo pago es requerido.
+                      </small>
                     )}
                   </div>
 
@@ -545,6 +628,7 @@ const SalesComponent = () => {
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <Button
+                    disabled={habilitado}
                     style={{
                       width: "38%",
                       backgroundColor: "var(--orange-400)",
@@ -552,7 +636,10 @@ const SalesComponent = () => {
                     }}
                     label="Cliente"
                     icon="pi pi-users green-500"
-                    onClick={() => setDialogVisible(true)}
+                    onClick={() => {
+                      setDialogVisible(true);
+                      handleHabilitadoVenta();
+                    }}
                   />
 
                   <InputText
@@ -565,7 +652,8 @@ const SalesComponent = () => {
               </Panel>
               <div className="flex justify-content-center flex-wrap">
                 <Button
-                onSubmit={setSubmitted}
+                  disabled={habilitadoVenta}
+                  onSubmit={setSubmitted}
                   style={{
                     backgroundColor: "var(--cyan-500)",
                     border: "var(--green-500)",
@@ -574,12 +662,27 @@ const SalesComponent = () => {
                   icon="pi pi-shopping-cart"
                   onClick={() => {
                     handleRealizarVenta();
-
                   }}
                 />
-
               </div>
             </div>
+            <Dialog
+              visible={closeProductDialog}
+              style={{ width: "450px" }}
+              header="No hay una caja abierta"
+              modal
+              className="p-fluid"
+              footer={closeVentaDialogFooter}
+              onHide={hideCloseProductDialog}
+            >
+              <div className="confirmation-content">
+                <i
+                  className="pi pi-exclamation-triangle mr-3"
+                  style={{ fontSize: "2rem" }}
+                />
+                <span>¿Desea abrir una caja?</span>
+              </div>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -643,16 +746,27 @@ const ProductDialog = ({ visible, onHide, onSelectProduct, products }) => {
   );
 };
 
-const PersonDialog = ({ visible, onHide, onSelectPerson, onSelectCompany, data, isPerson }) => {
+const PersonDialog = ({
+  visible,
+  onHide,
+  onSelectPerson,
+  onSelectCompany,
+  data,
+  isPerson,
+}) => {
   const [searchText, setSearchText] = useState("");
   const filteredData = data.filter((item) =>
-    (isPerson ? item.nombrePersona : item.razonSocial).toLowerCase().includes(searchText.toLowerCase())
+    (isPerson ? item.nombrePersona : item.razonSocial)
+      .toLowerCase()
+      .includes(searchText.toLowerCase())
   );
 
   const [globalFilter, setGlobalFilter] = useState(null);
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <h4 className="m-0">{isPerson ? "Seleccionar Cliente" : "Seleccionar Empresa"}</h4>
+      <h4 className="m-0">
+        {isPerson ? "Seleccionar Cliente" : "Seleccionar Empresa"}
+      </h4>
       <IconField iconPosition="left">
         <InputIcon className="pi pi-search" />
         <InputText
@@ -676,16 +790,28 @@ const PersonDialog = ({ visible, onHide, onSelectPerson, onSelectCompany, data, 
       <DataTable
         value={filteredData}
         selectionMode="single"
-        onRowSelect={(e) => isPerson ? onSelectPerson(e.data) : onSelectCompany(e.data)}
+        onRowSelect={(e) =>
+          isPerson ? onSelectPerson(e.data) : onSelectCompany(e.data)
+        }
         dataKey={isPerson ? "idPersona" : "idEmpresa"}
         header={header}
         paginator
         rows={10}
-        emptyMessage={isPerson ? "No se encontraron clientes" : "No se encontraron empresas"}
+        emptyMessage={
+          isPerson ? "No se encontraron clientes" : "No se encontraron empresas"
+        }
         globalFilter={globalFilter}
       >
-        <Column field={isPerson ? "nombrePersona" : "razonSocial"} header="Nombre" sortable />
-        <Column field={isPerson ? "correo" : "ruc"} header={isPerson ? "correo" : "ruc"} sortable />
+        <Column
+          field={isPerson ? "nombrePersona" : "razonSocial"}
+          header="Nombre"
+          sortable
+        />
+        <Column
+          field={isPerson ? "correo" : "ruc"}
+          header={isPerson ? "correo" : "ruc"}
+          sortable
+        />
       </DataTable>
 
       <Button
@@ -699,19 +825,25 @@ const PersonDialog = ({ visible, onHide, onSelectPerson, onSelectCompany, data, 
   );
 };
 
-const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
+const SalesTable = ({
+  salesDetails,
+  onQuantityChange,
+  onDelete,
+  descuento,
+}) => {
   const handleQuantityChange = (rowData, newQuantity) => {
     onQuantityChange(rowData, newQuantity);
   };
+
   const subtotal = salesDetails.reduce((total, sale) => {
     return total + sale.quantity * sale.price;
   }, 0);
 
   const igv = subtotal * 0.18;
-  const descuento = 0;
   const totalDescuento = subtotal * (descuento / 100);
   const totalPagar = subtotal + igv - totalDescuento;
 
+  const [descuentop, setDescuentop] = useState(0);
   const footerGroup = (
     <ColumnGroup>
       <Row>
@@ -720,11 +852,11 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
-        <Column footer={descuento} />
+        <Column footer={`${descuento}%`} />
       </Row>
       <Row>
         <Column
-          footer={"IGV:"}
+          footer={"IGV (18%):"}
           colSpan={4}
           footerStyle={{ textAlign: "right" }}
         />
@@ -767,8 +899,7 @@ const SalesTable = ({ salesDetails, onQuantityChange, onDelete }) => {
 
   return (
     <div className="">
-      <div>
-      </div>
+      <div></div>
       <DataTable
         value={salesDetails}
         footerColumnGroup={footerGroup}

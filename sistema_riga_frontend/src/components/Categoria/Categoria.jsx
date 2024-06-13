@@ -251,7 +251,7 @@ export default function ProductsDemo() {
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <h5 className="m-0 ">Manage Companies</h5>
+      <h5 className="m-0 ">Manage Categorias</h5>
       <IconField iconPosition="left">
         <InputIcon className="pi pi-search" />
         <InputText
