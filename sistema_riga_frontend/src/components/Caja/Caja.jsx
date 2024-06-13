@@ -14,7 +14,7 @@ import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 import apiClient from "../Security/apiClient";
 import { Dropdown } from "primereact/dropdown";
-
+import { Calendar } from "primereact/calendar";
 import DataUsuario from "../Usuario/DataUsuario";
 
 // Function to fetch Cajas
@@ -52,7 +52,11 @@ export default function Caja() {
 
   const [id, setId] = useState("");
   const [sentinela, setSentinela] = useState("");
-
+  const [dateFilter, setDateFilter] = useState({
+    startDate: null,
+    endDate: null,
+  });
+  
   useEffect(() => {
     fetchCajas();
     fetchUsuarios();
@@ -103,42 +107,42 @@ export default function Caja() {
     setSubmitted(true);
 
     if (product.descripcion.trim() && product.montoInicial.trim()) {
-        setLoading(true);  // Deshabilitar el botón de guardar
+      setLoading(true);  // Deshabilitar el botón de guardar
 
-        caja.montoInicial = product.montoInicial;
-        caja.descripcion = product.descripcion;
-        caja.idUsuario = id;
+      caja.montoInicial = product.montoInicial;
+      caja.descripcion = product.descripcion;
+      caja.idUsuario = id;
 
-        const method = caja.idCaja ? "PUT" : "POST";
-        const url = caja.idCaja
-            ? `http://localhost:8080/caja/${caja.idCaja}`
-            : "http://localhost:8080/caja";
+      const method = caja.idCaja ? "PUT" : "POST";
+      const url = caja.idCaja
+        ? `http://localhost:8080/caja/${caja.idCaja}`
+        : "http://localhost:8080/caja";
 
-        try {
-            await apiClient[method.toLowerCase()](url, caja);
+      try {
+        await apiClient[method.toLowerCase()](url, caja);
 
-            fetchCajas();
-            setProductDialog(false);
-            setCaja(emptyCaja);
-            toast.current.show({
-                severity: "success",
-                summary: "Successful",
-                detail: "Caja guardada",
-                life: 3000,
-            });
-        } catch (error) {
-            console.error("Error al guardar la caja:", error);
-            toast.current.show({
-                severity: "error",
-                summary: "Error",
-                detail: error.response?.data?.message || "Error al guardar la caja",
-                life: 3000,
-            });
-        } finally {
-            setLoading(false);  // Habilitar el botón de guardar
-        }
+        fetchCajas();
+        setProductDialog(false);
+        setCaja(emptyCaja);
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Caja guardada",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error("Error al guardar la caja:", error);
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: error.response?.data?.message || "Error al guardar la caja",
+          life: 3000,
+        });
+      } finally {
+        setLoading(false);  // Habilitar el botón de guardar
+      }
     }
-};
+  };
 
 
 
@@ -225,8 +229,8 @@ export default function Caja() {
       ></i>
     );
   };
-  
-  
+
+
   const actionBodyTemplate = (rowData) => {
     return (
       <div className="flex">
@@ -257,23 +261,45 @@ export default function Caja() {
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
       <h5 className="m-0 ">Manage Cajas</h5>
-      <IconField iconPosition="left">
-        <InputIcon className="pi pi-search" />
-        <InputText
-          type="search"
-          onInput={(e) => setGlobalFilter(e.target.value)}
-          placeholder="Search..."
-        />
-      </IconField>
+      <div className="flex gap-2 align-items-center">
+        <IconField iconPosition="left">
+          <InputIcon className="pi pi-search" />
+          <InputText
+            type="search"
+            onInput={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Search..."
+          />
+        </IconField>
+        <div className="flex gap-2 align-items-center">
+          <span>Filter by Date:</span>
+          <Calendar
+            value={dateFilter.startDate}
+            onChange={(e) =>
+              setDateFilter({ ...dateFilter, startDate: e.value })}
+            placeholder="Start Date"
+            className="p-mr-2"
+            showIcon
+          />
+          <Calendar
+            value={dateFilter.endDate}
+            onChange={(e) =>
+              setDateFilter({ ...dateFilter, endDate: e.value })}
+            placeholder="End Date"
+            className="p-mr-2"
+            showIcon
+          />
+        </div>
+      </div>
     </div>
   );
 
+
   const productDialogFooter = (
     <React.Fragment>
-        <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
-        <Button label="Save" icon="pi pi-check" onClick={saveProduct} disabled={loading} />
+      <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
+      <Button label="Save" icon="pi pi-check" onClick={saveProduct} disabled={loading} />
     </React.Fragment>
-);
+  );
 
 
   const closeProductDialogFooter = (
@@ -329,6 +355,13 @@ export default function Caja() {
   const usuarioBodyTemplate = (rowData) => {
     return rowData.idUsuario;
   };
+  const filteredCajas = dateFilter.startDate && dateFilter.endDate
+    ? products.filter(c => {
+      const fechaApertura = new Date(c.fechaApertura);
+      return fechaApertura >= dateFilter.startDate && fechaApertura <= dateFilter.endDate;
+    })
+    : products;
+
 
   return (
     <div>
@@ -351,7 +384,7 @@ export default function Caja() {
               ></Toolbar>
               <DataTable
                 ref={dt}
-                value={products}
+                value={filteredCajas}
                 selection={selectedProducts}
                 onSelectionChange={(e) => setSelectedProducts(e.value)}
                 dataKey="idCaja"

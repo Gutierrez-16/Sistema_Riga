@@ -1,9 +1,6 @@
 package com.sistema.riga.sistema_riga_backend.repositories;
 
-import com.sistema.riga.sistema_riga_backend.models.ComprobanteModel;
-import com.sistema.riga.sistema_riga_backend.models.DetallePedidoModel;
-import com.sistema.riga.sistema_riga_backend.models.DetallePedidosModel;
-import com.sistema.riga.sistema_riga_backend.models.VentaModel;
+import com.sistema.riga.sistema_riga_backend.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -118,6 +115,28 @@ public class VentaRepository implements IVentaRepository {
                     }
                 }
         );
+    }
+    @Override
+    public List<VentaModel> getAllVentass() {
+        return jdbcTemplate.query("EXEC SP_VENTAS",
+                (rs, rowNum) -> {
+                    VentaModel ventaModel = new VentaModel();
+                    ventaModel.setIdVenta(rs.getInt(1));
+                    ventaModel.setFechaVenta(rs.getTimestamp(2));
+                    ventaModel.setDescuento(rs.getDouble(3));
+                    ventaModel.setIgv(rs.getDouble(4));
+                    ventaModel.setTotal(rs.getDouble(5));
+                    ventaModel.setSubtotal(rs.getDouble(6));
+                    ventaModel.setTotalDescuento(rs.getDouble(7));
+                    ventaModel.setTotalPagar(rs.getDouble(8));
+                    ventaModel.setTipoComprobante(rs.getString(9));
+                    ventaModel.setEstadoVenta(rs.getString(10));
+                    ventaModel.setClientes(rs.getString(11));
+                    ventaModel.setIdPedido(rs.getInt(12));
+                    ventaModel.setEmpleados(rs.getString(13));
+                    ventaModel.setIdMetodoPago(rs.getInt(14));
+                    return ventaModel;
+                });
     }
 }
 

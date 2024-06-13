@@ -5,13 +5,10 @@ import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { Toolbar } from "primereact/toolbar";
-
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
-
 import { Calendar } from "primereact/calendar";
-
 import { Tag } from "primereact/tag";
 import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
@@ -22,7 +19,6 @@ import apiCliente from "../Security/apiClient";
 import "primeicons/primeicons.css";
 import apiClient from "../Security/apiClient";
 
-import DataUsuario from "../Usuario/DataUsuario";
 
 export default function Persona() {
   let emptyPersona = {
@@ -57,27 +53,19 @@ export default function Persona() {
   });
 
   const [selectedPersonas, setSelectedPersonas] = useState([]);
-
   const [departamentos, setDepartamentos] = useState([]);
   const [departamento, setDepartamento] = useState([]);
-
   const [provincias, setProvincias] = useState([]);
   const [provincia, setProvincia] = useState([]);
-
   const [distritos, setDistritos] = useState([]);
   const [distrito, setDistrito] = useState([]);
-
+  const [globalFilter, setGlobalFilter] = useState(null);
   const [fechaNac, setFechaNac] = useState([]);
-
   const [submitted, setSubmitted] = useState(false);
-
   const [newPersonaDialog, setNewPersonaDialog] = useState(false);
-
   const [deletePersonaDialog, setDeletePersonaDialog] = useState(false);
   const [deletePersonasDialog, setDeletePersonasDialog] = useState(false);
-
   const [activatePersonaDialog, setActivatePersonaDialog] = useState(false);
-
   const toast = useRef(null);
   const dt = useRef(null);
 
@@ -477,6 +465,14 @@ export default function Persona() {
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
       <h4 className="m-0">Manage Personas</h4>
+      <IconField iconPosition="left">
+        <InputIcon className="pi pi-search" />
+        <InputText
+          type="search"
+          onInput={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Search..."
+        />
+      </IconField>
     </div>
   );
 
@@ -539,6 +535,7 @@ export default function Persona() {
                   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} personas"
                   header={header}
                   responsiveLayout="scroll"
+                  globalFilter={globalFilter}
                 >
                   <Column selectionMode="multiple" exportable={false}></Column>
                   <Column field="idPersona" header="ID" sortable></Column>

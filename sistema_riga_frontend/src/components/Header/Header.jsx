@@ -13,7 +13,6 @@ const Header = () => {
   const navigate = useNavigate();
   const navigateTo = (path) => {
     navigate(path);
-    setVisible(false);
   };
 
   const items = [
@@ -68,6 +67,11 @@ const Header = () => {
           label: "Reporte",
           icon: "pi pi-chart-line",
           command: () => navigateTo("/reporte"),
+        },
+        {
+          label: "RPT Ventas",
+          icon: "pi pi-book",
+          command: () => navigateTo("/listaventas"),
         },
      
       ],
