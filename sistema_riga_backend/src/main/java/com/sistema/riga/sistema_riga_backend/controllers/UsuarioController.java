@@ -86,8 +86,16 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public String updateUsuario(@PathVariable int id, @RequestBody UsuarioModel usuarioModel) {
         usuarioModel.setIDUsuario(id);
-        String encodedPassword = passwordEncoder.encode(usuarioModel.getPassword());
-        usuarioModel.setPassword(encodedPassword);
+
+        if (usuarioModel.getPassword().startsWith("$2a$") || usuarioModel.getPassword().startsWith("$2b$") ||
+                usuarioModel.getPassword().startsWith("$2x$") || usuarioModel.getPassword().startsWith("$2y$")) {
+            usuarioModel.setPassword(usuarioModel.getPassword());
+        } else {
+            String encodedPassword = passwordEncoder.encode(usuarioModel.getPassword());
+
+            usuarioModel.setPassword(encodedPassword);
+        }
+
         return iUsuarioService.updateUsuario(usuarioModel);
     }
 
