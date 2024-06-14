@@ -29,7 +29,6 @@ public class ProductoController {
 
     @PostMapping
     public String insertProducto(@RequestPart("imagen") MultipartFile imagen) {
-        System.out.println(imagen);
         try {
             byte[] bytes = imagen.getBytes();
             ProductoModel productoModel = new ProductoModel();
@@ -37,7 +36,6 @@ public class ProductoController {
             iProductoService.insertProducto(productoModel);
             return "procesado";
         } catch (IOException e) {
-            System.out.println("error: " + e.toString());
             e.printStackTrace();
             return "error";
         }
@@ -70,7 +68,6 @@ public class ProductoController {
             iProductoService.insertProducto(productoModel);
             return "procesado";
         } catch (IOException e) {
-            System.out.println("error: " + e.toString());
             e.printStackTrace();
             return "error";
         }

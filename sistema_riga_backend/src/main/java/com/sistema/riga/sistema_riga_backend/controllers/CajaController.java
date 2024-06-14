@@ -26,7 +26,6 @@ public class CajaController {
 
     @PostMapping
     public String insertCaja(@RequestBody CajaModel cajaModel) {
-        System.out.println(cajaModel);
         return iCajaService.insertCaja(cajaModel);
     }
 

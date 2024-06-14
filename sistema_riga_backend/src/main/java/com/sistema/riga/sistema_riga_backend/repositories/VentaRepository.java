@@ -58,7 +58,6 @@ public class VentaRepository implements IVentaRepository {
             paramMap.put("IDMetodoPago", ventaModel.getIdMetodoPago());
 
             Map<String, Object> out = jdbcCall.execute(paramMap);
-            System.out.println(out);
 
             List<Map<String, Object>> result = (List<Map<String, Object>>) out.get("#result-set-1");
             Map<String, Object> row = result.get(0);

@@ -17,26 +17,18 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     @Override
     public void invalidateToken(String token) {
         activeTokens.remove(token);
-        System.out.println("invalidado"+token);
     }
 
     @Override
     public boolean isValidTokenForUser(String token, String user) {
-        System.out.println("hois");
-        System.out.println(user);
         try {
-            System.out.println("TU ID: " + user);
             Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
-            System.out.println("TU CLAIM ES: " + claims);
             String userIdFromToken = claims.getSubject();
 
-            System.out.println("USER ID: " + userIdFromToken);
 
-            System.out.println(user.equals(userIdFromToken) && isActiveToken(token));
 
             return user.equals(userIdFromToken) && isActiveToken(token);
         } catch (Exception e) {
-            System.out.println("NO SE PUDO");
             return false;
         }
     }

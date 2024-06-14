@@ -23,8 +23,6 @@ public class DetallePedidoRepository implements IDetallePedidoRepository {
     @Override
     public String insertarDetallePedido(int idPedido, DetallePedidoModel detallePedidoModel) {
         try {
-            System.out.println(detallePedidoModel);
-            System.out.println(idPedido);
 
             SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
                     .withProcedureName("SP_InsertarDetallesPedido")

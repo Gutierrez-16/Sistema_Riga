@@ -23,7 +23,6 @@ public class UsuarioDataRepository implements IUsuarioDataRepository{
                     usuarioDataModel.setNombre(rs.getString(2));
                     usuarioDataModel.setApePaterno(rs.getString(3));
                     usuarioDataModel.setApeMaterno(rs.getString(4));
-                    System.out.println(usuarioDataModel);
                     return usuarioDataModel;
                 });
     }
