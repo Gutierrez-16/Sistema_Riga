@@ -10,6 +10,7 @@ import imagen3 from "../Imagenes/3.jpeg";
 import imagen4 from "../Imagenes/4.jpeg";
 import imagen5 from "../Imagenes/5.jpeg";
 import imagen6 from "../Imagenes/6.jpeg";
+import tienda from '../../../public/Tienda.svg'
 
 function LoginApp() {
   const [username, setUsername] = useState("");
@@ -92,9 +93,9 @@ function LoginApp() {
               Welcome to RIGA
             </div>
             <img
-              src="https://img.icons8.com/?size=100&id=F5uIWrgQa4Zh&format=png&color=000000"
+              src={tienda}
               alt="hyper"
-              height={50}
+              height={100}
               className="mb-3"
             />
             <div className="text-900 text-3xl font-medium mb-3">Login</div>

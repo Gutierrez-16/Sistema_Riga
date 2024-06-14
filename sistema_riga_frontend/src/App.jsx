@@ -16,7 +16,6 @@ import UnidadMedidad from './Components/UnidadMedida/UnidadMedida'
 import TipoUsuario from './Components/TipoUsuario/TipoUsuario'
 import Marca from './Components/Marca/Marca'
 import Caja from './Components/Caja/Caja'
-import Cerrar from './Components/Caja/ButtonCaja'
 import Reporte from './Components/Reporte/Reporte'
 import VentasTotal from './Components/Ventas/ListarVentas'
 
@@ -113,14 +112,7 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/cerrar"
-        element={
-          <ProtectedRoute>
-            <Cerrar />
-          </ProtectedRoute>
-        }
-      />
+
       <Route
         path="/empleado"
         element={
