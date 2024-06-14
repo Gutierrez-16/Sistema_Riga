@@ -5,7 +5,7 @@ import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { Toolbar } from "primereact/toolbar";
-import { IconField } from "primereact/iconfield";       
+import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 import { Dialog } from "primereact/dialog";
@@ -17,9 +17,11 @@ import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 import apiClient from "../Security/apiClient";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function ProductsDemo() {
   let emptyProduct = {
-    idTipoUsuario: "",    
+    idTipoUsuario: "",
     nombreTipoUsuario: "",
   };
 
@@ -39,7 +41,7 @@ export default function ProductsDemo() {
 
   const fetchTipoUsuarios = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/tipousuario");
+      const data = await apiClient.get(`${URL}/tipousuario`);
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -52,8 +54,8 @@ export default function ProductsDemo() {
     if (product.nombreTipoUsuario.trim()) {
       const method = product.idTipoUsuario ? "PUT" : "POST";
       const url = product.idTipoUsuario
-        ? `http://localhost:8080/tipousuario/${product.idTipoUsuario}`
-        : "http://localhost:8080/tipousuario";
+        ? `${URL}/tipousuario/${product.idTipoUsuario}`
+        : `${URL}/tipousuario`;
 
       try {
         await apiClient[method.toLowerCase()](url, product);
@@ -86,7 +88,7 @@ export default function ProductsDemo() {
     if (product.idTipoUsuario) {
       try {
         await apiClient.del(
-          `http://localhost:8080/tipousuario/${product.idTipoUsuario}`,
+          `${URL}/tipousuario/${product.idTipoUsuario}`,
           "DELETE"
         );
         setDeleteProductDialog(false);
@@ -104,7 +106,7 @@ export default function ProductsDemo() {
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/tipousuario/${prod.idTipoUsuario}`, "DELETE")
+          apiClient.del(`${URL}/tipousuario/${prod.idTipoUsuario}`, "DELETE")
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -150,7 +152,7 @@ export default function ProductsDemo() {
 
   const activateTipoUsuario = async (id) => {
     try {
-      await apiClient.patch(`http://localhost:8080/tipousuario/${id}`);
+      await apiClient.patch(`${URL}/tipousuario/${id}`);
       fetchTipoUsuarios();
       toast.current.show({
         severity: "success",
@@ -167,7 +169,7 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/tipousuario/${prod.idTipoUsuario}`)
+          apiClient.patch(`${URL}/tipousuario/${prod.idTipoUsuario}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);
@@ -233,7 +235,9 @@ export default function ProductsDemo() {
           onClick={() => handleEdit(rowData)}
         />
         <Button
-          icon={rowData.estadoTipoUsuario === "1" ? "pi pi-trash" : "pi pi-check"}
+          icon={
+            rowData.estadoTipoUsuario === "1" ? "pi pi-trash" : "pi pi-check"
+          }
           rounded
           outlined
           severity={rowData.estadoTipoUsuario === "1" ? "danger" : "success"}
@@ -385,7 +389,9 @@ export default function ProductsDemo() {
                   })}
                 />
                 {submitted && !product.nombreTipoUsuario && (
-                  <small className="p-error">Nombre TipoUsuario is required.</small>
+                  <small className="p-error">
+                    Nombre TipoUsuario is required.
+                  </small>
                 )}
               </div>
             </Dialog>

@@ -26,6 +26,9 @@ import { Row } from "primereact/row";
 import { Tag } from "primereact/tag";
 
 import "./VentaStyle.css";
+
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 const SalesComponent = () => {
   const [productName, setProductName] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -72,7 +75,7 @@ const SalesComponent = () => {
 
   const fetchEmpresas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/empresa/1");
+      const data = await apiClient.get(`${URL}/empresa/1`);
       setEmpresa(data); // Aquí asumo que la respuesta del servidor contiene tanto el RUC como la razón social
     } catch (error) {
       console.error("Error al obtener empresas:", error);
@@ -99,12 +102,10 @@ const SalesComponent = () => {
   // Función para cargar los clientes desde la API
   const fetchClients = async () => {
     try {
-      const personsData = await apiClient.get("http://localhost:8080/person");
+      const personsData = await apiClient.get(`${URL}/person`);
       setPersons(personsData);
 
-      const companiesData = await apiClient.get(
-        "http://localhost:8080/empresa"
-      );
+      const companiesData = await apiClient.get(`${URL}/empresa`);
       setCompanies(companiesData);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -113,7 +114,7 @@ const SalesComponent = () => {
 
   const fetchProducts = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/products");
+      const data = await apiClient.get(`${URL}/products`);
       setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -130,20 +131,20 @@ const SalesComponent = () => {
       return;
     }
     const doc = new jsPDF();
-  
+
     doc.text(`Boleta de Venta`, 10, 5);
     doc.text(`Todo lo que necesitas, a tu alcance.`, 10, 15);
-  
+
     const logoImgSrc = bodega;
     doc.addImage(logoImgSrc, "JPEG", 10, 20, 50, 50);
-  
+
     let yPosition = 30;
     if (empresa) {
       doc.text(`RUC: ${empresa.ruc}`, 70, yPosition);
       doc.text(`Razón Social: ${empresa.razonSocial}`, 70, yPosition + 10);
       doc.text(`Dirección: ${empresa.direccion}`, 70, yPosition + 20);
     }
-  
+
     yPosition += 40;
     doc.text(`ID Venta: ${comprobante.idVenta}`, 10, yPosition);
     doc.text(`Numero: ${comprobante.numero}`, 10, yPosition + 10);
@@ -157,7 +158,7 @@ const SalesComponent = () => {
     doc.text(`Documento: ${comprobante.docCli}`, 10, yPosition + 50);
     doc.text(`Dirección: ${comprobante.direccion}`, 10, yPosition + 60);
     doc.text(`Método de Pago: ${comprobante.nombreMetodo}`, 10, yPosition + 70);
-  
+
     yPosition += 80;
     const headers = ["#", "Producto", "Cantidad", "Precio Unitario", "Total"];
     const detalles = comprobante.detallesPedido.map((detalle, index) => [
@@ -167,7 +168,7 @@ const SalesComponent = () => {
       `$${detalle.precioUnitario.toFixed(2)}`,
       `$${detalle.totalPro.toFixed(2)}`,
     ]);
-  
+
     doc.autoTable({
       startY: yPosition,
       head: [headers],
@@ -188,7 +189,7 @@ const SalesComponent = () => {
         4: { halign: "right" },
       },
     });
-  
+
     yPosition = doc.autoTable.previous.finalY + 5;
     doc.text(`Subtotal: $${comprobante.subTotal.toFixed(2)}`, 10, yPosition);
     doc.text(`IGV: $${comprobante.igv.toFixed(2)}`, 10, yPosition + 10);
@@ -203,12 +204,11 @@ const SalesComponent = () => {
       yPosition + 30
     );
     doc.text(`Total: $${comprobante.total.toFixed(2)}`, 10, yPosition + 40);
-  
+
     doc.save("boleta.pdf");
-  
+
     // No se requiere limpiar el comprobante aquí, ya que se hace en handleRealizarVenta
   };
-  
 
   const [closeProductDialog, setCloseProductDialog] = useState(false);
 
@@ -240,14 +240,14 @@ const SalesComponent = () => {
   const handleRealizarVenta = async () => {
     try {
       if (selectedPerson && salesDetails.length > 0) {
-        const pedidoResponse = await fetch("http://localhost:8080/pedido", {
+        const pedidoResponse = await fetch(`${URL}/pedido`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
-  
+
         if (!pedidoResponse.ok) {
           throw new Error("Error al insertar el pedido.");
         }
@@ -261,9 +261,9 @@ const SalesComponent = () => {
               precio: detalle.price,
               idUsuario: id,
             };
-  
+
             const detallePedidoResponse = await fetch(
-              `http://localhost:8080/detallepedido/${pedidoId}`,
+              `${URL}/detallepedido/${pedidoId}`,
               {
                 method: "POST",
                 headers: {
@@ -273,21 +273,21 @@ const SalesComponent = () => {
                 body: JSON.stringify(detallePedidoData),
               }
             );
-  
+
             if (!detallePedidoResponse.ok) {
               throw new Error("Error al insertar los detalles del pedido.");
             }
           })
         );
-  
+
         const subtotal = salesDetails.reduce((total, sale) => {
           return total + sale.quantity * sale.price;
         }, 0);
-  
+
         const igv = subtotal * 0.18;
         const totalDescuento = subtotal * (descuento / 100);
         const totalPagar = subtotal + igv - totalDescuento;
-  
+
         let tipoComprobante;
         if (saleType === "boleta") {
           tipoComprobante = "B";
@@ -296,10 +296,8 @@ const SalesComponent = () => {
         } else {
           throw new Error("Tipo de comprobante no válido.");
         }
-        const dataMetodo = await apiClient.get(
-          "http://localhost:8080/metodopago"
-        );
-  
+        const dataMetodo = await apiClient.get(`${URL}/metodopago`);
+
         const ventaData = {
           Descuento: descuento,
           igv: igv,
@@ -313,8 +311,8 @@ const SalesComponent = () => {
           idUsuario: id,
           idMetodoPago: idmet, // Aquí se incluye el idMetodoPago obtenido
         };
-  
-        const ventaResponse = await fetch("http://localhost:8080/venta", {
+
+        const ventaResponse = await fetch(`${URL}/venta`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -322,11 +320,11 @@ const SalesComponent = () => {
           },
           body: JSON.stringify(ventaData),
         });
-  
+
         if (!ventaResponse.ok) {
           throw new Error("Error al insertar la venta.");
         }
-  
+
         const ventaId = (await ventaResponse.json()).idVenta;
         toast.current.show({
           severity: "success",
@@ -334,9 +332,9 @@ const SalesComponent = () => {
           detail: "La venta se realizó correctamente",
           life: 3000,
         });
-  
+
         const comprobanteResponse = await fetch(
-          `http://localhost:8080/venta/comprobante/${ventaId}`,
+          `${URL}/venta/comprobante/${ventaId}`,
           {
             method: "GET",
             headers: {
@@ -348,12 +346,12 @@ const SalesComponent = () => {
         if (!comprobanteResponse.ok) {
           throw new Error("Error al obtener el comprobante de venta.");
         }
-  
+
         const comprobanteData = await comprobanteResponse.json();
         setComprobante(comprobanteData);
-  
+
         generatePDF(comprobanteData);
-  
+
         // Limpiar estados después de generar el PDF
         setSalesDetails([]);
         setSelectedPerson(null);
@@ -363,7 +361,7 @@ const SalesComponent = () => {
         setIdmet("");
         setSaleType("boleta");
         setDescuento(0);
-  
+
         setShowBoletaDialog(true);
       } else {
         throw new Error(
@@ -383,11 +381,11 @@ const SalesComponent = () => {
         detail: "Error al realizar la venta",
         life: 3000,
       });
-  
+
       setCloseProductDialog(true);
     }
   };
-  
+
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
     const newSale = {
@@ -473,9 +471,7 @@ const SalesComponent = () => {
 
   const fetchMetodosPago = async () => {
     try {
-      const dataMetodo = await apiClient.get(
-        "http://localhost:8080/metodopago"
-      );
+      const dataMetodo = await apiClient.get(`${URL}/metodopago`);
       setMetodosPago(dataMetodo); // Actualizamos el estado con los métodos de pago obtenidos
     } catch (error) {
       console.error("Error fetching payment methods:", error);

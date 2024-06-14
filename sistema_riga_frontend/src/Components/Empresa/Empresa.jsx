@@ -19,6 +19,8 @@ import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 import apiClient from "../Security/apiClient";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function ProductsDemo() {
   let emptyProduct = {
     idEmpresa: "",
@@ -50,7 +52,7 @@ export default function ProductsDemo() {
 
   const fetchDepartamentos = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/departamento");
+      const data = await apiClient.get(`${URL}/departamento`);
       setDepartamentos(data);
     } catch (error) {
       console.error(error);
@@ -67,7 +69,7 @@ export default function ProductsDemo() {
       setDistritos([]);
 
       const data = await apiClient.get(
-        `http://localhost:8080/provincia/departamento/${departamentoId}`
+        `${URL}/provincia/departamento/${departamentoId}`
       );
       setProvincias(data);
     } catch (error) {
@@ -80,7 +82,7 @@ export default function ProductsDemo() {
       setProduct((prevProduct) => ({ ...prevProduct, idProvincia }));
       setDistritos([]);
       const data = await apiClient.get(
-        `http://localhost:8080/distrito/provincia/${idProvincia}`
+        `${URL}/distrito/provincia/${idProvincia}`
       );
       setDistritos(data);
     } catch (error) {
@@ -90,7 +92,7 @@ export default function ProductsDemo() {
 
   const fetchEmpresas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/empresa");
+      const data = await apiClient.get(`${URL}/empresa`);
       setProducts(data);
     } catch (error) {
       console.error("Error al obtener empresas:", error);
@@ -105,8 +107,8 @@ export default function ProductsDemo() {
       let _product = { ...product };
       const method = _product.idEmpresa ? "PUT" : "POST";
       const url = _product.idEmpresa
-        ? `http://localhost:8080/empresa/${_product.idEmpresa}`
-        : "http://localhost:8080/empresa";
+        ? `${URL}/empresa/${_product.idEmpresa}`
+        : `${URL}/empresa`;
 
       try {
         if (method === "PUT") {
@@ -132,11 +134,11 @@ export default function ProductsDemo() {
     const { idDistrito } = empresa;
     try {
       const provinciaData = await apiClient.get(
-        `http://localhost:8080/provincia/distrito/${idDistrito}`
+        `${URL}/provincia/distrito/${idDistrito}`
       );
       const provinciaNombre = provinciaData.nombreProvincia;
       const departamentoData = await apiClient.get(
-        `http://localhost:8080/departamento/provincia/${provinciaNombre}`
+        `${URL}/departamento/provincia/${provinciaNombre}`
       );
 
       setProduct((prevFormData) => ({
@@ -164,9 +166,7 @@ export default function ProductsDemo() {
   const deleteProduct = async () => {
     if (product.idEmpresa) {
       try {
-        await apiClient.del(
-          `http://localhost:8080/empresa/${product.idEmpresa}`
-        );
+        await apiClient.del(`${URL}/empresa/${product.idEmpresa}`);
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         fetchEmpresas();
@@ -186,7 +186,7 @@ export default function ProductsDemo() {
     ) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/empresa/${prod.idEmpresa}`)
+          apiClient.del(`${URL}/empresa/${prod.idEmpresa}`)
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -210,7 +210,7 @@ export default function ProductsDemo() {
 
   const activateEmpresa = async (id) => {
     try {
-      await apiClient.patch(`http://localhost:8080/empresa/${id}`);
+      await apiClient.patch(`${URL}/empresa/${id}`);
       fetchEmpresas();
       toast.current.show({
         severity: "success",
@@ -227,7 +227,7 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/empresa/${prod.idEmpresa}`)
+          apiClient.patch(`${URL}/empresa/${prod.idEmpresa}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);

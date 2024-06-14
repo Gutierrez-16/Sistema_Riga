@@ -17,6 +17,8 @@ import apiClient from "../Security/apiClient";
 import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function ProductsDemo() {
   let emptyProduct = {
     idMetodo: "",
@@ -39,7 +41,7 @@ export default function ProductsDemo() {
 
   const fetchMetodoPagos = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/metodopago");
+      const data = await apiClient.get(`${URL}/metodopago`);
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -54,8 +56,8 @@ export default function ProductsDemo() {
       let _product = { ...product };
       const method = _product.idMetodo ? "PUT" : "POST";
       const url = _product.idMetodo
-        ? `http://localhost:8080/metodopago/${_product.idMetodo}`
-        : "http://localhost:8080/metodopago";
+        ? `${URL}/metodopago/${_product.idMetodo}`
+        : `${URL}/metodopago`;
 
       try {
         if (method === "PUT") {
@@ -93,9 +95,7 @@ export default function ProductsDemo() {
   const deleteProduct = async () => {
     if (product.idMetodo) {
       try {
-        await apiClient.del(
-          `http://localhost:8080/metodopago/${product.idMetodo}`
-        );
+        await apiClient.del(`${URL}/metodopago/${product.idMetodo}`);
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         fetchMetodoPagos();
@@ -111,7 +111,7 @@ export default function ProductsDemo() {
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/metodopago/${prod.idMetodo}`)
+          apiClient.del(`${URL}/metodopago/${prod.idMetodo}`)
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -135,7 +135,7 @@ export default function ProductsDemo() {
 
   const activateMetodoPago = async (id) => {
     try {
-      await apiClient.patch(`http://localhost:8080/metodopago/${id}`);
+      await apiClient.patch(`${URL}/metodopago/${id}`);
       fetchMetodoPagos();
       toast.current.show({
         severity: "success",
@@ -152,7 +152,7 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/metodopago/${prod.idMetodo}`)
+          apiClient.patch(`${URL}/metodopago/${prod.idMetodo}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);
