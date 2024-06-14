@@ -61,24 +61,18 @@ export default function ProductsDemo() {
     fetchPersonas();
     createEmployeePersonJson()
       .then(array => {
-        console.log("Array de objetos JSON:", array);
         setArroz(array)
 
-        console.log("Array de objetos arro:", arroz);
 
         // Acceder al primer objeto dentro del array
         if (array.length > 0) {
           const firstObject = array[0];
-          console.log("Primer objeto JSON:", firstObject);
 
           // Verificar si el primer objeto tiene la propiedad idPersona
           if (firstObject.idPersona !== undefined) {
-            console.log("ID Persona del primer objeto:", firstObject.idPersona);
           } else {
-            console.log("La propiedad idPersona no está definida en el primer objeto JSON.");
           }
         } else {
-          console.log("El array de objetos está vacío.");
         }
       })
       .catch(error => {
@@ -147,8 +141,6 @@ export default function ProductsDemo() {
   const jsonEmplo = () => {
     createEmployeePersonJson()
       .then(json => {
-        console.log("ARROZ:", json);  // Logs the entire JSON object
-        console.log("ID: ", emploo.idEmpleado);
       });
   };
 
@@ -447,7 +439,6 @@ export default function ProductsDemo() {
 
     if (selectedEmpleado) {
       setProduct({ ...product, idEmpleado: selectedEmpleadoId });
-      console.log("ID Empleado seleccionado:", selectedEmpleadoId);
     } else {
       console.error(`No se encontró empleado con ID ${selectedEmpleadoId}`);
     }

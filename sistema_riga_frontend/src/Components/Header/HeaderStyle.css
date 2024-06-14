@@ -1,8 +1,7 @@
 .estatico {
     position: fixed;
     width: 100%;
-
-    z-index: 997;
+    z-index: 1;
     height: 5rem;
     margin: auto;
     top: -1px;

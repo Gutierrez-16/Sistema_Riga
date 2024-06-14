@@ -28,7 +28,6 @@ const apiClient = async (url, method, body = null) => {
 
     const response = await fetch(url, options);
     if (!response.ok) {
-      console.log("ERROR: ");
       handleConnectionError();
       throw new Error(
         `API request failed with status: ${response.status} - ${response.statusText}`

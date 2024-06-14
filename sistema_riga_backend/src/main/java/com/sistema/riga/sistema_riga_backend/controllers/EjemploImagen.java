@@ -29,7 +29,6 @@ public class EjemploImagen {
             try (PreparedStatement pstmt = con.prepareStatement(query)) {
                 pstmt.setBytes(1, imagenBytes);
                 pstmt.executeUpdate();
-                System.out.println("Imagen insertada correctamente en la base de datos.");
             }
         } catch (SQLException e) {
             e.printStackTrace();

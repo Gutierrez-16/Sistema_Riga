@@ -24,7 +24,6 @@ public class PedidoRepository implements IPedidoRepository {
                     .withProcedureName("SP_InsertarPedido");
 
             Map<String, Object> out = jdbcCall.execute();
-            System.out.println(out);
 
             List<Map<String, Object>> result = (List<Map<String, Object>>) out.get("#result-set-1");
             Map<String, Object> row = result.get(0);

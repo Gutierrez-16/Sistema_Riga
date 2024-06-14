@@ -10,6 +10,9 @@ import imagen3 from "../Imagenes/3.jpeg";
 import imagen4 from "../Imagenes/4.jpeg";
 import imagen5 from "../Imagenes/5.jpeg";
 import imagen6 from "../Imagenes/6.jpeg";
+import tienda from '../../../public/Tienda.svg'
+
+const URL = import.meta.env.VITE_BACKEND_URL;
 
 function LoginApp() {
   const [username, setUsername] = useState("");
@@ -62,7 +65,7 @@ function LoginApp() {
     setLoading(true);
     setMessage("");
     try {
-      const response = await fetch("http://localhost:8080/auth/login", {
+      const response = await fetch(`${URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -89,12 +92,12 @@ function LoginApp() {
         <div className="surface-card p-4 shadow-2 border-round w-full">
           <div className="text-center mb-5">
             <div className="text-1800 text-5xl font-medium mb-3 text-blue-700">
-              Welcome to RIGA
+              Bodega Riga
             </div>
             <img
-              src="https://img.icons8.com/?size=100&id=F5uIWrgQa4Zh&format=png&color=000000"
+              src={tienda}
               alt="hyper"
-              height={50}
+              height={100}
               className="mb-3"
             />
             <div className="text-900 text-3xl font-medium mb-3">Login</div>

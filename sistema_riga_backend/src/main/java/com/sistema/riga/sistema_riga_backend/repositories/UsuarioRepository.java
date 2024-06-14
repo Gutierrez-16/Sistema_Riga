@@ -26,7 +26,6 @@ public class UsuarioRepository implements IUsuarioRepository {
             throw new Exception("Invalid credentials");
         }
 
-        System.out.println("TU USER: "+user);
         return user;
     }
 
