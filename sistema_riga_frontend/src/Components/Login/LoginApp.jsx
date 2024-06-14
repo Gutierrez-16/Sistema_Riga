@@ -10,7 +10,7 @@ import imagen3 from "../Imagenes/3.jpeg";
 import imagen4 from "../Imagenes/4.jpeg";
 import imagen5 from "../Imagenes/5.jpeg";
 import imagen6 from "../Imagenes/6.jpeg";
-import tienda from '../../../public/Tienda.svg'
+import tienda from "../../../public/Tienda.svg";
 
 const URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -94,12 +94,7 @@ function LoginApp() {
             <div className="text-1800 text-5xl font-medium mb-3 text-blue-700">
               Bodega Riga
             </div>
-            <img
-              src={tienda}
-              alt="hyper"
-              height={100}
-              className="mb-3"
-            />
+            <img src={tienda} alt="hyper" height={100} className="mb-3" />
             <div className="text-900 text-3xl font-medium mb-3">Login</div>
             <span className="text-600 font-medium line-height-3">
               System POS
