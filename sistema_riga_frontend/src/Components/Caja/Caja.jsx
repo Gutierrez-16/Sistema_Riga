@@ -17,10 +17,12 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import DataUsuario from "../Usuario/DataUsuario";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 // Function to fetch Cajas
 export const fetchCajas = async () => {
   try {
-    const data = await apiClient.get("http://localhost:8080/caja");
+    const data = await apiClient.get(`${URL}/caja`);
     setProducts(data);
   } catch (error) {
     console.error(error);
@@ -56,7 +58,7 @@ export default function Caja() {
     startDate: null,
     endDate: null,
   });
-  
+
   useEffect(() => {
     fetchCajas();
     fetchUsuarios();
@@ -85,7 +87,7 @@ export default function Caja() {
 
   const fetchUsuarios = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/auth");
+      const data = await apiClient.get(`${URL}/auth`);
       setUsuarios(data);
     } catch (error) {
       console.error(error);
@@ -95,7 +97,7 @@ export default function Caja() {
   const fetchCajas = async () => {
     if (1 < 2 || data) {
       try {
-        const data = await apiClient.get("http://localhost:8080/caja");
+        const data = await apiClient.get(`${URL}/caja`);
         setProducts(data);
       } catch (error) {
         console.error(error);
@@ -107,16 +109,14 @@ export default function Caja() {
     setSubmitted(true);
 
     if (product.descripcion.trim() && product.montoInicial.trim()) {
-      setLoading(true);  // Deshabilitar el botón de guardar
+      setLoading(true); // Deshabilitar el botón de guardar
 
       caja.montoInicial = product.montoInicial;
       caja.descripcion = product.descripcion;
       caja.idUsuario = id;
 
       const method = caja.idCaja ? "PUT" : "POST";
-      const url = caja.idCaja
-        ? `http://localhost:8080/caja/${caja.idCaja}`
-        : "http://localhost:8080/caja";
+      const url = caja.idCaja ? `${URL}/caja/${caja.idCaja}` : `${URL}/caja`;
 
       try {
         await apiClient[method.toLowerCase()](url, caja);
@@ -139,17 +139,17 @@ export default function Caja() {
           life: 3000,
         });
       } finally {
-        setLoading(false);  // Habilitar el botón de guardar
+        setLoading(false); // Habilitar el botón de guardar
       }
     }
   };
 
-
-
   const closeCaja = async () => {
     if (product.idCaja) {
       try {
-        const response = await apiClient.patch(`http://localhost:8080/caja/cerrar/${product.idCaja}`);
+        const response = await apiClient.patch(
+          `${URL}/caja/cerrar/${product.idCaja}`
+        );
         setCloseProductDialog(false);
         setProduct(emptyProduct);
         fetchCajas();
@@ -224,12 +224,11 @@ export default function Caja() {
   const LockIcon = ({ open }) => {
     return (
       <i
-        className={`pi ${open ? 'pi-lock-open' : 'pi-lock'}`}
-        style={{ color: open ? 'green' : 'red' }}
+        className={`pi ${open ? "pi-lock-open" : "pi-lock"}`}
+        style={{ color: open ? "green" : "red" }}
       ></i>
     );
   };
-
 
   const actionBodyTemplate = (rowData) => {
     return (
@@ -238,7 +237,9 @@ export default function Caja() {
           icon={<LockIcon open={rowData.estadoCaja === "1"} />}
           rounded
           outlined
-          className={`p-button-${rowData.estadoCaja === "1" ? 'success' : 'danger'}`}
+          className={`p-button-${
+            rowData.estadoCaja === "1" ? "success" : "danger"
+          }`}
           onClick={() => {
             if (rowData.estadoCaja === "1") {
               setProduct(rowData);
@@ -275,15 +276,15 @@ export default function Caja() {
           <Calendar
             value={dateFilter.startDate}
             onChange={(e) =>
-              setDateFilter({ ...dateFilter, startDate: e.value })}
+              setDateFilter({ ...dateFilter, startDate: e.value })
+            }
             placeholder="Start Date"
             className="p-mr-2"
             showIcon
           />
           <Calendar
             value={dateFilter.endDate}
-            onChange={(e) =>
-              setDateFilter({ ...dateFilter, endDate: e.value })}
+            onChange={(e) => setDateFilter({ ...dateFilter, endDate: e.value })}
             placeholder="End Date"
             className="p-mr-2"
             showIcon
@@ -293,14 +294,17 @@ export default function Caja() {
     </div>
   );
 
-
   const productDialogFooter = (
     <React.Fragment>
       <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
-      <Button label="Save" icon="pi pi-check" onClick={saveProduct} disabled={loading} />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        onClick={saveProduct}
+        disabled={loading}
+      />
     </React.Fragment>
   );
-
 
   const closeProductDialogFooter = (
     <React.Fragment>
@@ -355,13 +359,16 @@ export default function Caja() {
   const usuarioBodyTemplate = (rowData) => {
     return rowData.idUsuario;
   };
-  const filteredCajas = dateFilter.startDate && dateFilter.endDate
-    ? products.filter(c => {
-      const fechaApertura = new Date(c.fechaApertura);
-      return fechaApertura >= dateFilter.startDate && fechaApertura <= dateFilter.endDate;
-    })
-    : products;
-
+  const filteredCajas =
+    dateFilter.startDate && dateFilter.endDate
+      ? products.filter((c) => {
+          const fechaApertura = new Date(c.fechaApertura);
+          return (
+            fechaApertura >= dateFilter.startDate &&
+            fechaApertura <= dateFilter.endDate
+          );
+        })
+      : products;
 
   return (
     <div>
@@ -408,14 +415,18 @@ export default function Caja() {
                 <Column
                   field="fechaApertura"
                   header="Fecha Apertura"
-                  body={(rowData) => new Date(rowData.fechaApertura).toLocaleString()}
+                  body={(rowData) =>
+                    new Date(rowData.fechaApertura).toLocaleString()
+                  }
                   sortable
                 ></Column>
 
                 <Column
                   field="fechaCierre"
                   header="Fecha Cierre"
-                  body={(rowData) => new Date(rowData.fechaCierre).toLocaleString()}
+                  body={(rowData) =>
+                    new Date(rowData.fechaCierre).toLocaleString()
+                  }
                   sortable
                 ></Column>
                 <Column
@@ -498,10 +509,14 @@ export default function Caja() {
               onHide={hideCloseProductDialog}
             >
               <div className="confirmation-content">
-                <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: "2rem" }} />
+                <i
+                  className="pi pi-exclamation-triangle mr-3"
+                  style={{ fontSize: "2rem" }}
+                />
                 {product && (
                   <span>
-                    ¿Está seguro de que desea cerrar la caja <b>{product.descripcion}</b>?
+                    ¿Está seguro de que desea cerrar la caja{" "}
+                    <b>{product.descripcion}</b>?
                   </span>
                 )}
               </div>
@@ -512,4 +527,3 @@ export default function Caja() {
     </div>
   );
 }
-

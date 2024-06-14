@@ -19,6 +19,7 @@ import apiCliente from "../Security/apiClient";
 import "primeicons/primeicons.css";
 import apiClient from "../Security/apiClient";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function Persona() {
   let emptyPersona = {
@@ -81,12 +82,12 @@ export default function Persona() {
   const comboEdit = async (idDistrito) => {
     try {
       const provinciaData = await apiCliente.get(
-        `http://localhost:8080/provincia/distrito/${idDistrito}`
+        `${URL}/provincia/distrito/${idDistrito}`
       );
       const provinciaNombre = provinciaData.nombreProvincia;
 
       const departamentoData = await apiCliente.get(
-        `http://localhost:8080/departamento/provincia/${provinciaNombre}`
+        `${URL}/departamento/provincia/${provinciaNombre}`
       );
 
       setPersona((prevPersona) => ({
@@ -111,7 +112,7 @@ export default function Persona() {
 
   const fetchPersonas = async () => {
     try {
-      const data = await apiCliente.get("http://localhost:8080/person");
+      const data = await apiCliente.get(`${URL}/person`);
       setPersonas(data);
     } catch (error) {
       console.error(error);
@@ -120,7 +121,7 @@ export default function Persona() {
 
   const fetchDepartamentos = async () => {
     try {
-      const data = await apiCliente.get("http://localhost:8080/departamento");
+      const data = await apiCliente.get(`${URL}/departamento`);
       setDepartamentos(data);
     } catch (error) {
       console.error(error);
@@ -132,7 +133,7 @@ export default function Persona() {
       setDepartamento(idDepartamento);
 
       const data = await apiCliente.get(
-        `http://localhost:8080/provincia/departamento/${idDepartamento}`
+        `${URL}/provincia/departamento/${idDepartamento}`
       );
       setProvincias(data);
     } catch (error) {
@@ -145,7 +146,7 @@ export default function Persona() {
       setProvincia(idProvincia);
 
       const data = await apiCliente.get(
-        `http://localhost:8080/distrito/provincia/${idProvincia}`
+        `${URL}/distrito/provincia/${idProvincia}`
       );
       setDistritos(data);
     } catch (error) {
@@ -183,8 +184,8 @@ export default function Persona() {
     if (persona.nombrePersona.trim()) {
       const method = persona.idPersona ? "PUT" : "POST";
       const url = persona.idPersona
-        ? `http://localhost:8080/person/${persona.idPersona}`
-        : "http://localhost:8080/person";
+        ? `${URL}/person/${persona.idPersona}`
+        : `${URL}/person`;
 
       try {
         let responseMessage;
@@ -232,9 +233,7 @@ export default function Persona() {
   const activatePersona = async (rowData) => {
     if (rowData.idPersona) {
       try {
-        await apiClient.patch(
-          `http://localhost:8080/person/${rowData.idPersona}`
-        );
+        await apiClient.patch(`${URL}/person/${rowData.idPersona}`);
 
         setPersona(emptyPersona);
         fetchPersonas();
@@ -251,7 +250,7 @@ export default function Persona() {
     } else if (selectedPersonas && selectedPersonas.length > 0) {
       try {
         const activatePromises = selectedPersonas.map((persona) =>
-          apiClient.patch(`http://localhost:8080/person/${persona.idPersona}`)
+          apiClient.patch(`${URL}/person/${persona.idPersona}`)
         );
         await Promise.all(activatePromises);
 
@@ -278,9 +277,7 @@ export default function Persona() {
   const deletePersona = async () => {
     if (persona.idPersona) {
       try {
-        await apiClient.del(
-          `http://localhost:8080/person/${persona.idPersona}`
-        );
+        await apiClient.del(`${URL}/person/${persona.idPersona}`);
 
         setDeletePersonaDialog(false);
         setPersona(emptyPersona);
@@ -298,7 +295,7 @@ export default function Persona() {
     } else if (selectedPersonas && selectedPersonas.length > 0) {
       try {
         const deletePromises = selectedPersonas.map((persona) =>
-          apiClient.del(`http://localhost:8080/person/${persona.idPersona}`)
+          apiClient.del(`${URL}/person/${persona.idPersona}`)
         );
         await Promise.all(deletePromises);
 
@@ -501,15 +498,13 @@ export default function Persona() {
   );
 
   return (
-    <div >
-      <div className="layout-sidebar"
-      >
-        <Dashboard  />
+    <div>
+      <div className="layout-sidebar">
+        <Dashboard />
       </div>
       <div className="flex">
-        <div className="w-1/4"
-        >
-          <Header  />
+        <div className="w-1/4">
+          <Header />
         </div>
 
         <div className="col-12 xl:col-10">

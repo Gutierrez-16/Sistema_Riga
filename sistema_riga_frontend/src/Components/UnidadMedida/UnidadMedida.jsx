@@ -17,6 +17,8 @@ import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 import apiClient from "../Security/apiClient";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function ProductsDemo() {
   let emptyProduct = {
     idUnidadMedida: "",
@@ -39,7 +41,7 @@ export default function ProductsDemo() {
 
   const fetchUnidadMedidas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/unidadmedida");
+      const data = await apiClient.get(`${URL}/unidadmedida`);
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -52,8 +54,8 @@ export default function ProductsDemo() {
     if (product.nombreUnidadMedida.trim()) {
       const method = product.idUnidadMedida ? "PUT" : "POST";
       const url = product.idUnidadMedida
-        ? `http://localhost:8080/unidadmedida/${product.idUnidadMedida}`
-        : "http://localhost:8080/unidadmedida";
+        ? `${URL}/unidadmedida/${product.idUnidadMedida}`
+        : `${URL}/unidadmedida`;
 
       try {
         await apiClient[method.toLowerCase()](url, product);
@@ -86,7 +88,7 @@ export default function ProductsDemo() {
     if (product.idUnidadMedida) {
       try {
         await apiClient.del(
-          `http://localhost:8080/unidadmedida/${product.idUnidadMedida}`,
+          `${URL}/unidadmedida/${product.idUnidadMedida}`,
           "DELETE"
         );
         setDeleteProductDialog(false);
@@ -104,7 +106,7 @@ export default function ProductsDemo() {
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/unidadmedida/${prod.idUnidadMedida}`, "DELETE")
+          apiClient.del(`${URL}/unidadmedida/${prod.idUnidadMedida}`, "DELETE")
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -150,7 +152,7 @@ export default function ProductsDemo() {
 
   const activateUnidadMedida = async (id) => {
     try {
-      await apiClient.patch(`http://localhost:8080/unidadmedida/${id}`);
+      await apiClient.patch(`${URL}/unidadmedida/${id}`);
       fetchUnidadMedidas();
       toast.current.show({
         severity: "success",
@@ -167,7 +169,7 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/unidadmedida/${prod.idUnidadMedida}`)
+          apiClient.patch(`${URL}/unidadmedida/${prod.idUnidadMedida}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);
@@ -233,7 +235,9 @@ export default function ProductsDemo() {
           onClick={() => handleEdit(rowData)}
         />
         <Button
-          icon={rowData.estadoUnidadMedida === "1" ? "pi pi-trash" : "pi pi-check"}
+          icon={
+            rowData.estadoUnidadMedida === "1" ? "pi pi-trash" : "pi pi-check"
+          }
           rounded
           outlined
           severity={rowData.estadoUnidadMedida === "1" ? "danger" : "success"}
@@ -385,7 +389,9 @@ export default function ProductsDemo() {
                   })}
                 />
                 {submitted && !product.nombreUnidadMedida && (
-                  <small className="p-error">Nombre UnidadMedida is required.</small>
+                  <small className="p-error">
+                    Nombre UnidadMedida is required.
+                  </small>
                 )}
               </div>
             </Dialog>

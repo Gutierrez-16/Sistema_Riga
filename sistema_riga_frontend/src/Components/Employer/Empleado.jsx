@@ -19,6 +19,8 @@ import Dashboard from "../Header/Head";
 import { Calendar } from "primereact/calendar";
 import { InputNumber } from "primereact/inputnumber";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function ProductsDemo() {
   let emptyProduct = {
     idEmpleado: "",
@@ -54,7 +56,7 @@ export default function ProductsDemo() {
 
   const fetchPersonas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/employee/person");
+      const data = await apiClient.get(`${URL}/employee/person`);
       setPersonas(data);
     } catch (error) {
       console.error(error);
@@ -63,7 +65,7 @@ export default function ProductsDemo() {
 
   const fetchCargos = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/employee/cargos");
+      const data = await apiClient.get(`${URL}/employee/cargos`);
       setCargos(data);
     } catch (error) {
       console.error(error);
@@ -72,7 +74,7 @@ export default function ProductsDemo() {
 
   const fetchEmployees = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/employee");
+      const data = await apiClient.get(`${URL}/employee`);
 
       setProducts(data);
     } catch (error) {
@@ -92,8 +94,8 @@ export default function ProductsDemo() {
     ) {
       const method = product.idEmpleado ? "PUT" : "POST";
       const url = product.idEmpleado
-        ? `http://localhost:8080/employee/${product.idEmpleado}`
-        : "http://localhost:8080/employee";
+        ? `${URL}/employee/${product.idEmpleado}`
+        : `${URL}/employee`;
 
       try {
         await apiClient[method.toLowerCase()](url, product);
@@ -154,9 +156,7 @@ export default function ProductsDemo() {
   const deleteProduct = async () => {
     if (product.idEmpleado) {
       try {
-        await apiClient.del(
-          `http://localhost:8080/employee/${product.idEmpleado}`
-        );
+        await apiClient.del(`${URL}/employee/${product.idEmpleado}`);
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         fetchEmployees();
@@ -172,7 +172,7 @@ export default function ProductsDemo() {
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/employee/${prod.idEmpleado}`)
+          apiClient.del(`${URL}/employee/${prod.idEmpleado}`)
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -218,7 +218,7 @@ export default function ProductsDemo() {
 
   const activateEmpleado = async (id) => {
     try {
-      await apiClient.patch(`http://localhost:8080/employee/${id}`);
+      await apiClient.patch(`${URL}/employee/${id}`);
       fetchEmployees();
       toast.current.show({
         severity: "success",
@@ -235,7 +235,7 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/employee/${prod.idEmpleado}`)
+          apiClient.patch(`${URL}/employee/${prod.idEmpleado}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);

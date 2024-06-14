@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import apiClient from "../Security/apiClient";
 import { jwtDecode } from "jwt-decode";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 const DataUsuario = ({ onUserDataReceived }) => {
   const [userData, setUserData] = useState(null);
 
@@ -25,11 +27,9 @@ const DataUsuario = ({ onUserDataReceived }) => {
 
         const usuario = obtenerUsuarioDelToken(token);
 
-        const data = await apiClient.get(
-          `http://localhost:8080/data/${usuario}`
-        );
+        const data = await apiClient.get(`${URL}/data/${usuario}`);
         setUserData(data);
-        onUserDataReceived(data); 
+        onUserDataReceived(data);
       } catch (error) {
         console.error("Error:", error.message);
       }

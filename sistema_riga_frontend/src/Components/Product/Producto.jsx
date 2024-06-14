@@ -18,6 +18,8 @@ import apiClient from "../Security/apiClient";
 import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function Producto() {
   let emptyProducto = {
     idProducto: "",
@@ -46,9 +48,8 @@ export default function Producto() {
     idMarca: "",
   });
 
-
   const getToken = () => {
-    return localStorage.getItem('token');
+    return localStorage.getItem("token");
   };
   const token = getToken();
   const [selectedProductos, setSelectedProductos] = useState([]);
@@ -110,7 +111,7 @@ export default function Producto() {
 
   const fetchCategorias = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/categoria");
+      const data = await apiClient.get(`${URL}/categoria`);
       setCategorias(data);
     } catch (error) {
       console.error(error);
@@ -119,7 +120,7 @@ export default function Producto() {
 
   const fetchUnidadMedidas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/unidadmedida");
+      const data = await apiClient.get(`${URL}/unidadmedida`);
       setUnidadmedidas(data);
     } catch (error) {
       console.error(error);
@@ -128,7 +129,7 @@ export default function Producto() {
 
   const fetchLineas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/linea");
+      const data = await apiClient.get(`${URL}/linea`);
       setLineas(data);
     } catch (error) {
       console.error(error);
@@ -137,7 +138,7 @@ export default function Producto() {
 
   const fetchMarcas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/marca");
+      const data = await apiClient.get(`${URL}/marca`);
       setMarcas(data);
     } catch (error) {
       console.error(error);
@@ -146,10 +147,10 @@ export default function Producto() {
 
   const fetchProductos = async () => {
     try {
-      const response = await fetch("http://localhost:8080/products", {
+      const response = await fetch(`${URL}/products`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!response.ok) throw new Error("Error al obtener productos");
       const data = await response.json();
@@ -158,7 +159,6 @@ export default function Producto() {
       console.error(error);
     }
   };
-
 
   const openNew = () => {
     setProducto(emptyProducto);
@@ -205,16 +205,16 @@ export default function Producto() {
       formData.append("idLinea", producto.idLinea);
       formData.append("idMarca", producto.idMarca);
       const url = producto.idProducto
-        ? `http://localhost:8080/products/prueba/${producto.idProducto}`
-        : "http://localhost:8080/products/prueba";
+        ? `${URL}/products/prueba/${producto.idProducto}`
+        : `${URL}/products/prueba`;
 
       try {
         const response = await fetch(url, {
           method,
           body: formData,
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (!response.ok) throw new Error("Error al guardar el producto");
@@ -308,15 +308,12 @@ export default function Producto() {
   const activateProducto = async (rowData) => {
     if (rowData.idProducto) {
       try {
-        const response = await fetch(
-          `http://localhost:8080/products/${rowData.idProducto}`,
-          {
-            method: "PATCH",
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
+        const response = await fetch(`${URL}/products/${rowData.idProducto}`, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!response.ok) throw new Error("Error al actualizar el producto");
         setProducto(emptyProducto);
         fetchProductos();
@@ -332,11 +329,11 @@ export default function Producto() {
     } else if (selectedProductos && selectedProductos.length > 0) {
       try {
         const activatePromises = selectedProductos.map((producto) =>
-          fetch(`http://localhost:8080/products/${producto.idProducto}`, {
+          fetch(`${URL}/products/${producto.idProducto}`, {
             method: "PATCH",
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           })
         );
         await Promise.all(activatePromises);
@@ -362,15 +359,12 @@ export default function Producto() {
   const deleteProducto = async () => {
     if (producto.idProducto) {
       try {
-        const response = await fetch(
-          `http://localhost:8080/products/${producto.idProducto}`,
-          {
-            method: "DELETE",
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
+        const response = await fetch(`${URL}/products/${producto.idProducto}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!response.ok) throw new Error("Error al eliminar el producto");
         setDeleteProductoDialog(false);
         setProducto(emptyProducto);
@@ -387,11 +381,11 @@ export default function Producto() {
     } else if (selectedProductos && selectedProductos.length > 0) {
       try {
         const deletePromises = selectedProductos.map((producto) =>
-          fetch(`http://localhost:8080/products/${producto.idProducto}`, {
+          fetch(`${URL}/products/${producto.idProducto}`, {
             method: "DELETE",
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           })
         );
         await Promise.all(deletePromises);
@@ -608,338 +602,349 @@ export default function Producto() {
 
   return (
     <div>
-    <Dashboard />
-    <div className="flex">
-      <div className="w-1/4">
-        <Header />
-      </div>
-      <div className="col-12 xl:col-10">
-        <div className="card" >
-        <div className="w-3/4 p-4">
-          <Toast ref={toast} />
-          <Toolbar
-            className="mb-4"
-            left={leftToolbarTemplate}
-            right={rightToolbarTemplate}
-          ></Toolbar>
+      <Dashboard />
+      <div className="flex">
+        <div className="w-1/4">
+          <Header />
+        </div>
+        <div className="col-12 xl:col-10">
+          <div className="card">
+            <div className="w-3/4 p-4">
+              <Toast ref={toast} />
+              <Toolbar
+                className="mb-4"
+                left={leftToolbarTemplate}
+                right={rightToolbarTemplate}
+              ></Toolbar>
 
-          <DataTable
-            ref={dt}
-            value={productos}
-            selection={selectedProductos}
-            onSelectionChange={(e) => setSelectedProductos(e.value)}
-            dataKey="idProducto"
-            paginator
-            rows={10}
-            rowsPerPageOptions={[5, 10, 25]}
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} productos"
-            header={header}
-            responsiveLayout="scroll"
-            globalFilter={globalFilter}
-            emptyMessage="No productos found."
-          >
-            <Column selectionMode="multiple" exportable={false}></Column>
-            <Column field="idProducto" header="ID" sortable></Column>
-            <Column field="nombreProd" header="NOMBRE" sortable></Column>
-            <Column field="precioUnit" header="PRECIO" sortable></Column>
-            <Column
-              field="imagen"
-              body={imageBodyTemplate}
-              header="IMAGEN"
-              sortable
-            ></Column>
-            <Column field="descripcion" header="DESCRIPCIÓN" sortable></Column>
-            <Column
-              field="estadoProducto"
-              header="ESTADO"
-              sortable
-              body={statusBodyTemplate}
-              style={{ minWidth: "12rem" }}
-            ></Column>
-            <Column
-              field="idCategoria"
-              header="CATEGORIA"
-              sortable
-              body={(rowData) => getCategoriaName(rowData.idCategoria)}
-              style={{ minWidth: "1rem" }}
-            ></Column>
-            <Column
-              field="idUnidadMedida"
-              header="UNIDAD MEDIDA"
-              sortable
-              body={(rowData) => getUnidadMedidaName(rowData.idUnidadMedida)}
-              style={{ minWidth: "1rem" }}
-            ></Column>
-            <Column
-              field="idLinea"
-              header="LINEA"
-              sortable
-              body={(rowData) => getLineaName(rowData.idLinea)}
-              style={{ minWidth: "1rem" }}
-            ></Column>
-            <Column
-              field="idMarca"
-              header="MARCA"
-              sortable
-              body={(rowData) => getMarcaName(rowData.idMarca)}
-              style={{ minWidth: "1rem" }}
-            ></Column>
-            <Column
-              body={actionBodyTemplate}
-              style={{ minWidth: "12rem" }}
-            ></Column>
-          </DataTable>
+              <DataTable
+                ref={dt}
+                value={productos}
+                selection={selectedProductos}
+                onSelectionChange={(e) => setSelectedProductos(e.value)}
+                dataKey="idProducto"
+                paginator
+                rows={10}
+                rowsPerPageOptions={[5, 10, 25]}
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} productos"
+                header={header}
+                responsiveLayout="scroll"
+                globalFilter={globalFilter}
+                emptyMessage="No productos found."
+              >
+                <Column selectionMode="multiple" exportable={false}></Column>
+                <Column field="idProducto" header="ID" sortable></Column>
+                <Column field="nombreProd" header="NOMBRE" sortable></Column>
+                <Column field="precioUnit" header="PRECIO" sortable></Column>
+                <Column
+                  field="imagen"
+                  body={imageBodyTemplate}
+                  header="IMAGEN"
+                  sortable
+                ></Column>
+                <Column
+                  field="descripcion"
+                  header="DESCRIPCIÓN"
+                  sortable
+                ></Column>
+                <Column
+                  field="estadoProducto"
+                  header="ESTADO"
+                  sortable
+                  body={statusBodyTemplate}
+                  style={{ minWidth: "12rem" }}
+                ></Column>
+                <Column
+                  field="idCategoria"
+                  header="CATEGORIA"
+                  sortable
+                  body={(rowData) => getCategoriaName(rowData.idCategoria)}
+                  style={{ minWidth: "1rem" }}
+                ></Column>
+                <Column
+                  field="idUnidadMedida"
+                  header="UNIDAD MEDIDA"
+                  sortable
+                  body={(rowData) =>
+                    getUnidadMedidaName(rowData.idUnidadMedida)
+                  }
+                  style={{ minWidth: "1rem" }}
+                ></Column>
+                <Column
+                  field="idLinea"
+                  header="LINEA"
+                  sortable
+                  body={(rowData) => getLineaName(rowData.idLinea)}
+                  style={{ minWidth: "1rem" }}
+                ></Column>
+                <Column
+                  field="idMarca"
+                  header="MARCA"
+                  sortable
+                  body={(rowData) => getMarcaName(rowData.idMarca)}
+                  style={{ minWidth: "1rem" }}
+                ></Column>
+                <Column
+                  body={actionBodyTemplate}
+                  style={{ minWidth: "12rem" }}
+                ></Column>
+              </DataTable>
 
-          <Dialog
-            visible={newProductoDialog}
-            style={{ width: "32rem" }}
-            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-            header="Registro Producto"
-            modal
-            className="p-fluid"
-            footer={productoDialogFooter}
-            onHide={hideDialog}
-          >
-            <div className="field">
-              <label className="font-bold" htmlFor="nombreProd">
-                Nombre
-              </label>
-              <InputText
-                id="nombreProd"
-                value={producto.nombreProd}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !producto.nombreProd,
-                })}
-              />
-              {submitted && !producto.nombreProd && (
-                <small className="p-error">Nombre es requerido.</small>
-              )}
-            </div>
+              <Dialog
+                visible={newProductoDialog}
+                style={{ width: "32rem" }}
+                breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+                header="Registro Producto"
+                modal
+                className="p-fluid"
+                footer={productoDialogFooter}
+                onHide={hideDialog}
+              >
+                <div className="field">
+                  <label className="font-bold" htmlFor="nombreProd">
+                    Nombre
+                  </label>
+                  <InputText
+                    id="nombreProd"
+                    value={producto.nombreProd}
+                    onChange={handleInputChange}
+                    required
+                    className={classNames({
+                      "p-invalid": submitted && !producto.nombreProd,
+                    })}
+                  />
+                  {submitted && !producto.nombreProd && (
+                    <small className="p-error">Nombre es requerido.</small>
+                  )}
+                </div>
 
-            <div className="field">
-              <label className="font-bold" htmlFor="precioUnit">
-                Precio
-              </label>
-              <InputText
-                id="precioUnit"
-                value={producto.precioUnit}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !producto.precioUnit,
-                })}
-              />
-              {submitted && !producto.precioUnit && (
-                <small className="p-error">Precio es requerido.</small>
-              )}
-            </div>
+                <div className="field">
+                  <label className="font-bold" htmlFor="precioUnit">
+                    Precio
+                  </label>
+                  <InputText
+                    id="precioUnit"
+                    value={producto.precioUnit}
+                    onChange={handleInputChange}
+                    required
+                    className={classNames({
+                      "p-invalid": submitted && !producto.precioUnit,
+                    })}
+                  />
+                  {submitted && !producto.precioUnit && (
+                    <small className="p-error">Precio es requerido.</small>
+                  )}
+                </div>
 
-            <div className="field">
-              <label className="font-bold" htmlFor="precioUnit">
-                Imagen
-              </label>
-              <FileUpload
-                mode="basic"
-                accept="image/*"
-                onSelect={handleImageChange}
-              />
-              <div>
-                <h4>Imagen Seleccionada:</h4>
-                <Image
-                  src={imagen}
-                  alt="Imagen seleccionada"
-                  width={230}
-                  preview
-                />{" "}
-              </div>
-            </div>
+                <div className="field">
+                  <label className="font-bold" htmlFor="precioUnit">
+                    Imagen
+                  </label>
+                  <FileUpload
+                    mode="basic"
+                    accept="image/*"
+                    onSelect={handleImageChange}
+                  />
+                  <div>
+                    <h4>Imagen Seleccionada:</h4>
+                    <Image
+                      src={imagen}
+                      alt="Imagen seleccionada"
+                      width={230}
+                      preview
+                    />{" "}
+                  </div>
+                </div>
 
-            <div className="field">
-              <label className="font-bold" htmlFor="descripcion">
-                DescripciÃ³n
-              </label>
-              <InputText
-                id="descripcion"
-                value={producto.descripcion}
-                onChange={handleInputChange}
-                required
-                className={classNames({
-                  "p-invalid": submitted && !producto.descripcion,
-                })}
-              />
-              {submitted && !producto.descripcion && (
-                <small className="p-error">DescripciÃ³n es requerido.</small>
-              )}
-            </div>
+                <div className="field">
+                  <label className="font-bold" htmlFor="descripcion">
+                    DescripciÃ³n
+                  </label>
+                  <InputText
+                    id="descripcion"
+                    value={producto.descripcion}
+                    onChange={handleInputChange}
+                    required
+                    className={classNames({
+                      "p-invalid": submitted && !producto.descripcion,
+                    })}
+                  />
+                  {submitted && !producto.descripcion && (
+                    <small className="p-error">
+                      DescripciÃ³n es requerido.
+                    </small>
+                  )}
+                </div>
 
-            <div className="field">
-              <label className="font-bold" htmlFor="idCategoria">
-                Categoria
-              </label>
-              <Dropdown
-                id="idCategoria"
-                value={producto.idCategoria}
-                options={categorias.map((cat) => ({
-                  label: cat.nombreCategoria,
-                  value: cat.idCategoria,
-                }))}
-                onChange={(e) => {
-                  setProducto((prevProducto) => ({
-                    ...prevProducto,
-                    idCategoria: e.value,
-                  }));
-                }}
-                placeholder="Seleccione una categoria"
-              />
-              {submitted && !producto.idCategoria && (
-                <small className="p-error">Categoria es requerido.</small>
-              )}
-            </div>
+                <div className="field">
+                  <label className="font-bold" htmlFor="idCategoria">
+                    Categoria
+                  </label>
+                  <Dropdown
+                    id="idCategoria"
+                    value={producto.idCategoria}
+                    options={categorias.map((cat) => ({
+                      label: cat.nombreCategoria,
+                      value: cat.idCategoria,
+                    }))}
+                    onChange={(e) => {
+                      setProducto((prevProducto) => ({
+                        ...prevProducto,
+                        idCategoria: e.value,
+                      }));
+                    }}
+                    placeholder="Seleccione una categoria"
+                  />
+                  {submitted && !producto.idCategoria && (
+                    <small className="p-error">Categoria es requerido.</small>
+                  )}
+                </div>
 
-            <div className="field">
-              <label className="font-bold" htmlFor="idUnidadMedida">
-                Unidad Medida
-              </label>
-              <Dropdown
-                id="idUnidadMedida"
-                value={producto.idUnidadMedida}
-                options={unidadmedidas.map((unid) => ({
-                  label: unid.nombreUnidadMedida,
-                  value: unid.idUnidadMedida,
-                }))}
-                onChange={(e) => {
-                  setProducto((prevProducto) => ({
-                    ...prevProducto,
-                    idUnidadMedida: e.value,
-                  }));
-                }}
-                placeholder="Seleccione una unidad de medida"
-              />
-              {submitted && !producto.idUnidadMedida && (
-                <small className="p-error">Unidad Medida es requerido.</small>
-              )}
-            </div>
+                <div className="field">
+                  <label className="font-bold" htmlFor="idUnidadMedida">
+                    Unidad Medida
+                  </label>
+                  <Dropdown
+                    id="idUnidadMedida"
+                    value={producto.idUnidadMedida}
+                    options={unidadmedidas.map((unid) => ({
+                      label: unid.nombreUnidadMedida,
+                      value: unid.idUnidadMedida,
+                    }))}
+                    onChange={(e) => {
+                      setProducto((prevProducto) => ({
+                        ...prevProducto,
+                        idUnidadMedida: e.value,
+                      }));
+                    }}
+                    placeholder="Seleccione una unidad de medida"
+                  />
+                  {submitted && !producto.idUnidadMedida && (
+                    <small className="p-error">
+                      Unidad Medida es requerido.
+                    </small>
+                  )}
+                </div>
 
-            <div className="field">
-              <label className="font-bold" htmlFor="idLinea">
-                Linea
-              </label>
-              <Dropdown
-                id="idLinea"
-                value={producto.idLinea}
-                options={lineas.map((lin) => ({
-                  label: lin.nombreLinea,
-                  value: lin.idLinea,
-                }))}
-                onChange={(e) => {
-                  setProducto((prevProducto) => ({
-                    ...prevProducto,
-                    idLinea: e.value,
-                  }));
-                }}
-                placeholder="Seleccione una linea"
-              />
-              {submitted && !producto.idLinea && (
-                <small className="p-error">Linea es requerido.</small>
-              )}
-            </div>
-            <div className="field">
-              <label className="font-bold" htmlFor="idMarca">
-                Marca
-              </label>
-              <Dropdown
-                id="idMarca"
-                value={producto.idMarca}
-                options={marcas.map((marc) => ({
-                  label: marc.nombreMarca,
-                  value: marc.idMarca,
-                }))}
-                onChange={(e) => {
-                  setProducto((prevProducto) => ({
-                    ...prevProducto,
-                    idMarca: e.value,
-                  }));
-                }}
-                placeholder="Seleccione una marca"
-              />
-              {submitted && !producto.idMarca && (
-                <small className="p-error">Marca es requerido.</small>
-              )}
-            </div>
-          </Dialog>
+                <div className="field">
+                  <label className="font-bold" htmlFor="idLinea">
+                    Linea
+                  </label>
+                  <Dropdown
+                    id="idLinea"
+                    value={producto.idLinea}
+                    options={lineas.map((lin) => ({
+                      label: lin.nombreLinea,
+                      value: lin.idLinea,
+                    }))}
+                    onChange={(e) => {
+                      setProducto((prevProducto) => ({
+                        ...prevProducto,
+                        idLinea: e.value,
+                      }));
+                    }}
+                    placeholder="Seleccione una linea"
+                  />
+                  {submitted && !producto.idLinea && (
+                    <small className="p-error">Linea es requerido.</small>
+                  )}
+                </div>
+                <div className="field">
+                  <label className="font-bold" htmlFor="idMarca">
+                    Marca
+                  </label>
+                  <Dropdown
+                    id="idMarca"
+                    value={producto.idMarca}
+                    options={marcas.map((marc) => ({
+                      label: marc.nombreMarca,
+                      value: marc.idMarca,
+                    }))}
+                    onChange={(e) => {
+                      setProducto((prevProducto) => ({
+                        ...prevProducto,
+                        idMarca: e.value,
+                      }));
+                    }}
+                    placeholder="Seleccione una marca"
+                  />
+                  {submitted && !producto.idMarca && (
+                    <small className="p-error">Marca es requerido.</small>
+                  )}
+                </div>
+              </Dialog>
 
-          <Dialog
-            visible={deleteProductoDialog}
-            style={{ width: "32rem" }}
-            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-            header="Confirm"
-            modal
-            footer={deleteProductoDialogFooter}
-            onHide={hideDeleteProductoDialog}
-          >
-            <div className="confirmation-content">
-              <i
-                className="pi pi-exclamation-triangle mr-3"
-                style={{ fontSize: "2rem" }}
-              />
-              {producto && (
-                <span>
-                  Are you sure you want to delete <b>{producto.nombreProd}</b>?
-                </span>
-              )}
-            </div>
-          </Dialog>
+              <Dialog
+                visible={deleteProductoDialog}
+                style={{ width: "32rem" }}
+                breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+                header="Confirm"
+                modal
+                footer={deleteProductoDialogFooter}
+                onHide={hideDeleteProductoDialog}
+              >
+                <div className="confirmation-content">
+                  <i
+                    className="pi pi-exclamation-triangle mr-3"
+                    style={{ fontSize: "2rem" }}
+                  />
+                  {producto && (
+                    <span>
+                      Are you sure you want to delete{" "}
+                      <b>{producto.nombreProd}</b>?
+                    </span>
+                  )}
+                </div>
+              </Dialog>
 
-          <Dialog
-            visible={activateProductoDialog}
-            style={{ width: "32rem" }}
-            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-            header="Confirm"
-            modal
-            footer={activateProductoDialogFooter}
-            onHide={activateProductoDialog}
-          >
-            <div className="confirmation-content">
-              <i
-                className="pi pi-exclamation-triangle mr-3"
-                style={{ fontSize: "2rem" }}
-              />
-              {producto && (
-                <span>
-                  Are you sure you want to activate <b>{producto.nombreProd}</b>
-                  ?
-                </span>
-              )}
-            </div>
-          </Dialog>
+              <Dialog
+                visible={activateProductoDialog}
+                style={{ width: "32rem" }}
+                breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+                header="Confirm"
+                modal
+                footer={activateProductoDialogFooter}
+                onHide={activateProductoDialog}
+              >
+                <div className="confirmation-content">
+                  <i
+                    className="pi pi-exclamation-triangle mr-3"
+                    style={{ fontSize: "2rem" }}
+                  />
+                  {producto && (
+                    <span>
+                      Are you sure you want to activate{" "}
+                      <b>{producto.nombreProd}</b>?
+                    </span>
+                  )}
+                </div>
+              </Dialog>
 
-          <Dialog
-            visible={deleteProductosDialog}
-            style={{ width: "32rem" }}
-            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-            header="Confirm"
-            modal
-            footer={deleteProductosDialogFooter}
-            onHide={hideDeleteProductosDialog}
-          >
-            <div className="confirmation-content">
-              <i
-                className="pi pi-exclamation-triangle mr-3"
-                style={{ fontSize: "2rem" }}
-              />
-              {producto && (
-                <span>
-                  Are you sure you want to delete the selected products?
-                </span>
-              )}
+              <Dialog
+                visible={deleteProductosDialog}
+                style={{ width: "32rem" }}
+                breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+                header="Confirm"
+                modal
+                footer={deleteProductosDialogFooter}
+                onHide={hideDeleteProductosDialog}
+              >
+                <div className="confirmation-content">
+                  <i
+                    className="pi pi-exclamation-triangle mr-3"
+                    style={{ fontSize: "2rem" }}
+                  />
+                  {producto && (
+                    <span>
+                      Are you sure you want to delete the selected products?
+                    </span>
+                  )}
+                </div>
+              </Dialog>
             </div>
-          </Dialog>
-            </div>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

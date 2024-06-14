@@ -18,6 +18,8 @@ import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 import { Password } from "primereact/password";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function ProductsDemo() {
   let emptyProduct = {
     idusuario: "",
@@ -30,7 +32,7 @@ export default function ProductsDemo() {
   const [employeer, setEmployeer] = useState({
     idPersona: "",
     idEmpleado: "",
-    nombrePersona: ""
+    nombrePersona: "",
   });
 
   const [empleado, setEmpleados] = useState([]);
@@ -60,9 +62,8 @@ export default function ProductsDemo() {
     fetchTipoUsuario();
     fetchPersonas();
     createEmployeePersonJson()
-      .then(array => {
-        setArroz(array)
-
+      .then((array) => {
+        setArroz(array);
 
         // Acceder al primer objeto dentro del array
         if (array.length > 0) {
@@ -75,7 +76,7 @@ export default function ProductsDemo() {
         } else {
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error al obtener el array de objetos JSON:", error);
       });
     jsonEmplo();
@@ -83,7 +84,7 @@ export default function ProductsDemo() {
 
   const fetchEmployees = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/employee");
+      const data = await apiClient.get(`${URL}/employee`);
 
       return data; // Devuelve los empleados para su uso posterior
     } catch (error) {
@@ -94,7 +95,7 @@ export default function ProductsDemo() {
 
   const fetchTipoUsuario = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/tipousuario");
+      const data = await apiClient.get(`${URL}/tipousuario`);
       setTipoUsuario(data);
     } catch (error) {
       console.error("Error al obtener tipo usuario", error);
@@ -103,7 +104,7 @@ export default function ProductsDemo() {
 
   const fetchPersonas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/person");
+      const data = await apiClient.get(`${URL}/person`);
 
       return data; // Devuelve las personas para su uso posterior
     } catch (error) {
@@ -117,19 +118,19 @@ export default function ProductsDemo() {
     const personas = await fetchPersonas();
 
     // Aquí asumo que cada empleado tiene un campo idPersona que se puede usar para emparejar con personas
-    const combinedData = empleados.map(empleado => {
-      const persona = personas.find(p => p.idPersona === empleado.idPersona);
+    const combinedData = empleados.map((empleado) => {
+      const persona = personas.find((p) => p.idPersona === empleado.idPersona);
       if (persona) {
         return {
           idEmpleado: empleado.idEmpleado,
           idPersona: persona.idPersona,
-          nombrePersona: persona.nombrePersona
+          nombrePersona: persona.nombrePersona,
         };
       } else {
         return {
           idEmpleado: empleado.idEmpleado,
           idPersona: null,
-          nombrePersona: null
+          nombrePersona: null,
         };
       }
     });
@@ -139,14 +140,12 @@ export default function ProductsDemo() {
   };
 
   const jsonEmplo = () => {
-    createEmployeePersonJson()
-      .then(json => {
-      });
+    createEmployeePersonJson().then((json) => {});
   };
 
   const fetchUsuarios = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/auth");
+      const data = await apiClient.get(`${URL}/auth`);
       setProducts(data);
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
@@ -159,8 +158,8 @@ export default function ProductsDemo() {
     if (product.username && product.password) {
       const method = product.idusuario ? "PUT" : "POST";
       const url = product.idusuario
-        ? `http://localhost:8080/auth/${product.idusuario}`
-        : "http://localhost:8080/auth";
+        ? `${URL}/auth/${product.idusuario}`
+        : `${URL}/auth`;
 
       try {
         await apiClient[method.toLowerCase()](url, product);
@@ -208,7 +207,7 @@ export default function ProductsDemo() {
   const deleteProduct = async () => {
     if (product.idusuario) {
       try {
-        await apiClient.del(`http://localhost:8080/auth/${product.idusuario}`);
+        await apiClient.del(`${URL}/auth/${product.idusuario}`);
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         fetchUsuarios();
@@ -224,7 +223,7 @@ export default function ProductsDemo() {
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/auth/${prod.idusuario}`)
+          apiClient.del(`${URL}/auth/${prod.idusuario}`)
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -270,7 +269,7 @@ export default function ProductsDemo() {
 
   const activateUsuario = async (id) => {
     try {
-      await apiClient.patch(`http://localhost:8080/auth/${id}`);
+      await apiClient.patch(`${URL}/auth/${id}`);
       fetchUsuarios();
       toast.current.show({
         severity: "success",
@@ -287,7 +286,7 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/auth/${prod.idusuario}`)
+          apiClient.patch(`${URL}/auth/${prod.idusuario}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);
@@ -435,7 +434,9 @@ export default function ProductsDemo() {
   };
 
   function updateEmpleado(selectedEmpleadoId) {
-    const selectedEmpleado = arroz.find(emp => emp.idEmpleado === selectedEmpleadoId);
+    const selectedEmpleado = arroz.find(
+      (emp) => emp.idEmpleado === selectedEmpleadoId
+    );
 
     if (selectedEmpleado) {
       setProduct({ ...product, idEmpleado: selectedEmpleadoId });
@@ -444,10 +445,22 @@ export default function ProductsDemo() {
     }
   }
 
-
   function updateTipoUsuario(selectedTipoUsuarioId) {
     setProduct({ ...product, idTipoUsuario: selectedTipoUsuarioId });
   }
+
+  const [prevPassword, setPrevPassword] = useState("");
+
+  const handleFocus = () => {
+    setPrevPassword(product.password);
+    onInputChange({ target: { value: "" } }, "password");
+  };
+
+  const handleBlur = () => {
+    if (product.password === "") {
+      onInputChange({ target: { value: prevPassword } }, "password");
+    }
+  };
 
   return (
     <div>
@@ -484,16 +497,17 @@ export default function ProductsDemo() {
                 <Column selectionMode="multiple" exportable={false}></Column>
                 <Column field="idusuario" header="ID" sortable></Column>
                 <Column field="username" header="Username" sortable></Column>
-                <Column field="idEmpleado" header="Empleado" sortable
+                <Column
+                  field="idEmpleado"
+                  header="Empleado"
+                  sortable
                   body={(rowData) => {
                     const arrozT = arroz.find(
                       (tipo) => tipo.idEmpleado === rowData.idEmpleado
                     );
                     return arrozT ? arrozT.nombrePersona : "hola";
-
-
-                  }}></Column>
-                
+                  }}
+                ></Column>
 
                 <Column
                   field="idTipoUsuario"
@@ -547,8 +561,9 @@ export default function ProductsDemo() {
                   id="password"
                   value={product.password}
                   onChange={(e) => onInputChange(e, "password")}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
                   required
-                  toggleMask
                   className={classNames({
                     "p-invalid": submitted && !product.password,
                   })}
@@ -569,7 +584,6 @@ export default function ProductsDemo() {
                   optionValue="idEmpleado"
                   placeholder="Seleccione a un empleado"
                 />
-
               </div>
 
               <div className="field">

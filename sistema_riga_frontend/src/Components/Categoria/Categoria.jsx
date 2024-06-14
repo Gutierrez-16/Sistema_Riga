@@ -17,6 +17,8 @@ import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 import apiClient from "../Security/apiClient";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function ProductsDemo() {
   let emptyProduct = {
     idCategoria: "",
@@ -39,7 +41,7 @@ export default function ProductsDemo() {
 
   const fetchCategorias = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/categoria");
+      const data = await apiClient.get(`${URL}/categoria`);
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -51,8 +53,8 @@ export default function ProductsDemo() {
     if (product.nombreCategoria.trim()) {
       const method = product.idCategoria ? "PUT" : "POST";
       const url = product.idCategoria
-        ? `http://localhost:8080/categoria/${product.idCategoria}`
-        : "http://localhost:8080/categoria";
+        ? `${URL}/categoria/${product.idCategoria}`
+        : `${URL}/categoria`;
 
       try {
         const response = await apiClient[method.toLowerCase()](url, product);
@@ -86,9 +88,7 @@ export default function ProductsDemo() {
   const deleteProduct = async () => {
     if (product.idCategoria) {
       try {
-        await apiClient.del(
-          `http://localhost:8080/categoria/${product.idCategoria}`
-        );
+        await apiClient.del(`${URL}/categoria/${product.idCategoria}`);
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         fetchCategorias();
@@ -104,7 +104,7 @@ export default function ProductsDemo() {
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/categoria/${prod.idCategoria}`)
+          apiClient.del(`${URL}/categoria/${prod.idCategoria}`)
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -150,7 +150,7 @@ export default function ProductsDemo() {
 
   const activateCategoria = async (id) => {
     try {
-      await apiClient.patch(`http://localhost:8080/categoria/${id}`);
+      await apiClient.patch(`${URL}/categoria/${id}`);
       fetchCategorias();
       toast.current.show({
         severity: "success",
@@ -167,7 +167,7 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/categoria/${prod.idCategoria}`)
+          apiClient.patch(`${URL}/categoria/${prod.idCategoria}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);

@@ -17,6 +17,8 @@ import Header from "../Header/Header";
 import Dashboard from "../Header/Head";
 import apiClient from "../Security/apiClient";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function ProductsDemo() {
   let emptyProduct = {
     idLinea: "",
@@ -39,7 +41,7 @@ export default function ProductsDemo() {
 
   const fetchLineas = async () => {
     try {
-      const data = await apiClient.get("http://localhost:8080/linea");
+      const data = await apiClient.get(`${URL}/linea`);
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -52,8 +54,8 @@ export default function ProductsDemo() {
     if (product.nombreLinea.trim()) {
       const method = product.idLinea ? "PUT" : "POST";
       const url = product.idLinea
-        ? `http://localhost:8080/linea/${product.idLinea}`
-        : "http://localhost:8080/linea";
+        ? `${URL}/linea/${product.idLinea}`
+        : `${URL}/linea`;
 
       try {
         await apiClient[method.toLowerCase()](url, product);
@@ -85,10 +87,7 @@ export default function ProductsDemo() {
   const deleteProduct = async () => {
     if (product.idLinea) {
       try {
-        await apiClient.del(
-          `http://localhost:8080/linea/${product.idLinea}`,
-          "DELETE"
-        );
+        await apiClient.del(`${URL}/linea/${product.idLinea}`, "DELETE");
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         fetchLineas();
@@ -104,7 +103,7 @@ export default function ProductsDemo() {
     } else if (selectedProducts && selectedProducts.length > 0) {
       try {
         const deletePromises = selectedProducts.map((prod) =>
-          apiClient.del(`http://localhost:8080/linea/${prod.idLinea}`, "DELETE")
+          apiClient.del(`${URL}/linea/${prod.idLinea}`, "DELETE")
         );
         await Promise.all(deletePromises);
         setDeleteProductDialog(false);
@@ -150,7 +149,7 @@ export default function ProductsDemo() {
 
   const activateLinea = async (id) => {
     try {
-      await apiClient.patch(`http://localhost:8080/linea/${id}`);
+      await apiClient.patch(`${URL}/linea/${id}`);
       fetchLineas();
       toast.current.show({
         severity: "success",
@@ -167,7 +166,7 @@ export default function ProductsDemo() {
     if (selectedProducts && selectedProducts.length > 0) {
       try {
         const activatePromises = selectedProducts.map((prod) =>
-          apiClient.patch(`http://localhost:8080/linea/${prod.idLinea}`)
+          apiClient.patch(`${URL}/linea/${prod.idLinea}`)
         );
         await Promise.all(activatePromises);
         setSelectedProducts(null);

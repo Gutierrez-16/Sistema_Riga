@@ -3,6 +3,8 @@ import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
+const URL = import.meta.env.VITE_BACKEND_URL;
+
 function Logout({ user }) {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -23,16 +25,13 @@ function Logout({ user }) {
   const usuario = obtenerUsuarioDelToken(token);
   const handleLogout = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/auth/logout/${usuario}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${URL}/auth/logout/${usuario}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response.ok) {
         localStorage.removeItem("token");
