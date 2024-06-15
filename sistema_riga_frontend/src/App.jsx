@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import LoginApp from "./Components/Login/LoginApp";
 import Usuario from "./Components/Usuario/Usuario";
 import Persona from "./Components/Person/Persona";
@@ -22,164 +22,163 @@ import "./App.css";
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="pruebas">
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              <div className="hola">
-                <LoginApp />
-              </div>
-            }
-          />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Usuario />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/usuario"
-            element={
-              <ProtectedRoute>
-                <Usuario />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/listaventas"
-            element={
-              <ProtectedRoute>
-                <VentasTotal />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reporte"
-            element={
-              <ProtectedRoute>
-                <Reporte />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/logout"
-            element={
-              <ProtectedRoute>
-                <Usuario />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/persona"
-            element={
-              <ProtectedRoute>
-                <Persona />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/producto"
-            element={
-              <ProtectedRoute>
-                <Producto />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/unidadmedida"
-            element={
-              <ProtectedRoute>
-                <UnidadMedidad />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/tipousuario"
-            element={
-              <ProtectedRoute>
-                <TipoUsuario />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/marca"
-            element={
-              <ProtectedRoute>
-                <Marca />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/caja"
-            element={
-              <ProtectedRoute>
-                <Caja />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/empleado"
-            element={
-              <ProtectedRoute>
-                <Empleado />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/empresa"
-            element={
-              <ProtectedRoute>
-                <Empresa />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/cargo"
-            element={
-              <ProtectedRoute>
-                <Cargo />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/linea"
-            element={
-              <ProtectedRoute>
-                <Linea />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/categoria"
-            element={
-              <ProtectedRoute>
-                <Categoria />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/metodopago"
-            element={
-              <ProtectedRoute>
-                <MetodoPago />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <div className="pruebas">
+      <Routes basename="/login">
+        <Route
+          path="/login"
+          element={
+            <div className="hola">
+              <LoginApp />
+            </div>
+          }
+        />
+
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Usuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/usuario"
+          element={
+            <ProtectedRoute>
+              <Usuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/listaventas"
+          element={
+            <ProtectedRoute>
+              <VentasTotal />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reporte"
+          element={
+            <ProtectedRoute>
+              <Reporte />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/logout"
+          element={
+            <ProtectedRoute>
+              <Usuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/persona"
+          element={
+            <ProtectedRoute>
+              <Persona />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/producto"
+          element={
+            <ProtectedRoute>
+              <Producto />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/unidadmedida"
+          element={
+            <ProtectedRoute>
+              <UnidadMedidad />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tipousuario"
+          element={
+            <ProtectedRoute>
+              <TipoUsuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/marca"
+          element={
+            <ProtectedRoute>
+              <Marca />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/caja"
+          element={
+            <ProtectedRoute>
+              <Caja />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/empleado"
+          element={
+            <ProtectedRoute>
+              <Empleado />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/empresa"
+          element={
+            <ProtectedRoute>
+              <Empresa />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cargo"
+          element={
+            <ProtectedRoute>
+              <Cargo />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/linea"
+          element={
+            <ProtectedRoute>
+              <Linea />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/categoria"
+          element={
+            <ProtectedRoute>
+              <Categoria />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/metodopago"
+          element={
+            <ProtectedRoute>
+              <MetodoPago />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </div>
   );
 }
 
