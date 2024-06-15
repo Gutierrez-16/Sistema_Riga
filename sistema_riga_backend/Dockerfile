@@ -6,7 +6,7 @@ RUN mvn clean package -DskipTests
 
 # Fase de producción
 FROM openjdk:17.0.1-jdk-slim
-COPY --from=build /usr/src/app/target/demo-0.0.1-SNAPSHOT.jar sistema_riga_backend.jar
+COPY --from=build /usr/src/app/target/sistema_riga_backend-0.0.1-SNAPSHOT.jar sistema_riga_backend.jar
 EXPOSE 8080
 
 # Agregar script para debugging
