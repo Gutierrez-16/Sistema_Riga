@@ -1,6 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import LoginApp from "./Components/Login/LoginApp";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';import LoginApp from "./Components/Login/LoginApp";
 import Usuario from "./Components/Usuario/Usuario";
 import Persona from "./Components/Person/Persona";
 import Producto from "./Components/Product/Producto";
@@ -23,7 +22,8 @@ import "./App.css";
 function App() {
   return (
     <div className="pruebas">
-      <Routes basename="/login">
+      <Router>
+        <Routes>
         <Route
           path="/login"
           element={
@@ -178,6 +178,7 @@ function App() {
           }
         />
       </Routes>
+      </Router>
     </div>
   );
 }
