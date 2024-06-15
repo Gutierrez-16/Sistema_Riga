@@ -1,10 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import LoginApp from "./Components/Login/LoginApp";
 import Usuario from "./Components/Usuario/Usuario";
-import Persona from "./Components/Persona/Persona"; // Renombré Person a Persona
-import Producto from "./Components/Producto/Producto";
-import Empleado from "./Components/Empleado/Empleado"; // Renombré Employer a Empleado
+import Persona from "./Components/Person/Persona";
+import Producto from "./Components/Product/Producto";
+import Empleado from "./Components/Employer/Empleado";
 import Empresa from "./Components/Empresa/Empresa";
 import Home from "./Components/Home/Home";
 import Cargo from "./Components/Cargo/Cargo";
@@ -12,7 +12,7 @@ import Linea from "./Components/Linea/Linea";
 import Categoria from "./Components/Categoria/Categoria";
 import MetodoPago from "./Components/MetodoPago/MetodoPago";
 import ProtectedRoute from "./Components/Login/ProtectedRoute";
-import UnidadMedida from "./Components/UnidadMedida/UnidadMedida"; // Renombré UnidadMedidad a UnidadMedida
+import UnidadMedidad from "./Components/UnidadMedida/UnidadMedida";
 import TipoUsuario from "./Components/TipoUsuario/TipoUsuario";
 import Marca from "./Components/Marca/Marca";
 import Caja from "./Components/Caja/Caja";
@@ -22,9 +22,25 @@ import "./App.css";
 
 function App() {
   return (
-    <Router>
+    <div className="pruebas">
       <Routes>
-        <Route path="/login" element={<LoginApp />} />
+        <Route
+          path="/login"
+          element={
+            <div className="hola">
+              <LoginApp />
+            </div>
+          }
+        />
+
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/usuario"
           element={
@@ -77,7 +93,7 @@ function App() {
           path="/unidadmedida"
           element={
             <ProtectedRoute>
-              <UnidadMedida />
+              <UnidadMedidad />
             </ProtectedRoute>
           }
         />
@@ -162,7 +178,7 @@ function App() {
           }
         />
       </Routes>
-    </Router>
+    </div>
   );
 }
 
