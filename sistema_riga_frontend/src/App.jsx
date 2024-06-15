@@ -32,7 +32,7 @@ function App() {
         <Route path="/listaventas" element={<ProtectedRoute><VentasTotal /></ProtectedRoute>} />
         <Route path="/reporte" element={<ProtectedRoute><Reporte /></ProtectedRoute>} />
         <Route path="/logout" element={<ProtectedRoute><Usuario /></ProtectedRoute>} />
-        <Route path="/persona" element={<ProtectedRoute><Persona /></ProtectedRoute>} />
+        <Route path="/persona" element={<Persona />
         <Route path="/producto" element={<ProtectedRoute><Producto /></ProtectedRoute>} />
         <Route path="/unidadmedida" element={<ProtectedRoute><UnidadMedidad /></ProtectedRoute>} />
         <Route path="/tipousuario" element={<ProtectedRoute><TipoUsuario /></ProtectedRoute>} />
