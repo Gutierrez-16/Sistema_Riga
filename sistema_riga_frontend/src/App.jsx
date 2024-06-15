@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter,Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import LoginApp from "./Components/Login/LoginApp";
 import Usuario from "./Components/Usuario/Usuario";
 import Persona from "./Components/Person/Persona";
@@ -23,8 +23,7 @@ import "./App.css";
 function App() {
   return (
     <div className="pruebas">
-      <BrowserRouter>
-        <Routes>
+      <Routes>
         <Route
           path="/login"
           element={
@@ -178,8 +177,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-          <Routes>
-      </BrowserRouter>
+      </Routes>
     </div>
   );
 }
