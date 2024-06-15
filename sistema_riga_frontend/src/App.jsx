@@ -24,6 +24,7 @@ function App() {
   return (
     <div className="pruebas">
       <BrowserRouter>
+        <Routes>
         <Route
           path="/login"
           element={
@@ -177,6 +178,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+          <Routes>
       </BrowserRouter>
     </div>
   );
