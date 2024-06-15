@@ -505,7 +505,7 @@ export default function ProductsDemo() {
                     const arrozT = arroz.find(
                       (tipo) => tipo.idEmpleado === rowData.idEmpleado
                     );
-                    return arrozT ? arrozT.nombrePersona : "hola";
+                    return arrozT ? arrozT.nombrePersona : "";
                   }}
                 ></Column>
 
