@@ -22,6 +22,7 @@ import "./App.css";
 
 function App() {
   return (
+    <Routes>
     <div className="pruebas">
       <Routes basename="/login">
         <Route
@@ -179,6 +180,7 @@ function App() {
         />
       </Routes>
     </div>
+    <Routes>
   );
 }
 
