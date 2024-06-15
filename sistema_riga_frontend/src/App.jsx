@@ -1,5 +1,5 @@
 import React from "react";
-import { HashRouter, Switch, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import LoginApp from "./Components/Login/LoginApp";
 import Usuario from "./Components/Usuario/Usuario";
 import Persona from "./Components/Person/Persona";
@@ -23,37 +23,161 @@ import "./App.css";
 function App() {
   return (
     <div className="pruebas">
-      <HashRouter>
-        <Switch>
-          <Route
-            path="/login"
-            element={
-              <div className="hola">
-                <LoginApp />
-              </div>
-            }
-          />
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <div className="hola">
+              <LoginApp />
+            </div>
+          }
+        />
 
-          <ProtectedRoute path="/" exact element={<Usuario />} />
-          <ProtectedRoute path="/usuario" element={<Usuario />} />
-          <ProtectedRoute path="/listaventas" element={<VentasTotal />} />
-          <ProtectedRoute path="/reporte" element={<Reporte />} />
-          <ProtectedRoute path="/logout" element={<Usuario />} />
-          <ProtectedRoute path="/persona" element={<Persona />} />
-          <ProtectedRoute path="/producto" element={<Producto />} />
-          <ProtectedRoute path="/unidadmedida" element={<UnidadMedidad />} />
-          <ProtectedRoute path="/tipousuario" element={<TipoUsuario />} />
-          <ProtectedRoute path="/marca" element={<Marca />} />
-          <ProtectedRoute path="/caja" element={<Caja />} />
-          <ProtectedRoute path="/empleado" element={<Empleado />} />
-          <ProtectedRoute path="/empresa" element={<Empresa />} />
-          <ProtectedRoute path="/home" element={<Home />} />
-          <ProtectedRoute path="/cargo" element={<Cargo />} />
-          <ProtectedRoute path="/linea" element={<Linea />} />
-          <ProtectedRoute path="/categoria" element={<Categoria />} />
-          <ProtectedRoute path="/metodopago" element={<MetodoPago />} />
-        </Switch>
-      </HashRouter>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Usuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/usuario"
+          element={
+            <ProtectedRoute>
+              <Usuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/listaventas"
+          element={
+            <ProtectedRoute>
+              <VentasTotal />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reporte"
+          element={
+            <ProtectedRoute>
+              <Reporte />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/logout"
+          element={
+            <ProtectedRoute>
+              <Usuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/persona"
+          element={
+            <ProtectedRoute>
+              <Persona />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/producto"
+          element={
+            <ProtectedRoute>
+              <Producto />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/unidadmedida"
+          element={
+            <ProtectedRoute>
+              <UnidadMedidad />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tipousuario"
+          element={
+            <ProtectedRoute>
+              <TipoUsuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/marca"
+          element={
+            <ProtectedRoute>
+              <Marca />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/caja"
+          element={
+            <ProtectedRoute>
+              <Caja />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/empleado"
+          element={
+            <ProtectedRoute>
+              <Empleado />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/empresa"
+          element={
+            <ProtectedRoute>
+              <Empresa />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cargo"
+          element={
+            <ProtectedRoute>
+              <Cargo />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/linea"
+          element={
+            <ProtectedRoute>
+              <Linea />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/categoria"
+          element={
+            <ProtectedRoute>
+              <Categoria />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/metodopago"
+          element={
+            <ProtectedRoute>
+              <MetodoPago />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </div>
   );
 }
