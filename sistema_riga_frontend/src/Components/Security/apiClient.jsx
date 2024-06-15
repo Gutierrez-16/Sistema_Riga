@@ -28,7 +28,7 @@ const apiClient = async (url, method, body = null) => {
 
     const response = await fetch(url, options);
     if (!response.ok) {
-      handleConnectionError();
+      //handleConnectionError();
       throw new Error(
         `API request failed with status: ${response.status} - ${response.statusText}`
       );
@@ -48,7 +48,7 @@ const apiClient = async (url, method, body = null) => {
   } catch (error) {
     console.error("Error:", error);
     // Handle the connection error
-    handleConnectionError(error);
+    //handleConnectionError(error);
   }
 };
 
