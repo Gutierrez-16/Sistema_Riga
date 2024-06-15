@@ -23,7 +23,7 @@ import "./App.css";
 function App() {
   return (
     <div className="pruebas">
-      <Routes>
+      <Routes basename="/login">
         <Route
           path="/login"
           element={
