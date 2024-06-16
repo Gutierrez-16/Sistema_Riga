@@ -16,3 +16,9 @@
     display: flex;
     padding: 0;
 }
+
+@media (min-width: 768px) {
+    .sidebar-container {
+        display: block;
+    }
+}
