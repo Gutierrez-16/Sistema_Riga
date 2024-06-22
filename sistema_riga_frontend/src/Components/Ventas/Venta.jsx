@@ -209,6 +209,93 @@ const SalesComponent = () => {
 
     // No se requiere limpiar el comprobante aquí, ya que se hace en handleRealizarVenta
   };
+  const generateFacturaPDF = (comprobante) => {
+    if (!comprobante) {
+      return;
+    }
+
+    const doc = new jsPDF();
+
+    // Título y subtítulo de la factura
+    doc.setFontSize(14);
+    doc.text(`Factura de Venta`, 105, 15, null, null, "center");
+    doc.setFontSize(10);
+    doc.text(`Factura electrónica`, 105, 22, null, null, "center");
+
+    // Logo de la empresa (cambiar las coordenadas según el diseño)
+    const logoImgSrc = bodega;
+    doc.addImage(logoImgSrc, "JPEG", 15, 10, 60, 20);
+
+    // Datos de la empresa (cambiar coordenadas según el diseño)
+    if (empresa) {
+      doc.setFontSize(10);
+      doc.text(`RUC: ${empresa.ruc}`, 15, 35);
+      doc.text(`Razón Social: ${empresa.razonSocial}`, 15, 42);
+      doc.text(`Dirección: ${empresa.direccion}`, 15, 49);
+    }
+
+    // Datos del cliente y de la factura
+    const startY = 60;
+    doc.text(`Cliente: ${comprobante.nomCli}`, 15, startY);
+    doc.text(`RUC: ${comprobante.docCli}`, 15, startY + 7);
+    doc.text(
+      `Fecha: ${new Date(comprobante.fechaVenta).toLocaleString()}`,
+      15,
+      startY + 14
+    );
+    doc.text(`ID Venta: ${comprobante.idVenta}`, 15, startY + 21);
+    doc.text(`Número: ${comprobante.numero}`, 15, startY + 28);
+    doc.text(`Serie: ${comprobante.serie}`, 15, startY + 35);
+    doc.text(`Método de Pago: ${comprobante.nombreMetodo}`, 15, startY + 42);
+
+    // Detalles de los productos vendidos
+    const headers = ["#", "Descripción", "Cantidad", "P. Unitario", "Total"];
+    const data = comprobante.detallesPedido.map((detalle, index) => [
+      index + 1,
+      detalle.nomProducto,
+      detalle.cant,
+      `$${detalle.precioUnitario.toFixed(2)}`,
+      `$${detalle.totalPro.toFixed(2)}`,
+    ]);
+
+    // Configuración de la tabla de detalles
+    doc.autoTable({
+      startY: startY + 50,
+      head: [headers],
+      body: data,
+      theme: "grid",
+      margin: { top: 10 },
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+        halign: "center",
+      },
+      columnStyles: {
+        0: { halign: "center" },
+        2: { halign: "center" },
+        3: { halign: "right" },
+        4: { halign: "right" },
+      },
+    });
+
+    // Totales
+    const lastY = doc.autoTable.previous.finalY + 5;
+    doc.setFontSize(10);
+    doc.text(`Subtotal: S/ ${comprobante.subTotal.toFixed(2)}`, 15, lastY);
+    doc.text(`IGV (18%): S/ ${comprobante.igv.toFixed(2)}`, 15, lastY + 7);
+    doc.text(`Total: S/ ${comprobante.total.toFixed(2)}`, 15, lastY + 14);
+
+    // Nota al pie
+    doc.setFontSize(8);
+    doc.text(
+      `Esta es una representación impresa de una factura electrónica, generada por un sistema autorizado por la SUNAT.`,
+      15,
+      doc.internal.pageSize.height - 15
+    );
+
+    // Guardar el documento PDF con un nombre específico
+    doc.save("factura.pdf");
+  };
 
   const [closeProductDialog, setCloseProductDialog] = useState(false);
 
@@ -247,7 +334,7 @@ const SalesComponent = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
+  
         if (!pedidoResponse.ok) {
           throw new Error("Error al insertar el pedido.");
         }
@@ -261,7 +348,7 @@ const SalesComponent = () => {
               precio: detalle.price,
               idUsuario: id,
             };
-
+  
             const detallePedidoResponse = await fetch(
               `${URL}/detallepedido/${pedidoId}`,
               {
@@ -273,21 +360,21 @@ const SalesComponent = () => {
                 body: JSON.stringify(detallePedidoData),
               }
             );
-
+  
             if (!detallePedidoResponse.ok) {
               throw new Error("Error al insertar los detalles del pedido.");
             }
           })
         );
-
+  
         const subtotal = salesDetails.reduce((total, sale) => {
           return total + sale.quantity * sale.price;
         }, 0);
-
+  
         const igv = subtotal * 0.18;
         const totalDescuento = subtotal * (descuento / 100);
         const totalPagar = subtotal + igv - totalDescuento;
-
+  
         let tipoComprobante;
         if (saleType === "boleta") {
           tipoComprobante = "B";
@@ -297,7 +384,7 @@ const SalesComponent = () => {
           throw new Error("Tipo de comprobante no válido.");
         }
         const dataMetodo = await apiClient.get(`${URL}/metodopago`);
-
+  
         const ventaData = {
           Descuento: descuento,
           igv: igv,
@@ -311,7 +398,7 @@ const SalesComponent = () => {
           idUsuario: id,
           idMetodoPago: idmet, // Aquí se incluye el idMetodoPago obtenido
         };
-
+  
         const ventaResponse = await fetch(`${URL}/venta`, {
           method: "POST",
           headers: {
@@ -320,11 +407,11 @@ const SalesComponent = () => {
           },
           body: JSON.stringify(ventaData),
         });
-
+  
         if (!ventaResponse.ok) {
           throw new Error("Error al insertar la venta.");
         }
-
+  
         const ventaId = (await ventaResponse.json()).idVenta;
         toast.current.show({
           severity: "success",
@@ -332,7 +419,7 @@ const SalesComponent = () => {
           detail: "La venta se realizó correctamente",
           life: 3000,
         });
-
+  
         const comprobanteResponse = await fetch(
           `${URL}/venta/comprobante/${ventaId}`,
           {
@@ -346,12 +433,16 @@ const SalesComponent = () => {
         if (!comprobanteResponse.ok) {
           throw new Error("Error al obtener el comprobante de venta.");
         }
-
+  
         const comprobanteData = await comprobanteResponse.json();
         setComprobante(comprobanteData);
-
-        generatePDF(comprobanteData);
-
+  
+        if (saleType === "boleta") {
+          generatePDF(comprobanteData);
+        } else if (saleType === "factura") {
+          generateFacturaPDF(comprobanteData);
+        }
+  
         // Limpiar estados después de generar el PDF
         setSalesDetails([]);
         setSelectedPerson(null);
@@ -361,14 +452,14 @@ const SalesComponent = () => {
         setIdmet("");
         setSaleType("boleta");
         setDescuento(0);
-
+  
         setShowBoletaDialog(true);
       } else {
         throw new Error(
           toast.current.show({
             severity: "error",
             summary: "Error",
-            detail: "seleccione un cliente y productos",
+            detail: "Seleccione un cliente y productos",
             life: 3000,
           })
         );
@@ -381,10 +472,11 @@ const SalesComponent = () => {
         detail: "Error al realizar la venta",
         life: 3000,
       });
-
+  
       setCloseProductDialog(true);
     }
   };
+  
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
